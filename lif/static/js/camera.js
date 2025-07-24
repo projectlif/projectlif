@@ -123,37 +123,56 @@ class CameraManager {
     if (!this.isRecording) return
 
     try {
-      // Capture frame from video
-      if (this.video && this.canvas && this.ctx) {
-        this.canvas.width = this.video.videoWidth
-        this.canvas.height = this.video.videoHeight
-        this.ctx.drawImage(this.video, 0, 0)
+        // Capture frame from video
+        if (this.video && this.canvas && this.ctx) {
+            this.canvas.width = this.video.videoWidth
+            this.canvas.height = this.video.videoHeight
+            this.ctx.drawImage(this.video, 0, 0)
 
-        // Convert to blob and send to server
-        this.canvas.toBlob(
-          async (blob) => {
-            const formData = new FormData()
-            formData.append("image", blob)
+            // Convert to blob and send to server
+            this.canvas.toBlob(
+                async (blob) => {
+                    const formData = new FormData()
+                    formData.append("image", blob, "frame.jpg")
 
-            const response = await fetch("/api/predict", {
-              method: "POST",
-              body: formData,
-            })
+                    const response = await fetch("/api/predict", {
+                        method: "POST",
+                        body: formData,
+                    })
 
-            if (response.ok) {
-              const data = await response.json()
-              this.displayPredictions(data.predictions)
-              this.updateSessionStats(data.predictions)
-            }
-          },
-          "image/jpeg",
-          0.8,
-        )
-      }
+                    if (response.ok) {
+                        const data = await response.json()
+                        if (data.predictions && data.predictions.length > 0) {
+                            this.displayPredictions(data.predictions)
+                            this.updateSessionStats(data.predictions)
+                        } else {
+                            // Show "no face detected" message
+                            this.displayNoFaceMessage()
+                        }
+                    } else {
+                        console.error('Prediction failed:', response.statusText)
+                    }
+                },
+                "image/jpeg",
+                0.8,
+            )
+        }
     } catch (error) {
-      console.error("Error making prediction:", error)
+        console.error("Error making prediction:", error)
     }
-  }
+}
+
+displayNoFaceMessage() {
+    const predictionsList = document.getElementById("predictionsList")
+    if (!predictionsList) return
+
+    predictionsList.innerHTML = `
+        <div class="prediction-placeholder text-center text-muted py-4">
+            <i class="fas fa-user-slash fa-2x mb-3"></i>
+            <p>No face detected. Please position your face in front of the camera.</p>
+        </div>
+    `
+}
 
   displayPredictions(predictions) {
     const predictionsList = document.getElementById("predictionsList")

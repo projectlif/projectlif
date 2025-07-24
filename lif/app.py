@@ -1,6 +1,14 @@
 from flask import Flask, render_template, request, jsonify, session
 import os
 import random
+import cv2
+import dlib
+import numpy as np
+import tensorflow as tf
+from collections import deque
+import base64
+from io import BytesIO
+from PIL import Image
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
@@ -80,18 +88,6 @@ def get_quiz_question():
         'options': random.sample(list(SYLLABLES_DATA.keys()), 4) if len(SYLLABLES_DATA) >= 4 else list(SYLLABLES_DATA.keys())
     })
 
-@app.route('/api/predict', methods=['POST'])
-def predict_syllable():
-    # Mock prediction - in real implementation, this would use ML model
-    predictions = random.sample(list(SYLLABLES_DATA.keys()), min(5, len(SYLLABLES_DATA)))
-    confidence_scores = [random.uniform(0.6, 0.95) for _ in predictions]
-    
-    return jsonify({
-        'predictions': [
-            {'syllable': pred, 'confidence': conf} 
-            for pred, conf in zip(predictions, confidence_scores)
-        ]
-    })
 
 @app.route('/privacy')
 def privacy():
@@ -115,3 +111,105 @@ def not_found(error):
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+
+
+# Add these configurations after the imports
+MODEL_PATH = "model_vowelspcv150.h5"
+DLIB_PATH = "face_weights.dat"
+LABELS = ["a", "e", "i", "o", "u"]
+SEQUENCE_LENGTH = 22
+FRAME_WIDTH, FRAME_HEIGHT = 112, 80
+MOUTH_MOVEMENT_THRESHOLD = 12
+
+# Load model and detector globally
+model = tf.keras.models.load_model(MODEL_PATH)
+detector = dlib.get_frontal_face_detector()
+predictor = dlib.shape_predictor(DLIB_PATH)
+
+# Add your extract_mouth function here
+def extract_mouth(frame, landmarks):
+    # Copy your exact extract_mouth function from predict.py
+    mouth_points = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(48, 68)])
+    x, y, w, h = cv2.boundingRect(mouth_points)
+    margin = 10
+    x1 = max(x - margin, 0)
+    y1 = max(y - margin, 0)
+    x2 = min(x + w + margin, frame.shape[1])
+    y2 = min(y + h + margin, frame.shape[0])
+    mouth_crop = frame[y1:y2, x1:x2]
+    
+    h_crop, w_crop, _ = mouth_crop.shape
+    scale = min(FRAME_WIDTH / w_crop, FRAME_HEIGHT / h_crop)
+    new_w, new_h = int(w_crop * scale), int(h_crop * scale)
+    resized = cv2.resize(mouth_crop, (new_w, new_h))
+    
+    pad_top = (FRAME_HEIGHT - new_h) // 2
+    pad_bottom = FRAME_HEIGHT - new_h - pad_top
+    pad_left = (FRAME_WIDTH - new_w) // 2
+    pad_right = FRAME_WIDTH - new_w - pad_left
+    padded = cv2.copyMakeBorder(resized, pad_top, pad_bottom, pad_left, pad_right, borderType=cv2.BORDER_REFLECT)
+    
+    lab = cv2.cvtColor(padded, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(3, 3))
+    l = clahe.apply(l)
+    lab = cv2.merge((l, a, b))
+    enhanced = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+    enhanced = cv2.GaussianBlur(enhanced, (7, 7), 0)
+    enhanced = cv2.bilateralFilter(enhanced, 5, 75, 75)
+    kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+    enhanced = cv2.filter2D(enhanced, -1, kernel)
+    enhanced = cv2.GaussianBlur(enhanced, (5, 5), 0)
+    return enhanced
+
+# Replace the predict_syllable function
+@app.route('/api/predict', methods=['POST'])
+def predict_syllable():
+    try:
+        # Get image data from request
+        if 'image' in request.files:
+            file = request.files['image']
+            image_data = file.read()
+        else:
+            return jsonify({'error': 'No image provided'}), 400
+        
+        # Convert to OpenCV format
+        nparr = np.frombuffer(image_data, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if frame is None:
+            return jsonify({'error': 'Invalid image format'}), 400
+        
+        # Detect face and extract mouth
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray)
+        
+        if not faces:
+            return jsonify({'predictions': []})
+        
+        face = faces[0]
+        landmarks = predictor(gray, face)
+        mouth = extract_mouth(frame, landmarks)
+        
+        # For single frame prediction, create a sequence by repeating the frame
+        sequence = np.array([mouth] * SEQUENCE_LENGTH)
+        sequence_input = sequence[None, ...]
+        
+        # Make prediction
+        preds = model.predict(sequence_input, verbose=0)[0]
+        top5 = preds.argsort()[::-1][:5]
+        
+        # Format results
+        predictions = []
+        for i in top5:
+            predictions.append({
+                'syllable': LABELS[i],
+                'confidence': float(preds[i])
+            })
+        
+        return jsonify({'predictions': predictions})
+        
+    except Exception as e:
+        print(f"Prediction error: {e}")
+        return jsonify({'error': 'Prediction failed'}), 500
