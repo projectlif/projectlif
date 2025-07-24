@@ -11,7 +11,7 @@ from io import BytesIO
 from PIL import Image
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'
+app.secret_key = ''
 
 # Sample data for syllables and their descriptions
 SYLLABLES_DATA = {
