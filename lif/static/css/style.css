@@ -1115,3 +1115,49 @@ footer a:hover {
     box-shadow: none;
   }
 }
+
+/* Ensure all GIFs play infinitely */
+img[src$=".gif"] {
+    animation-iteration-count: infinite;
+}
+
+/* Force GIF restart on hover for better visibility */
+.gif-container img,
+.gif-preview img,
+.gif-loaded img,
+.pronunciation-demo img {
+    animation: none;
+}
+
+.gif-container:hover img,
+.gif-preview-container:hover img,
+.gif-loaded:hover img,
+.pronunciation-demo:hover img {
+    animation: gif-restart 0.1s;
+}
+
+@keyframes gif-restart {
+    0% { opacity: 0.99; }
+    100% { opacity: 1; }
+}
+
+/* Global GIF infinite loop styles */
+.gif-infinite {
+    animation-iteration-count: infinite !important;
+    animation-duration: inherit;
+    animation-timing-function: inherit;
+}
+
+/* Ensure GIFs restart properly */
+.gif-container img,
+.gif-preview img,
+.gif-modal-content img,
+.pronunciation-demo img {
+    image-rendering: auto;
+    animation-fill-mode: forwards;
+}
+
+/* Smooth GIF transitions */
+img[src*=".gif"] {
+    transition: opacity 0.1s ease;
+}

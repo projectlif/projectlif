@@ -146,14 +146,20 @@ class LearningManager {
 }
 
 function playPreview(syllable) {
-    // Create modal or enlarged view
+    const timestamp = new Date().getTime();
     const modal = document.createElement('div');
     modal.className = 'gif-modal';
     modal.innerHTML = `
         <div class="gif-modal-content">
             <span class="gif-modal-close">&times;</span>
-            <img src="/static/gifs/${syllable}.gif" alt="Pronunciation of ${syllable.toUpperCase()}">
-            <h4>${syllable.toUpperCase()}</h4>
+            <img src="/static/gifs/${syllable}.gif?t=${timestamp}" 
+                 alt="Pronunciation of ${syllable.toUpperCase()}"
+                 class="gif-infinite"
+                 style="animation-iteration-count: infinite;">
+            <h4 class="text-light mt-3">${syllable.toUpperCase()}</h4>
+            <button class="btn btn-primary mt-2" onclick="replayModalGif(this)">
+                <i class="fas fa-redo me-2"></i>Replay
+            </button>
         </div>
     `;
     
@@ -164,6 +170,13 @@ function playPreview(syllable) {
     modal.onclick = (e) => {
         if (e.target === modal) modal.remove();
     };
+}
+
+function replayModalGif(button) {
+    const img = button.parentElement.querySelector('img');
+    const currentSrc = img.src.split('?')[0];
+    const newTimestamp = new Date().getTime();
+    img.src = `${currentSrc}?t=${newTimestamp}`;
 }
 
 // Initialize learning manager
