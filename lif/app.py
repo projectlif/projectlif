@@ -82,10 +82,25 @@ def quiz():
 @app.route('/api/quiz/question')
 def get_quiz_question():
     syllable = random.choice(list(SYLLABLES_DATA.keys()))
+    all_syllables = list(SYLLABLES_DATA.keys())
+    
+    # Ensure we have the correct answer in options
+    options = [syllable]  # Start with correct answer
+    remaining = [s for s in all_syllables if s != syllable]
+    
+    # Add 3 random incorrect options
+    while len(options) < 4 and remaining:
+        incorrect = random.choice(remaining)
+        options.append(incorrect)
+        remaining.remove(incorrect)
+    
+    # Shuffle so correct answer isn't always first
+    random.shuffle(options)
+    
     return jsonify({
         'syllable': syllable,
         'gif': SYLLABLES_DATA[syllable]['gif'],
-        'options': random.sample(list(SYLLABLES_DATA.keys()), 4) if len(SYLLABLES_DATA) >= 4 else list(SYLLABLES_DATA.keys())
+        'options': options
     })
 
 

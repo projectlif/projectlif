@@ -93,19 +93,34 @@ class QuizManager {
     }
   }
 
-  generateOptions(correct, allSyllables) {
-    const options = [correct]
-    const remaining = allSyllables.filter((s) => s !== correct)
+generateOptions(correct, allSyllables) {
+    const options = [correct]; // Always include correct answer first
+    const remaining = allSyllables.filter((s) => s !== correct);
 
     // Add 3 random incorrect options
-    for (let i = 0; i < 3 && remaining.length > 0; i++) {
-      const randomIndex = Math.floor(Math.random() * remaining.length)
-      options.push(remaining.splice(randomIndex, 1)[0])
+    while (options.length < 4 && remaining.length > 0) {
+        const randomIndex = Math.floor(Math.random() * remaining.length);
+        options.push(remaining.splice(randomIndex, 1)[0]);
     }
 
-    // Shuffle options
-    return options.sort(() => Math.random() - 0.5)
-  }
+    // If we don't have enough syllables, fill with duplicates (shouldn't happen)
+    while (options.length < 4) {
+        options.push(correct);
+    }
+
+    // Shuffle options so correct answer isn't always first
+    return this.shuffleArray(options);
+}
+
+// Add this helper method
+shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
 
   showQuestion() {
     if (this.currentQuestion >= this.questions.length) {
@@ -131,17 +146,17 @@ class QuizManager {
     this.startTimer()
   }
 
-  displayQuestionGif(question) {
-    const gifContainer = document.getElementById("questionGif")
+displayQuestionGif(question) {
+    const gifContainer = document.getElementById("questionGif");
     if (gifContainer) {
-      gifContainer.innerHTML = `
-                <img src="${question.gif}" 
-                     alt="Pronunciation of ${question.syllable}" 
-                     class="img-fluid rounded"
-                     style="max-width: 100%; height: auto;">
-            `
+        gifContainer.innerHTML = `
+            <img src="${question.gif}" 
+                 alt="Pronunciation of ${question.syllable}" 
+                 class="img-fluid rounded"
+                 style="width: 100%; height: 100%; object-fit: contain;">
+        `;
     }
-  }
+}
 
   displayAnswerOptions(question) {
     const optionsContainer = document.getElementById("answerOptions")

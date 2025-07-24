@@ -502,11 +502,40 @@ body {
 }
 
 .gif-container {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: 20px;
-  overflow: hidden;
-  background: var(--dark-bg);
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--dark-bg);
+    min-height: 400px; /* Add minimum height */
+}
+
+.gif-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Changed from cover to contain to show full GIF */
+    border-radius: 20px;
+}
+
+/* Add responsive sizing */
+@media (max-width: 768px) {
+    .gif-display {
+        max-width: 350px;
+    }
+    
+    .gif-container {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .gif-display {
+        max-width: 280px;
+    }
+    
+    .gif-container {
+        min-height: 250px;
+    }
 }
 
 .description-box {
@@ -590,8 +619,8 @@ body {
 }
 
 .gif-display {
-  max-width: 300px;
-  margin: 0 auto;
+    max-width: 500px; /* Increased from 300px */
+    margin: 0 auto;
 }
 
 .timer-circle {
