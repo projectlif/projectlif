@@ -10,7 +10,7 @@
   --dark-card: #1e293b;
   --dark-border: #334155;
   --text-light: #f8fafc;
-  --text-muted: #ffffff;
+  --text-muted: #b8b8b8;
   --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   --gradient-accent: linear-gradient(135deg, var(--accent-color), var(--primary-color));
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
