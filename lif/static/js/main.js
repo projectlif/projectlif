@@ -145,6 +145,33 @@ function debounce(func, wait) {
   }
 }
 
+// Force GIF infinite loop
+function makeGifInfinite(img) {
+    const originalSrc = img.src.split('?')[0]; // Remove any query params
+    
+    img.onload = function() {
+        // Get GIF duration (approximate)
+        setTimeout(() => {
+            if (img.parentNode) { // Check if still in DOM
+                const timestamp = new Date().getTime();
+                img.src = `${originalSrc}?t=${timestamp}`;
+            }
+        }, 3000); // Restart every 3 seconds (adjust based on your GIF length)
+    };
+}
+
+// Apply to all GIFs on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setInterval(() => {
+        document.querySelectorAll('img[src*=".gif"]').forEach(img => {
+            if (!img.dataset.infiniteSetup) {
+                img.dataset.infiniteSetup = 'true';
+                makeGifInfinite(img);
+            }
+        });
+    }, 1000);
+});
+
 // Export functions for use in other scripts
 window.LipLearn = {
   showNotification,

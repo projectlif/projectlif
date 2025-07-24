@@ -149,12 +149,28 @@ shuffleArray(array) {
 displayQuestionGif(question) {
     const gifContainer = document.getElementById("questionGif");
     if (gifContainer) {
-        gifContainer.innerHTML = `
-            <img src="${question.gif}" 
-                 alt="Pronunciation of ${question.syllable}" 
-                 class="img-fluid rounded"
-                 style="width: 100%; height: 100%; object-fit: contain;">
-        `;
+        const img = document.createElement('img');
+        img.src = question.gif;
+        img.alt = `Pronunciation of ${question.syllable}`;
+        img.className = 'img-fluid rounded';
+        img.style.cssText = 'width: 100%; height: 100%; object-fit: contain;';
+        
+        // Force infinite loop
+        const restartGif = () => {
+            const timestamp = new Date().getTime();
+            img.src = `${question.gif}?t=${timestamp}`;
+        };
+        
+        img.onload = () => {
+            setTimeout(restartGif, 2500); // Restart after 2.5 seconds
+        };
+        
+        // Set up continuous restart
+        const intervalId = setInterval(restartGif, 3000);
+        img.dataset.intervalId = intervalId;
+        
+        gifContainer.innerHTML = '';
+        gifContainer.appendChild(img);
     }
 }
 

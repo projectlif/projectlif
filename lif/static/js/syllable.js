@@ -40,25 +40,43 @@ class SyllableLearning {
     }
   }
 
-  loadGifDemo() {
-    // Simulate loading GIF demo
-    const gifContainer = document.getElementById("pronunciationGif")
+loadGifDemo() {
+    const gifContainer = document.getElementById("pronunciationGif");
     if (gifContainer) {
-      // In a real implementation, you would load the actual GIF here
-      setTimeout(() => {
+        const img = document.createElement('img');
+        img.src = this.syllableData.gif;
+        img.alt = `Pronunciation demo for ${this.syllableData.syllable}`;
+        img.className = 'img-fluid rounded';
+        
+        const restartGif = () => {
+            const timestamp = new Date().getTime();
+            img.src = `${this.syllableData.gif}?t=${timestamp}`;
+        };
+        
+        // Initial load
+        img.onload = () => {
+            setTimeout(restartGif, 2500);
+        };
+        
+        // Continuous restart
+        setInterval(restartGif, 3000);
+        
         gifContainer.innerHTML = `
-                    <div class="gif-loaded">
-                        <img src="/placeholder.svg?height=300&width=300" 
-                             alt="Pronunciation demo for ${this.syllableData.syllable}" 
-                             class="img-fluid rounded">
-                        <div class="gif-overlay">
-                            <i class="fas fa-play-circle fa-2x"></i>
-                        </div>
-                    </div>
-                `
-      }, 1000)
+            <div class="gif-loaded">
+                <div class="gif-controls mt-3">
+                    <button class="btn btn-primary me-2" id="replayGif">
+                        <i class="fas fa-redo me-2"></i>Replay
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        gifContainer.querySelector('.gif-loaded').insertBefore(img, gifContainer.querySelector('.gif-controls'));
+        
+        // Manual replay button
+        document.getElementById("replayGif").onclick = restartGif;
     }
-  }
+}
 
   playGifDemo() {
     const gifContainer = document.getElementById("pronunciationGif")
