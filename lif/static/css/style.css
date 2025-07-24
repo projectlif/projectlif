@@ -517,6 +517,113 @@ body {
     border-radius: 20px;
 }
 
+.gif-preview-container {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--dark-bg);
+}
+
+.gif-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.gif-preview-container:hover .gif-preview {
+    transform: scale(1.05);
+}
+
+.play-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    padding: 10px;
+    transition: opacity 0.3s ease;
+}
+
+.gif-preview-container:hover .play-overlay {
+    opacity: 0.8;
+}
+
+.gif-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.gif-modal-content {
+    background: var(--dark-card);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    position: relative;
+    max-width: 500px;
+}
+
+.gif-modal-content img {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+}
+
+.gif-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 2rem;
+    color: var(--text-light);
+    cursor: pointer;
+}
+
+.practice-camera-container {
+    max-width: 400px; /* Increased size */
+    margin: 0 auto;
+    aspect-ratio: 4/3; /* Better aspect ratio */
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--dark-bg);
+    border: 2px solid var(--dark-border);
+}
+
+.practice-camera {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+}
+
+.camera-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    border: 2px dashed var(--dark-border);
+    border-radius: 20px;
+    transition: border-color 0.3s ease;
+}
+
+.camera-placeholder:hover {
+    border-color: var(--primary-color);
+}
+
+
 /* Add responsive sizing */
 @media (max-width: 768px) {
     .gif-display {

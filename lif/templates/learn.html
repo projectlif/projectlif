@@ -58,9 +58,11 @@
                         </div>
                         
                         <div class="syllable-preview mb-3">
-                            <div class="gif-placeholder">
-                                <i class="fas fa-play-circle fa-2x gradient-text"></i>
-                                <p class="small text-light mt-2">Click to view pronunciation</p>
+                            <div class="gif-preview-container" onclick="playPreview('{{ syllable }}')">
+                                <img src="{{ data.gif }}" alt="Preview of {{ syllable }}" class="gif-preview">
+                                <div class="play-overlay">
+                                    <i class="fas fa-play-circle fa-2x gradient-text"></i>
+                                </div>
                             </div>
                         </div>
                         

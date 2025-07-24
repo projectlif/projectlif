@@ -91,37 +91,41 @@ class SyllableLearning {
     window.LipLearn.showNotification("Replaying demo", "info")
   }
 
-  async startPractice() {
+async startPractice() {
     try {
-      // Request camera access
-      this.practiceStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          facingMode: "user",
-        },
-        audio: false,
-      })
+        // Request camera access
+        this.practiceStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: "user",
+            },
+            audio: false,
+        });
 
-      const practiceCamera = document.getElementById("practiceCamera")
-      const placeholder = document.getElementById("cameraPlaceholder")
+        const practiceCamera = document.getElementById("practiceCamera");
+        const placeholder = document.getElementById("cameraPlaceholder");
 
-      if (practiceCamera && placeholder) {
-        practiceCamera.srcObject = this.practiceStream
-        practiceCamera.style.display = "block"
-        placeholder.style.display = "none"
-        practiceCamera.play()
-      }
+        if (practiceCamera && placeholder) {
+            practiceCamera.srcObject = this.practiceStream;
+            practiceCamera.style.display = "block";
+            placeholder.style.display = "none";
+            
+            // Wait for video to load before playing
+            practiceCamera.onloadedmetadata = () => {
+                practiceCamera.play();
+            };
+        }
 
-      this.updatePracticeControls(true)
-      this.startPracticeAnalysis()
+        this.updatePracticeControls(true);
+        this.startPracticeAnalysis();
 
-      window.LipLearn.showNotification("Practice session started! Try pronouncing the syllable.", "success")
+        window.LipLearn.showNotification("Practice session started! Try pronouncing the syllable.", "success");
     } catch (error) {
-      console.error("Error starting practice:", error)
-      window.LipLearn.showNotification("Failed to start practice. Please check camera permissions.", "danger")
+        console.error("Error starting practice:", error);
+        window.LipLearn.showNotification("Failed to start practice. Please check camera permissions.", "danger");
     }
-  }
+}
 
   stopPractice() {
     if (this.practiceStream) {

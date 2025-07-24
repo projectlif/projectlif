@@ -145,6 +145,27 @@ class LearningManager {
   }
 }
 
+function playPreview(syllable) {
+    // Create modal or enlarged view
+    const modal = document.createElement('div');
+    modal.className = 'gif-modal';
+    modal.innerHTML = `
+        <div class="gif-modal-content">
+            <span class="gif-modal-close">&times;</span>
+            <img src="/static/gifs/${syllable}.gif" alt="Pronunciation of ${syllable.toUpperCase()}">
+            <h4>${syllable.toUpperCase()}</h4>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close modal functionality
+    modal.querySelector('.gif-modal-close').onclick = () => modal.remove();
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+    };
+}
+
 // Initialize learning manager
 document.addEventListener("DOMContentLoaded", () => {
   new LearningManager()
