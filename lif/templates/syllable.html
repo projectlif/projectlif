@@ -78,22 +78,27 @@
                         </h4>
                         
                         <div class="practice-area text-center">
-                            <div class="practice-camera-container mb-3">
-                                <video id="practiceCamera" class="practice-camera" autoplay muted playsinline style="display: none;"></video>
-                                <div class="camera-placeholder" id="cameraPlaceholder">
-                                    <i class="fas fa-camera fa-3x gradient-text mb-3"></i>
-                                    <p class="text-light">Click "Start Practice" to begin</p>
+                        <div class="camera-feed-container mb-4">
+                            <video id="cameraFeed" class="camera-feed" autoplay muted playsinline></video>
+                            <canvas id="cameraCanvas" class="camera-canvas" style="display: none;"></canvas>
+                            <div class="camera-overlay">
+                                <div class="recording-indicator" id="recordingIndicator" style="display: none;">
+                                    <i class="fas fa-circle text-danger pulse-animation"></i>
+                                    <span>Recording</span>
                                 </div>
                             </div>
-                            
-                            <div class="practice-controls">
-                                <button class="btn btn-primary btn-lg me-3" id="startPractice">
-                                    <i class="fas fa-camera me-2"></i>Start Practice
-                                </button>
-                                <button class="btn btn-danger btn-lg" id="stopPractice" style="display: none;">
-                                    <i class="fas fa-stop me-2"></i>Stop Practice
-                                </button>
-                            </div>
+                        </div>
+
+                        <div class="practice-controls">
+                            <button class="btn btn-primary btn-lg me-3" id="startPractice">
+                                <i class="fas fa-camera me-2"></i>Start Practice
+                            </button>
+                            <button class="btn btn-danger btn-lg" id="stopPractice" style="display: none;">
+                                <i class="fas fa-stop me-2"></i>Stop Practice
+                            </button>
+                        </div>
+                    </div>
+
                             
                             <div class="practice-feedback mt-4" id="practiceFeedback" style="display: none;">
                                 <div class="feedback-card">
