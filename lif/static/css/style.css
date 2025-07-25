@@ -1164,20 +1164,22 @@ img[src*=".gif"] {
 
 
 /* Style only the "Learn" breadcrumb link */
-.breadcrumb-item a[href="{{ url_for('learn') }}"] {
+.learn-link {
     transition: background-color 0.2s ease;
     border-radius: 4px;
     padding: 4px 8px;
+    text-decoration: none;
+    background-color: rgba(0, 123, 255, 0.1); 
 }
 
 /* On hover */
-.breadcrumb-item a[href="{{ url_for('learn') }}"]:hover {
-    background-color: rgba(0, 123, 255, 0.1); /* light blue background */
+.learn-link:hover {
+    background-color: rgba(0, 123, 255, 0.1); 
     text-decoration: none;
 }
 
 /* Optional: On active (clicking/holding) */
-.breadcrumb-item a[href="{{ url_for('learn') }}"]:active {
+.learn-link:active {
     background-color: rgba(0, 123, 255, 0.2);
 }
 #practiceCamera {

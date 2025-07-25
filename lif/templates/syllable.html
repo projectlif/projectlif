@@ -11,7 +11,7 @@
             <div class="col-lg-8 mx-auto">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb justify-content-center">
-                        <li class="breadcrumb-item"><a href="{{ url_for('learn') }}">Learn</a></li>
+                        <li class="breadcrumb-item"><a class="learn-link" href="{{ url_for('learn') }}">Learn</a></li>
                         <li class="breadcrumb-item active">{{ syllable.upper() }}</li>
                     </ol>
                 </nav>
@@ -44,8 +44,6 @@
                         <div class="pronunciation-demo text-center mb-4">
                             <div class="gif-container">
                                 <div class="gif-placeholder" id="pronunciationGif">
-                                    <i class="fas fa-play-circle fa-4x gradient-text"></i>
-                                    <p class="mt-3 text-light">Click to play pronunciation demo</p>
                                     <img src="{{ data.gif }}" alt="Preview of {{ syllable }}" class="gif-preview">
                                 </div>
                                 <div class="gif-controls mt-3" style="display: none;">

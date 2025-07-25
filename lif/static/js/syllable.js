@@ -42,11 +42,9 @@ class SyllableLearning {
 
 loadGifDemo() {
     const gifContainer = document.getElementById("pronunciationGif");
-    if (gifContainer) {
-        const img = document.createElement('img');
-        img.className = 'img-fluid rounded';
-        img.alt = `Pronunciation demo for ${this.syllableData.syllable}`;
+    const img = gifContainer.querySelector('img');
 
+    if (img) {
         // Force reload with timestamp for looping
         const restartGif = () => {
             const timestamp = new Date().getTime();
@@ -59,31 +57,14 @@ loadGifDemo() {
         // Continuous restart
         setInterval(restartGif, 3000);
 
-        
-        // Initial load
-        img.onload = () => {
-            setTimeout(restartGif, 2500);
-        };
-        
-        // Continuous restart
-        setInterval(restartGif, 3000);
-        
-        gifContainer.innerHTML = `
-            <div class="gif-loaded">
-                <div class="gif-controls mt-3">
-                    <button class="btn btn-primary me-2" id="replayGif">
-                        <i class="fas fa-redo me-2"></i>Replay
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        gifContainer.querySelector('.gif-loaded').insertBefore(img, gifContainer.querySelector('.gif-controls'));
-        
-        // Manual replay button
-        document.getElementById("replayGif").onclick = restartGif;
+        // Optional: allow replay button to restart it manually
+        const replayBtn = document.getElementById("replayGif");
+        if (replayBtn) {
+            replayBtn.addEventListener("click", restartGif);
+        }
     }
 }
+
 
   playGifDemo() {
     const gifContainer = document.getElementById("pronunciationGif")
