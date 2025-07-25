@@ -193,15 +193,5 @@
         difficulty: '{{ data.difficulty }}'
     };
 </script>
-<script>
-  console.log("✅ JS runs");
-  document.addEventListener("DOMContentLoaded", () => {
-    console.log("✅ DOM loaded");
-    document.getElementById("startPractice").addEventListener("click", () => {
-      console.log("🎥 Start practice clicked");
-    });
-  });
-</script>
-
 <script src="{{ url_for('static', filename='js/syllable.js') }}"></script>
 {% endblock %}

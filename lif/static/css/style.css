@@ -292,7 +292,7 @@ body {
   position: relative;
   background: var(--dark-card);
   border-radius: 20px;
-  overflow: hidden;
+  
   aspect-ratio: 16 / 9;
 }
 
