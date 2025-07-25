@@ -255,7 +255,7 @@
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
                                         <h4 class="text-light mb-2">Download Our Complete Thesis</h4>
-                                        <p class="text-muted">
+                                        <p class="text-light">
                                             Access our comprehensive research paper detailing the development, methodology, 
                                             and results of our AI-powered lip reading system.
                                         </p>
@@ -279,8 +279,8 @@
                                         and interactive web technologies to assist users in developing visual speech recognition skills.
                                     </p>
                                     <p class="text-light">
-                                        The system utilizes a 3D Convolutional Neural Network (CNN) trained on a custom dataset 
-                                        of Filipino speakers, achieving an overall accuracy of <strong class="gradient-text">94.2%</strong> 
+                                        The system utilizes a 3D Convolutional Neural Network (3D CNN) and Bidirectional Long Short Term Memory trained on a custom dataset 
+                                        of Filipino speakers, achieving an overall accuracy of <strong class="gradient-text">97.3%</strong> 
                                         in vowel recognition tasks.
                                     </p>
                                 </div>
@@ -299,19 +299,19 @@
                                             <div class="result-content">
                                                 <div class="metric">
                                                     <span class="metric-label">Overall Accuracy:</span>
-                                                    <span class="metric-value gradient-text">94.2%</span>
+                                                    <span class="metric-value gradient-text">97.3%</span>
                                                 </div>
                                                 <div class="metric">
                                                     <span class="metric-label">Training Accuracy:</span>
-                                                    <span class="metric-value gradient-text">96.8%</span>
+                                                    <span class="metric-value gradient-text">99.2%</span>
                                                 </div>
                                                 <div class="metric">
                                                     <span class="metric-label">Validation Accuracy:</span>
-                                                    <span class="metric-value gradient-text">94.2%</span>
+                                                    <span class="metric-value gradient-text">97.3%</span>
                                                 </div>
                                                 <div class="metric">
                                                     <span class="metric-label">F1-Score:</span>
-                                                    <span class="metric-value gradient-text">0.942</span>
+                                                    <span class="metric-value gradient-text">0.973</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -332,7 +332,7 @@
                                                     <span class="metric-value gradient-text">50</span>
                                                 </div>
                                                 <div class="metric">
-                                                    <span class="metric-label">Vowel Classes:</span>
+                                                    <span class="metric-label">Classes:</span>
                                                     <span class="metric-value gradient-text">5 (A, E, I, O, U)</span>
                                                 </div>
                                                 <div class="metric">
@@ -354,7 +354,7 @@
                                             <img src="/static/images/accuracy_graph.png" alt="Training vs Validation Accuracy" class="img-fluid rounded">
                                             <div class="graph-description mt-3">
                                                 <h6 class="text-light">Training vs Validation Accuracy</h6>
-                                                <p class="text-muted small">
+                                                <p class="text-light small">
                                                     Model performance over 150 epochs showing consistent improvement 
                                                     and minimal overfitting with final validation accuracy of 94.2%.
                                                 </p>
@@ -366,7 +366,7 @@
                                             <img src="/static/images/confusion_matrix.png" alt="Confusion Matrix" class="img-fluid rounded">
                                             <div class="graph-description mt-3">
                                                 <h6 class="text-light">Confusion Matrix</h6>
-                                                <p class="text-muted small">
+                                                <p class="text-light small">
                                                     Per-class performance showing strong diagonal values indicating 
                                                     high accuracy across all vowel classifications.
                                                 </p>
@@ -378,7 +378,7 @@
                                             <img src="/static/images/loss_graph.png" alt="Training Loss" class="img-fluid rounded">
                                             <div class="graph-description mt-3">
                                                 <h6 class="text-light">Training & Validation Loss</h6>
-                                                <p class="text-muted small">
+                                                <p class="text-light small">
                                                     Loss curves demonstrating stable convergence and effective 
                                                     learning without significant overfitting issues.
                                                 </p>
@@ -390,7 +390,7 @@
                                             <img src="/static/images/per_class_accuracy.png" alt="Per-Class Accuracy" class="img-fluid rounded">
                                             <div class="graph-description mt-3">
                                                 <h6 class="text-light">Per-Class Accuracy Breakdown</h6>
-                                                <p class="text-muted small">
+                                                <p class="text-light small">
                                                     Individual vowel recognition rates showing balanced performance 
                                                     across all five Filipino vowel sounds.
                                                 </p>
@@ -437,7 +437,7 @@
                             <div class="citation">
                                 <h4 class="text-light mb-3">Citation</h4>
                                 <div class="citation-box">
-                                    <pre class="citation-text"><code>@thesis{projectlif2024,
+                                    <pre class="citation-text"><code>@thesis{projectlif2025,
                 title={AI-Powered Lip Reading System for Filipino Vowel Recognition},
                 author={[Bautista, Bernal, Diaz, Mercurio]},
                 school={[President Ramon Magsaysay State University]},
@@ -785,13 +785,13 @@ document.querySelectorAll('.docs-nav .nav-link').forEach(link => {
 });
 
 function copyCitation() {
-    const citationText = `@thesis{projectlif2024,
+    const citationText = `@thesis{projectlif2025,
   title={AI-Powered Lip Reading System for Filipino Vowel Recognition},
-  author={[Your Names]},
-  school={[Your University]},
-  year={2024},
+  author={[Bautista, Bernal, Diaz, Mercurio]},
+  school={[President Ramon Magsaysay State University]},
+  year={2025},
   type={Bachelor's Thesis},
-  url={https://yourproject.com}
+  url={https://projectlif.com}
 }`;
     
     navigator.clipboard.writeText(citationText).then(() => {
