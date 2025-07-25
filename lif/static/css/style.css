@@ -1180,3 +1180,6 @@ img[src*=".gif"] {
 .breadcrumb-item a[href="{{ url_for('learn') }}"]:active {
     background-color: rgba(0, 123, 255, 0.2);
 }
+#practiceCamera {
+  display: block !important;
+}

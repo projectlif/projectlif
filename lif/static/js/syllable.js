@@ -44,14 +44,21 @@ loadGifDemo() {
     const gifContainer = document.getElementById("pronunciationGif");
     if (gifContainer) {
         const img = document.createElement('img');
-        img.src = this.syllableData.gif;
-        img.alt = `Pronunciation demo for ${this.syllableData.syllable}`;
         img.className = 'img-fluid rounded';
-        
+        img.alt = `Pronunciation demo for ${this.syllableData.syllable}`;
+
+        // Force reload with timestamp for looping
         const restartGif = () => {
             const timestamp = new Date().getTime();
             img.src = `${this.syllableData.gif}?t=${timestamp}`;
         };
+
+        // Initial load
+        restartGif();
+
+        // Continuous restart
+        setInterval(restartGif, 3000);
+
         
         // Initial load
         img.onload = () => {
@@ -131,6 +138,7 @@ async startPractice() {
             
             // Wait for video to load before playing
             practiceCamera.onloadedmetadata = () => {
+                practiceCamera.style.display = "block";
                 practiceCamera.play();
             };
         }
