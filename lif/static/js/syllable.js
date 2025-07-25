@@ -318,6 +318,64 @@ async startPractice() {
   }
 }
 
+function playPreview(syllable) {
+    const modal = document.createElement('div');
+    modal.className = 'gif-modal';
+    
+    const img = document.createElement('img');
+    img.src = `/static/gifs/${syllable}.gif`;
+    img.alt = `Pronunciation of ${syllable.toUpperCase()}`;
+    
+    const restartGif = () => {
+        const timestamp = new Date().getTime();
+        img.src = `/static/gifs/${syllable}.gif?t=${timestamp}`;
+    };
+    
+    img.onload = () => {
+        setTimeout(restartGif, 2500);
+    };
+    
+    const intervalId = setInterval(restartGif, 3000);
+    
+    modal.innerHTML = `
+        <div class="gif-modal-content">
+            <span class="gif-modal-close">&times;</span>
+            <h4 class="text-light mt-3">${syllable.toUpperCase()}</h4>
+            <button class="btn btn-primary mt-2" onclick="replayModalGif(this)">
+                <i class="fas fa-redo me-2"></i>Replay
+            </button>
+        </div>
+    `;
+    
+    modal.querySelector('.gif-modal-content').insertBefore(img, modal.querySelector('h4'));
+    
+    document.body.appendChild(modal);
+    
+    // Close modal and clear interval
+    const closeModal = () => {
+        clearInterval(intervalId);
+        modal.remove();
+    };
+    
+    modal.querySelector('.gif-modal-close').onclick = closeModal;
+    modal.onclick = (e) => {
+        if (e.target === modal) closeModal();
+    };
+}
+
+function replayModalGif(button) {
+    const img = button.parentElement.querySelector('img');
+    const syllable = button.parentElement.querySelector('h4').textContent.toLowerCase();
+    const timestamp = new Date().getTime();
+    img.src = `/static/gifs/${syllable}.gif?t=${timestamp}`;
+}
+function replayModalGif(button) {
+    const img = button.parentElement.querySelector('img');
+    const currentSrc = img.src.split('?')[0];
+    const newTimestamp = new Date().getTime();
+    img.src = `${currentSrc}?t=${newTimestamp}`;
+}
+
 // Initialize syllable learning when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   const syllableData = window.syllableData // Declare the variable before using it

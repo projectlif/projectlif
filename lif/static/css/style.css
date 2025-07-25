@@ -1161,3 +1161,22 @@ img[src$=".gif"] {
 img[src*=".gif"] {
     transition: opacity 0.1s ease;
 }
+
+
+/* Style only the "Learn" breadcrumb link */
+.breadcrumb-item a[href="{{ url_for('learn') }}"] {
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* On hover */
+.breadcrumb-item a[href="{{ url_for('learn') }}"]:hover {
+    background-color: rgba(0, 123, 255, 0.1); /* light blue background */
+    text-decoration: none;
+}
+
+/* Optional: On active (clicking/holding) */
+.breadcrumb-item a[href="{{ url_for('learn') }}"]:active {
+    background-color: rgba(0, 123, 255, 0.2);
+}
