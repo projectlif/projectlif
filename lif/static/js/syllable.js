@@ -43,25 +43,19 @@ class SyllableLearning {
 loadGifDemo() {
     const gifContainer = document.getElementById("pronunciationGif");
     const img = gifContainer.querySelector('img');
-
     if (img) {
-        // Force reload with timestamp for looping
+        // Force infinite loop by restarting GIF
         const restartGif = () => {
             const timestamp = new Date().getTime();
-            img.src = `${this.syllableData.gif}?t=${timestamp}`;
+            const baseSrc = img.src.split('?')[0]; // Remove existing timestamp
+            img.src = `${baseSrc}?t=${timestamp}`;
         };
-
-        // Initial load
+        
+        // Start the loop immediately
         restartGif();
-
-        // Continuous restart
+        
+        // Restart every 3 seconds (adjust based on your GIF duration)
         setInterval(restartGif, 3000);
-
-        // Optional: allow replay button to restart it manually
-        const replayBtn = document.getElementById("replayGif");
-        if (replayBtn) {
-            replayBtn.addEventListener("click", restartGif);
-        }
     }
 }
 
@@ -172,34 +166,67 @@ async startPractice() {
     this.isPracticing = isPracticing
   }
 
-  startPracticeAnalysis() {
-    // Simulate practice analysis
+startPracticeAnalysis() {
+    // Real-time analysis using the model
     this.practiceInterval = setInterval(() => {
-      if (this.isPracticing) {
-        this.analyzePracticeAttempt()
-      }
-    }, 3000)
-  }
+        if (this.isPracticing) {
+            this.analyzePracticeAttempt();
+        }
+    }, 2000); // Check every 2 seconds
+}
 
-  analyzePracticeAttempt() {
-    // Mock analysis - in real implementation, this would use ML
-    const accuracy = Math.random() * 0.4 + 0.6 // 60-100% accuracy
-    const isCorrect = accuracy > 0.75
-
-    this.practiceResults.push({
-      timestamp: Date.now(),
-      accuracy: accuracy,
-      correct: isCorrect,
-      syllable: this.syllableData.syllable,
-    })
-
-    // Show real-time feedback
-    const feedback = isCorrect
-      ? `Great! ${Math.round(accuracy * 100)}% accuracy`
-      : `Keep trying! ${Math.round(accuracy * 100)}% accuracy`
-
-    this.showRealTimeFeedback(feedback, isCorrect)
-  }
+async analyzePracticeAttempt() {
+    try {
+        const video = document.getElementById("practiceCamera");
+        const canvas = document.getElementById("cameraCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        if (video && canvas && ctx) {
+            // Capture frame from video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            
+            // Convert to blob and send to server
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append("image", blob, "practice.jpg");
+                
+                const response = await fetch(`/api/predict/syllable/${this.syllableData.syllable}`, {
+                    method: "POST",
+                    body: formData,
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.detected) {
+                        // Store real results
+                        this.practiceResults.push({
+                            timestamp: Date.now(),
+                            accuracy: data.accuracy,
+                            correct: data.is_correct,
+                            predicted: data.predicted_syllable,
+                            target: data.target_syllable,
+                            confidence: data.target_confidence
+                        });
+                        
+                        // Show real-time feedback
+                        const feedback = data.is_correct 
+                            ? `Great! ${Math.round(data.accuracy * 100)}% confidence`
+                            : `You said "${data.predicted_syllable}" - try "${data.target_syllable}"`;
+                            
+                        this.showRealTimeFeedback(feedback, data.is_correct);
+                    } else {
+                        this.showRealTimeFeedback("No face detected", false);
+                    }
+                }
+            }, "image/jpeg", 0.8);
+        }
+    } catch (error) {
+        console.error("Error analyzing practice:", error);
+    }
+}
 
   showRealTimeFeedback(message, isCorrect) {
     // Create temporary feedback element
@@ -233,50 +260,71 @@ async startPractice() {
     }
   }
 
-  showPracticeResults() {
+showPracticeResults() {
     if (this.practiceInterval) {
-      clearInterval(this.practiceInterval)
+        clearInterval(this.practiceInterval);
     }
-
-    const feedbackContainer = document.getElementById("practiceFeedback")
-    const resultsContainer = document.getElementById("practiceResults")
-
+    
+    const feedbackContainer = document.getElementById("practiceFeedback");
+    const resultsContainer = document.getElementById("practiceResults");
+    
     if (feedbackContainer && resultsContainer && this.practiceResults.length > 0) {
-      const totalAttempts = this.practiceResults.length
-      const correctAttempts = this.practiceResults.filter((r) => r.correct).length
-      const avgAccuracy = this.practiceResults.reduce((sum, r) => sum + r.accuracy, 0) / totalAttempts
-
-      resultsContainer.innerHTML = `
-                <div class="results-grid">
-                    <div class="result-stat">
-                        <div class="result-value">${totalAttempts}</div>
-                        <div class="result-label">Attempts</div>
-                    </div>
-                    <div class="result-stat">
-                        <div class="result-value">${correctAttempts}</div>
-                        <div class="result-label">Correct</div>
-                    </div>
-                    <div class="result-stat">
-                        <div class="result-value">${Math.round(avgAccuracy * 100)}%</div>
-                        <div class="result-label">Avg Accuracy</div>
-                    </div>
+        const totalAttempts = this.practiceResults.length;
+        const correctAttempts = this.practiceResults.filter((r) => r.correct).length;
+        const avgAccuracy = this.practiceResults.reduce((sum, r) => sum + r.accuracy, 0) / totalAttempts;
+        const avgConfidence = this.practiceResults.reduce((sum, r) => sum + r.confidence, 0) / totalAttempts;
+        
+        // Get most common incorrect prediction
+        const incorrectPredictions = this.practiceResults
+            .filter(r => !r.correct)
+            .map(r => r.predicted);
+        const mostCommonError = incorrectPredictions.length > 0 
+            ? incorrectPredictions.reduce((a, b, i, arr) => 
+                arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
+            ) : 'None';
+        
+        resultsContainer.innerHTML = `
+            <div class="results-grid">
+                <div class="result-stat">
+                    <div class="result-value">${totalAttempts}</div>
+                    <div class="result-label">Attempts</div>
                 </div>
-                <div class="practice-recommendation mt-3">
-                    ${this.getPracticeRecommendation(avgAccuracy)}
+                <div class="result-stat">
+                    <div class="result-value">${correctAttempts}</div>
+                    <div class="result-label">Correct</div>
                 </div>
-            `
-
-      feedbackContainer.style.display = "block"
-
-      // Save progress if performance is good
-      if (avgAccuracy > 0.8) {
-        this.markSyllableCompleted()
-      }
+                <div class="result-stat">
+                    <div class="result-value">${Math.round(avgAccuracy * 100)}%</div>
+                    <div class="result-label">Avg Accuracy</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value">${Math.round(avgConfidence * 100)}%</div>
+                    <div class="result-label">Confidence</div>
+                </div>
+            </div>
+            <div class="detailed-feedback mt-3">
+                <p class="text-light"><strong>Target:</strong> ${this.syllableData.syllable.toUpperCase()}</p>
+                <p class="text-light"><strong>Success Rate:</strong> ${Math.round((correctAttempts/totalAttempts)*100)}%</p>
+                ${incorrectPredictions.length > 0 ? 
+                    `<p class="text-warning"><strong>Most Common Error:</strong> Saying "${mostCommonError.toUpperCase()}" instead</p>` 
+                    : ''}
+            </div>
+            <div class="practice-recommendation mt-3">
+                ${this.getPracticeRecommendation(avgAccuracy)}
+            </div>
+        `;
+        
+        feedbackContainer.style.display = "block";
+        
+        // Save progress if performance is good
+        if (avgAccuracy > 0.7 && correctAttempts >= 3) {
+            this.markSyllableCompleted();
+        }
     }
-
+    
     // Reset results for next session
-    this.practiceResults = []
-  }
+    this.practiceResults = [];
+}
 
   getPracticeRecommendation(accuracy) {
     if (accuracy > 0.9) {

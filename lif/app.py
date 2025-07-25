@@ -57,6 +57,28 @@ SYLLABLES_DATA = {
     }
 }
 
+# Sample data for Filipino words
+WORDS_DATA = {
+    'aso': {
+        'description': 'A common Filipino word meaning "dog"',
+        'gif': '/static/gifs/words/aso.gif',
+        'difficulty': 1,
+        'translation': 'dog'
+    },
+    'puso': {
+        'description': 'Filipino word meaning "heart"',
+        'gif': '/static/gifs/words/puso.gif',
+        'difficulty': 2,
+        'translation': 'heart'
+    },
+    'mata': {
+        'description': 'Filipino word meaning "eye"',
+        'gif': '/static/gifs/words/mata.gif',
+        'difficulty': 1,
+        'translation': 'eye'
+    },
+}
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -228,3 +250,103 @@ def predict_syllable():
     except Exception as e:
         print(f"Prediction error: {e}")
         return jsonify({'error': 'Prediction failed'}), 500
+    
+
+@app.route('/api/predict/syllable/<syllable>', methods=['POST'])
+def predict_specific_syllable(syllable):
+    try:
+        if syllable not in SYLLABLES_DATA:
+            return jsonify({'error': 'Invalid syllable'}), 400
+            
+        # Get image data from request
+        if 'image' in request.files:
+            file = request.files['image']
+            image_data = file.read()
+        else:
+            return jsonify({'error': 'No image provided'}), 400
+        
+        # Convert to OpenCV format
+        nparr = np.frombuffer(image_data, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if frame is None:
+            return jsonify({'error': 'Invalid image format'}), 400
+        
+        # Detect face and extract mouth
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray)
+        
+        if not faces:
+            return jsonify({
+                'detected': False,
+                'message': 'No face detected',
+                'target_syllable': syllable,
+                'accuracy': 0
+            })
+        
+        face = faces[0]
+        landmarks = predictor(gray, face)
+        mouth = extract_mouth(frame, landmarks)
+        
+        # Create sequence for prediction
+        sequence = np.array([mouth] * SEQUENCE_LENGTH)
+        sequence_input = sequence[None, ...]
+        
+        # Make prediction
+        preds = model.predict(sequence_input, verbose=0)[0]
+        
+        # Get prediction for target syllable
+        target_index = LABELS.index(syllable)
+        target_confidence = float(preds[target_index])
+        
+        # Get top prediction
+        top_prediction_index = np.argmax(preds)
+        top_prediction = LABELS[top_prediction_index]
+        top_confidence = float(preds[top_prediction_index])
+        
+        # Determine if user is saying the correct syllable
+        is_correct = top_prediction == syllable
+        accuracy_threshold = 0.6  # Adjust as needed
+        
+        return jsonify({
+            'detected': True,
+            'target_syllable': syllable,
+            'predicted_syllable': top_prediction,
+            'target_confidence': target_confidence,
+            'top_confidence': top_confidence,
+            'is_correct': is_correct and target_confidence > accuracy_threshold,
+            'accuracy': target_confidence,
+            'message': f"You said '{top_prediction}'" + (f" (correct!)" if is_correct else f" (try '{syllable}')")
+        })
+        
+    except Exception as e:
+        print(f"Syllable prediction error: {e}")
+        return jsonify({'error': 'Prediction failed'}), 500
+    
+
+@app.route('/word-quiz')
+def word_quiz():
+    return render_template('word-quiz.html')
+
+@app.route('/api/word-quiz/question')
+def get_word_quiz_question():
+    word = random.choice(list(WORDS_DATA.keys()))
+    # Ensure correct answer is always included
+    options = [word]
+    remaining_words = [w for w in WORDS_DATA.keys() if w != word]
+    
+    # Add 3 random incorrect options
+    while len(options) < 4 and remaining_words:
+        random_word = random.choice(remaining_words)
+        options.append(random_word)
+        remaining_words.remove(random_word)
+    
+    # Shuffle options
+    random.shuffle(options)
+    
+    return jsonify({
+        'word': word,
+        'gif': WORDS_DATA[word]['gif'],
+        'translation': WORDS_DATA[word]['translation'],
+        'options': options
+    })

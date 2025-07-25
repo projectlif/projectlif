@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Quiz Challenge -  Project LIF{% endblock %}
-{% block meta_description %}Test your lip reading skills with interactive quizzes and earn points.{% endblock %}
+{% block title %}Word Quiz Challenge - Project LIF{% endblock %}
+{% block meta_description %}Test your Filipino word lip reading skills with interactive quizzes and earn points.{% endblock %}
 
 {% block content %}
 <section class="quiz-section py-5">
@@ -10,10 +10,10 @@
         <div class="row text-center mb-4">
             <div class="col-lg-8 mx-auto">
                 <h1 class="display-5 fw-bold mb-3">
-                    <i class="fas fa-gamepad gradient-text me-3"></i>
-                    Quiz <span class="gradient-text">Challenge</span>
+                    <i class="fas fa-language gradient-text me-3"></i>
+                    Filipino Word <span class="gradient-text">Quiz</span>
                 </h1>
-                <p class="lead text-light">Test your lipreading skills and earn points!</p>
+                <p class="lead text-muted">Test your Filipino word lip reading skills and earn points!</p>
             </div>
         </div>
         
@@ -63,12 +63,12 @@
                     <div class="card bg-dark-card border-0 shadow-lg text-center">
                         <div class="card-body p-5">
                             <div class="quiz-icon mb-4">
-                                <i class="fas fa-trophy fa-4x gradient-text"></i>
+                                <i class="fas fa-language fa-4x gradient-text"></i>
                             </div>
-                            <h3 class="text-light mb-3">Ready for the Challenge?</h3>
-                            <p class="text-light mb-4">
-                                You'll see GIFs of syllable pronunciations. Choose the correct syllable from the options provided. 
-                                Earn points for correct answers and build your streak!
+                            <h3 class="text-light mb-3">Ready for the Filipino Word Challenge?</h3>
+                            <p class="text-muted mb-4">
+                                You'll see GIFs of Filipino word pronunciations. Choose the correct word from the options provided. 
+                                Each word includes its English translation to help you learn!
                             </p>
                             
                             <div class="difficulty-selection mb-4">
@@ -92,7 +92,7 @@
                             </div>
                             
                             <button class="btn btn-primary btn-lg" id="startQuiz">
-                                <i class="fas fa-play me-2"></i>Start Quiz
+                                <i class="fas fa-play me-2"></i>Start Word Quiz
                             </button>
                         </div>
                     </div>
@@ -111,15 +111,19 @@
                             
                             <!-- Question Area -->
                             <div class="question-area text-center mb-4">
-                                <h4 class="text-light mb-3">What syllable is being pronounced?</h4>
+                                <h4 class="text-light mb-3">What Filipino word is being pronounced?</h4>
                                 
                                 <div class="gif-display mb-4">
                                     <div class="gif-container" id="questionGif">
                                         <div class="gif-placeholder">
                                             <i class="fas fa-play-circle fa-4x gradient-text"></i>
-                                            <p class="mt-3 text-light">Loading...</p>
+                                            <p class="mt-3 text-muted">Loading...</p>
                                         </div>
                                     </div>
+                                </div>
+                                
+                                <div class="word-hint mb-3" id="wordHint" style="display: none;">
+                                    <p class="text-muted">English meaning: <span id="wordTranslation" class="text-light"></span></p>
                                 </div>
                                 
                                 <div class="timer-circle mb-3">
@@ -140,7 +144,7 @@
                                     </div>
                                     <div class="feedback-text">
                                         <h5>Correct!</h5>
-                                        <p>Great job! You earned 10 points.</p>
+                                        <p>Great job! You earned 15 points.</p>
                                     </div>
                                 </div>
                             </div>
@@ -155,7 +159,7 @@
                             <div class="results-icon mb-4">
                                 <i class="fas fa-medal fa-4x gradient-text"></i>
                             </div>
-                            <h3 class="text-light mb-3">Quiz Complete!</h3>
+                            <h3 class="text-light mb-3">Word Quiz Complete!</h3>
                             
                             <div class="final-stats mb-4">
                                 <div class="row">
@@ -184,6 +188,9 @@
                                 <button class="btn btn-primary btn-lg me-3" id="playAgain">
                                     <i class="fas fa-redo me-2"></i>Play Again
                                 </button>
+                                <a href="{{ url_for('quiz') }}" class="btn btn-outline-light btn-lg me-3">
+                                    <i class="fas fa-gamepad me-2"></i>Syllable Quiz
+                                </a>
                                 <a href="{{ url_for('learn') }}" class="btn btn-outline-light btn-lg">
                                     <i class="fas fa-graduation-cap me-2"></i>Continue Learning
                                 </a>
@@ -193,97 +200,31 @@
                 </div>
             </div>
             
-            <!-- Sidebar -->
+            <!-- Sidebar (same as regular quiz) -->
             <div class="col-lg-4">
-                <!-- Leaderboard -->
-                <div class="card bg-dark-card border-0 shadow-lg mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-light mb-3">
-                            <i class="fas fa-trophy gradient-text me-2"></i>
-                            Today's Top Scores
-                        </h5>
-                        <div class="leaderboard-list">
-                            <div class="leaderboard-item">
-                                <div class="rank">1</div>
-                                <div class="player">You</div>
-                                <div class="score">0</div>
-                            </div>
-                            <div class="leaderboard-item">
-                                <div class="rank">2</div>
-                                <div class="player">Player2</div>
-                                <div class="score">850</div>
-                            </div>
-                            <div class="leaderboard-item">
-                                <div class="rank">3</div>
-                                <div class="player">Player3</div>
-                                <div class="score">720</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Achievements -->
-                <div class="card bg-dark-card border-0 shadow-lg mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-light mb-3">
-                            <i class="fas fa-award gradient-text me-2"></i>
-                            Achievements
-                        </h5>
-                        <div class="achievements-list">
-                            <div class="achievement-item locked">
-                                <div class="achievement-icon">
-                                    <i class="fas fa-fire"></i>
-                                </div>
-                                <div class="achievement-info">
-                                    <div class="achievement-name">Hot Streak</div>
-                                    <div class="achievement-desc">Get 5 correct in a row</div>
-                                </div>
-                            </div>
-                            <div class="achievement-item locked">
-                                <div class="achievement-icon">
-                                    <i class="fas fa-bullseye"></i>
-                                </div>
-                                <div class="achievement-info">
-                                    <div class="achievement-name">Perfect Score</div>
-                                    <div class="achievement-desc">100% accuracy in a quiz</div>
-                                </div>
-                            </div>
-                            <div class="achievement-item locked">
-                                <div class="achievement-icon">
-                                    <i class="fas fa-rocket"></i>
-                                </div>
-                                <div class="achievement-info">
-                                    <div class="achievement-name">Speed Demon</div>
-                                    <div class="achievement-desc">Answer in under 5 seconds</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Quiz Tips -->
+                <!-- Word Quiz Tips -->
                 <div class="card bg-dark-card border-0 shadow-lg">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">
                             <i class="fas fa-lightbulb gradient-text me-2"></i>
-                            Quiz Tips
+                            Word Quiz Tips
                         </h5>
                         <ul class="tips-list">
                             <li class="tip-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                Watch the full GIF before answering
+                                Watch the full word pronunciation
                             </li>
                             <li class="tip-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                Focus on mouth shape and movement
+                                Pay attention to syllable transitions
                             </li>
                             <li class="tip-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                Trust your first instinct
+                                Use the English translation as a hint
                             </li>
                             <li class="tip-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                Practice regularly to improve
+                                Practice common Filipino words first
                             </li>
                         </ul>
                     </div>
@@ -295,5 +236,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+<script src="{{ url_for('static', filename='js/word-quiz.js') }}"></script>
 {% endblock %}
