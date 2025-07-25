@@ -593,33 +593,41 @@ body {
 }
 
 .practice-camera-container {
-    max-width: 400px;
-    margin: 0 auto;
-    aspect-ratio: 4/3; 
-    border-radius: 20px;
-    background: var(--dark-bg);
-    border: 2px solid var(--dark-border);
-    height: 100%;
-    width: 100%;
+  position: relative; /* NEW */
+  max-width: 400px;
+  margin: 0 auto;
+  aspect-ratio: 4/3;
+  border-radius: 20px;
+  background: var(--dark-bg);
+  border: 2px solid var(--dark-border);
+  overflow: hidden; /* Prevents content from overflowing */
+}
+
+.practice-camera,
+.camera-placeholder {
+  position: absolute; /* NEW: stack both inside the container */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
 }
 
 .practice-camera {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 18px;
+  object-fit: cover;
+  z-index: 1; /* behind the placeholder by default */
 }
 
 .camera-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    border: 2px dashed var(--dark-border);
-    border-radius: 20px;
-    transition: border-color 0.3s ease;
+  z-index: 2; /* on top initially */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4); /* semi-transparent if desired */
+  transition: opacity 0.3s ease;
 }
+
 
 .camera-placeholder:hover {
     border-color: var(--primary-color);

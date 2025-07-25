@@ -424,6 +424,50 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof syllableData !== "undefined") {
     new SyllableLearning(syllableData)
   }
+
+  const startButton = document.getElementById("startPractice");
+    const stopButton = document.getElementById("stopPractice");
+    const video = document.getElementById("practiceCamera");
+    const placeholder = document.getElementById("cameraPlaceholder");
+
+    let stream = null;
+
+    startButton.addEventListener("click", async function () {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.play();
+            navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" },
+            audio: false
+          })
+
+
+            placeholder.style.display = "none";
+            video.style.display = "block";
+
+            startButton.style.display = "none";
+            stopButton.style.display = "inline-block";
+        } catch (err) {
+            console.error("Error accessing webcam:", err);
+            alert("Unable to access camera. Please check your permissions.");
+        }
+    });
+
+    stopButton.addEventListener("click", function () {
+        if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            stream = null;
+        }
+
+        video.srcObject = null;
+        placeholder.style.display = "flex";
+        video.style.display = "none";
+
+        startButton.style.display = "inline-block";
+        stopButton.style.display = "none";
+    });
 })
 
 // Add CSS for feedback popup animation
@@ -465,4 +509,3 @@ style.textContent = `
     }
 `
 document.head.appendChild(style)
-console.log("syllable.js working")
