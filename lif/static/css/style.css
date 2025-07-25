@@ -593,11 +593,10 @@ body {
 }
 
 .practice-camera-container {
-    max-width: 400px; /* Increased size */
+    max-width: 400px;
     margin: 0 auto;
-    aspect-ratio: 4/3; /* Better aspect ratio */
+    aspect-ratio: 4/3; 
     border-radius: 20px;
-    overflow: hidden;
     background: var(--dark-bg);
     border: 2px solid var(--dark-border);
     height: 100%;
@@ -655,14 +654,7 @@ body {
   padding: 1.5rem;
 }
 
-.practice-camera-container {
-  max-width: 300px;
-  margin: 0 auto;
-  aspect-ratio: 1;
-  border-radius: 20px;
-  overflow: hidden;
-  background: var(--dark-bg);
-}
+
 
 .practice-camera {
   width: 100%;
