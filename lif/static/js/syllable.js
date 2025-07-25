@@ -102,6 +102,11 @@ async startPractice() {
             },
             audio: false,
         });
+        const indicator = document.getElementById("recordingIndicator");
+        if (indicator) {
+            indicator.style.display = "flex";
+        }
+
 
         const practiceCamera = document.getElementById("practiceCamera");
         const placeholder = document.getElementById("cameraPlaceholder");

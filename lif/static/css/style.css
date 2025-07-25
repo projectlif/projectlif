@@ -1185,7 +1185,11 @@ img[src*=".gif"] {
 }
 #practiceCamera {
   display: block !important;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
 }
+
 .results-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
