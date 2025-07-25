@@ -600,6 +600,8 @@ body {
     overflow: hidden;
     background: var(--dark-bg);
     border: 2px solid var(--dark-border);
+    height: 100%;
+    width: 100%;
 }
 
 .practice-camera {
