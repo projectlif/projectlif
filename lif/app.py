@@ -251,9 +251,6 @@ def predict_syllable():
         print(f"Prediction error: {e}")
         return jsonify({'error': 'Prediction failed'}), 500
     
-
-@app.route('/api/predict/syllable/<syllable>', methods=['POST'])
-def predict_specific_syllable(syllable):
     try:
         if syllable not in SYLLABLES_DATA:
             return jsonify({'error': 'Invalid syllable'}), 400
@@ -323,7 +320,50 @@ def predict_specific_syllable(syllable):
         print(f"Syllable prediction error: {e}")
         return jsonify({'error': 'Prediction failed'}), 500
     
-
+@app.route('/api/predict/syllable/<syllable>', methods=['POST'])
+def predict_specific_syllable(syllable):
+    try:
+        if 'image' not in request.files:
+            return jsonify({'error': 'No image provided'}), 400
+            
+        image_file = request.files['image']
+        
+        # Here you would integrate your trained model
+        # For now, using mock prediction logic
+        
+        # Mock face/mouth detection
+        face_detected = True  # Your face detection logic here
+        
+        if not face_detected:
+            return jsonify({
+                'detected': False,
+                'message': 'No face detected'
+            })
+        
+        # Mock model prediction - replace with your actual model
+        import random
+        all_syllables = list(SYLLABLES_DATA.keys())
+        predicted_syllable = random.choice(all_syllables)
+        
+        # Calculate if prediction matches target
+        is_correct = predicted_syllable.lower() == syllable.lower()
+        
+        # Mock confidence scores
+        target_confidence = random.uniform(0.7, 0.95) if is_correct else random.uniform(0.3, 0.6)
+        accuracy = target_confidence if is_correct else random.uniform(0.4, 0.7)
+        
+        return jsonify({
+            'detected': True,
+            'is_correct': is_correct,
+            'predicted_syllable': predicted_syllable,
+            'target_syllable': syllable,
+            'target_confidence': target_confidence,
+            'accuracy': accuracy,
+            'message': f'Detected: {predicted_syllable}' + (' ✓' if is_correct else f' (expected: {syllable})')
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 @app.route('/word-quiz')
 def word_quiz():
     return render_template('word-quiz.html')
