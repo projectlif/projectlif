@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Learn {{ syllable.upper() }} -  Project LIF{% endblock %}
+{% block title %}Learn {{ syllable.upper() }} - LipLearn{% endblock %}
 {% block meta_description %}Learn how to pronounce {{ syllable }} with visual guides and practice tools.{% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
             <div class="col-lg-8 mx-auto">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb justify-content-center">
-                        <li class="breadcrumb-item"><a class="learn-link" href="{{ url_for('learn') }}">Learn</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('learn') }}">Learn</a></li>
                         <li class="breadcrumb-item active">{{ syllable.upper() }}</li>
                     </ol>
                 </nav>
@@ -44,61 +44,61 @@
                         <div class="pronunciation-demo text-center mb-4">
                             <div class="gif-container">
                                 <img src="{{ data.gif }}" 
-                                    alt="Pronunciation of {{ syllable }}" 
-                                    class="gif-demo"
-                                    onload="this.style.display='block'">
+                                     alt="Pronunciation of {{ syllable }}" 
+                                     class="gif-demo"
+                                     onload="this.style.display='block'">
                             </div>
                         </div>
                         
                         <div class="description-box">
                             <h5 class="text-light mb-3">How to Pronounce:</h5>
-                            <p class="text-light">{{ data.description }}</p>
+                            <p class="text-muted">{{ data.description }}</p>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Practice Section -->
-            <div class="card bg-dark-card border-0 shadow-lg mb-4">
-                <div class="card-body p-4">
-                    <h4 class="card-title text-light mb-3">
-                        <i class="fas fa-microphone gradient-text me-2"></i>
-                        Practice Speaking
-                    </h4>
-                    
-                    <div class="practice-area text-center">
-                        <div class="practice-camera-container">
-                            <video id="practiceCamera" class="practice-camera" autoplay muted playsinline></video>
-                            <canvas id="practiceCanvas" style="display: none;"></canvas>
-                            <div id="cameraPlaceholder" class="camera-placeholder">
-                                <i class="fas fa-camera fa-3x gradient-text mb-3"></i>
-                                <p class="text-muted">Click "Start Practice" to begin</p>
-                            </div>
-                            <div class="camera-overlay" id="recordingIndicator" style="display: none;">
-                                <div class="recording-indicator">
-                                    <i class="fas fa-circle text-danger pulse-animation"></i>
-                                    <span>Analyzing</span>
+                <div class="card bg-dark-card border-0 shadow-lg mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-light mb-3">
+                            <i class="fas fa-microphone gradient-text me-2"></i>
+                            Practice Speaking
+                        </h4>
+                        
+                        <div class="practice-area text-center">
+                            <div class="practice-camera-container">
+                                <video id="practiceCamera" class="practice-camera" autoplay muted playsinline></video>
+                                <canvas id="practiceCanvas" style="display: none;"></canvas>
+                                <div id="cameraPlaceholder" class="camera-placeholder">
+                                    <i class="fas fa-camera fa-3x gradient-text mb-3"></i>
+                                    <p class="text-muted">Click "Start Practice" to begin</p>
+                                </div>
+                                <div class="camera-overlay" id="recordingIndicator" style="display: none;">
+                                    <div class="recording-indicator">
+                                        <i class="fas fa-circle text-danger pulse-animation"></i>
+                                        <span>Analyzing</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="practice-controls mt-3">
-                            <button class="btn btn-primary btn-lg me-3" id="startPractice">
-                                <i class="fas fa-camera me-2"></i>Start Practice
-                            </button>
-                            <button class="btn btn-danger btn-lg" id="stopPractice" style="display: none;">
-                                <i class="fas fa-stop me-2"></i>Stop Practice
-                            </button>
-                        </div>
-                        
-                        <div class="practice-feedback mt-4" id="practiceFeedback" style="display: none;">
-                            <div class="feedback-card">
-                                <h6 class="text-light">Practice Results:</h6>
-                                <div id="practiceResults"></div>
+                            
+                            <div class="practice-controls mt-3">
+                                <button class="btn btn-primary btn-lg me-3" id="startPractice">
+                                    <i class="fas fa-camera me-2"></i>Start Practice
+                                </button>
+                                <button class="btn btn-danger btn-lg" id="stopPractice" style="display: none;">
+                                    <i class="fas fa-stop me-2"></i>Stop Practice
+                                </button>
+                            </div>
+                            
+                            <div class="practice-feedback mt-4" id="practiceFeedback" style="display: none;">
+                                <div class="feedback-card">
+                                    <h6 class="text-light">Practice Results:</h6>
+                                    <div id="practiceResults"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </div>
             
             <!-- Sidebar -->

@@ -200,7 +200,6 @@ def extract_mouth(frame, landmarks):
     enhanced = cv2.GaussianBlur(enhanced, (5, 5), 0)
     return enhanced
 
-# Replace the predict_syllable function
 @app.route('/api/predict', methods=['POST'])
 def predict_syllable():
     try:
@@ -364,6 +363,8 @@ def predict_specific_syllable(syllable):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+    
 @app.route('/word-quiz')
 def word_quiz():
     return render_template('word-quiz.html')

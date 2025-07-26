@@ -178,10 +178,8 @@ displayNoFaceMessage() {
     const predictionsList = document.getElementById("predictionsList")
     if (!predictionsList) return
 
-    // Clear existing predictions
     predictionsList.innerHTML = ""
 
-    // Add new predictions
     predictions.forEach((prediction, index) => {
       const predictionElement = document.createElement("div")
       predictionElement.className = "prediction-item"
@@ -199,11 +197,9 @@ displayNoFaceMessage() {
 
     this.sessionStats.totalPredictions++
 
-    // Update confidence sum
     const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length
     this.sessionStats.confidenceSum += avgConfidence
 
-    // Update syllable counts
     const topPrediction = predictions[0]
     if (this.sessionStats.syllableCounts[topPrediction.syllable]) {
       this.sessionStats.syllableCounts[topPrediction.syllable]++
@@ -211,7 +207,6 @@ displayNoFaceMessage() {
       this.sessionStats.syllableCounts[topPrediction.syllable] = 1
     }
 
-    // Update UI
     this.updateStatsDisplay()
   }
 
@@ -253,7 +248,6 @@ displayNoFaceMessage() {
   }
 }
 
-// Initialize camera manager when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   new CameraManager()
 })
