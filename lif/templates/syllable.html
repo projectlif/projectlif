@@ -43,12 +43,10 @@
                         
                         <div class="pronunciation-demo text-center mb-4">
                             <div class="gif-container">
-                                <div class="gif-preview-container" onclick="playPreview('{{ syllable }}')">
-                                <img src="{{ data.gif }}" alt="Preview of {{ syllable }}" class="gif-preview">
-                                <div class="play-overlay">
-                                    <i class="fas fa-play-circle fa-2x gradient-text"></i>
-                                </div>
-                            </div>
+                                <img src="{{ data.gif }}" 
+                                     alt="Pronunciation of {{ syllable }}" 
+                                     class="gif-demo"
+                                     onload="this.style.display='block'">
                             </div>
                         </div>
                         
