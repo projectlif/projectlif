@@ -45,6 +45,11 @@ SYLLABLES_DATA = {
         'gif': '/static/gifs/ba.gif',
         'difficulty': 2
     },
+    'ba': {
+        'description': 'Press lips together, then release with a puff of air while opening to "a" position.',
+        'gif': '/static/gifs/ba.gif',
+        'difficulty': 2
+    },
     'da': {
         'description': 'Touch tongue tip to roof of mouth behind teeth, then release to "a" position.',
         'gif': '/static/gifs/da.gif',
