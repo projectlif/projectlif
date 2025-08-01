@@ -1,11 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}Live Camera -  Project LIF{% endblock %}
+{% block title %}Live Camera - Project LIF{% endblock %}
 {% block meta_description %}Real-time lip reading analysis with AI-powered predictions and confidence scores.{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/camera-modal.css') }}">
+
 <section class="camera-section py-5">
     <div class="container">
+        
+        <!-- 📌 Syllable Categories Floating Button -->
+        <button id="categoryBtn" class="btn btn-warning syllable-btn" data-bs-toggle="modal" data-bs-target="#categoryModal">
+            <i class="fas fa-folder me-2"></i>Syllable Categories
+        </button>
+        <!-- 📌 End Floating Button -->
+
         <div class="row text-center mb-4">
             <div class="col-lg-8 mx-auto">
                 <h1 class="display-5 fw-bold mb-3">
@@ -15,12 +24,15 @@
                 <p class="lead text-light">Speak naturally and see real-time lip reading predictions</p>
             </div>
         </div>
-        
+
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="camera-container">
                     <div class="card bg-dark-card border-0 shadow-lg">
                         <div class="card-body p-4">
+                            
+                            <!-- Removed duplicate button inside card -->
+
                             <!-- Camera Feed -->
                             <div class="camera-feed-container mb-4">
                                 <video id="cameraFeed" class="camera-feed" autoplay muted playsinline></video>
@@ -32,7 +44,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Controls -->
                             <div class="camera-controls text-center mb-4">
                                 <button id="startCamera" class="btn btn-primary btn-lg me-3">
@@ -42,7 +54,7 @@
                                     <i class="fas fa-stop me-2"></i>Stop Camera
                                 </button>
                             </div>
-                            
+
                             <!-- Predictions -->
                             <div class="predictions-container">
                                 <h5 class="text-light mb-3">
@@ -56,11 +68,46 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Syllable Categories Modal -->
+                            <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content bg-dark text-light border-light">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="categoryModalLabel">Syllable Categories</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="mb-3">Click a category to Start:</p>
+                                            <div class="d-grid gap-2">
+                                                <button class="btn btn-outline-light rounded-pill">a - u</button>
+                                                <button class="btn btn-outline-light rounded-pill">ba - bu</button>
+                                                <button class="btn btn-outline-light rounded-pill">ka - ku</button>
+                                                <button class="btn btn-outline-light rounded-pill">da - du</button>
+                                                <button class="btn btn-outline-light rounded-pill">ga - gu</button>
+                                                <button class="btn btn-outline-light rounded-pill">ha - hu</button>
+                                                <button class="btn btn-outline-light rounded-pill">la - lu</button>
+                                                <button class="btn btn-outline-light rounded-pill">ma - mu</button>
+                                                <button class="btn btn-outline-light rounded-pill">na - nu</button>
+                                                <button class="btn btn-outline-light rounded-pill">nga - ngu</button>
+                                                <button class="btn btn-outline-light rounded-pill">pa - pu</button>
+                                                <button class="btn btn-outline-light rounded-pill">ra - ru</button>
+                                                <button class="btn btn-outline-light rounded-pill">sa - su</button>
+                                                <button class="btn btn-outline-light rounded-pill">ta - tu</button>
+                                                <button class="btn btn-outline-light rounded-pill">wa - wu</button>
+                                                <button class="btn btn-outline-light rounded-pill">ya - yu</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Modal -->
+
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Tips Sidebar -->
             <div class="col-lg-4">
                 <div class="tips-container">
@@ -71,30 +118,15 @@
                                 Tips for Better Results
                             </h5>
                             <ul class="tips-list">
-                                <li class="tip-item">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    Ensure good lighting on your face
-                                </li>
-                                <li class="tip-item">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    Position camera at eye level
-                                </li>
-                                <li class="tip-item">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    Speak clearly and naturally
-                                </li>
-                                <li class="tip-item">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    Keep your face centered
-                                </li>
-                                <li class="tip-item">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    Avoid covering your mouth
-                                </li>
+                                <li class="tip-item"><i class="fas fa-check-circle text-success me-2"></i>Ensure good lighting on your face</li>
+                                <li class="tip-item"><i class="fas fa-check-circle text-success me-2"></i>Position camera at eye level</li>
+                                <li class="tip-item"><i class="fas fa-check-circle text-success me-2"></i>Speak clearly and naturally</li>
+                                <li class="tip-item"><i class="fas fa-check-circle text-success me-2"></i>Keep your face centered</li>
+                                <li class="tip-item"><i class="fas fa-check-circle text-success me-2"></i>Avoid covering your mouth</li>
                             </ul>
                         </div>
                     </div>
-                    
+
                     <!-- Stats Card -->
                     <div class="card bg-dark-card border-0 shadow-lg mt-4">
                         <div class="card-body">

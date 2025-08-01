@@ -1,0 +1,53 @@
+/* Style the modal more clearly */
+.modal-content {
+    background-color: #222;
+    border-radius: 12px;
+    border: 1px solid #555;
+}
+
+.modal-header,
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-title {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.modal-body button {
+    font-size: 1.1rem;
+}
+
+.syllable-btn {
+    position: absolute;
+    top: 300px;
+    left: 50px;
+    z-index: 1050;
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+/* 📌 Tablet adjustments */
+@media (max-width: 992px) {
+    .syllable-btn {
+        top: 120px;
+        left: 20px;
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+}
+
+/* 📌 Mobile layout: move inside camera container above "Recording" */
+@media (max-width: 768px) {
+    .syllable-btn {
+        position: absolute;
+        top: 10px;            /* near top of camera feed */
+        left: 50%;            /* center horizontally */
+        transform: translateX(-50%);
+        z-index: 1100;
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+}
+
