@@ -5,15 +5,17 @@ import cv2
 import dlib
 import numpy as np
 import tensorflow as tf
+import uuid
 from collections import deque
+from datetime import datetime, timedelta
 import base64
 from io import BytesIO
 from PIL import Image
 
 app = Flask(__name__)
-app.secret_key = ''
+app.secret_key = 'e94c984be9a156848e9d4db164bcdab1'
+app.permanent_session_lifetime = timedelta(days=30)
 
-# Sample data for syllables and their descriptions
 SYLLABLES_DATA = {
     'a': {
         'description': 'Open your mouth wide, drop your jaw, and let the sound flow naturally from your throat.',
@@ -189,10 +191,9 @@ SYLLABLES_DATA = {
         'description': 'The L uses the tongue tip touching the alveolar ridge. The U is a high back vowel — lips are rounded, and the tongue is high and back.',
         #'gif': '/static/gifs/la.gif',
         'difficulty': 3
-    },
+    }
 }
 
-# Sample data for Filipino words
 WORDS_DATA = {
     'aso': {
         'description': 'A common Filipino word meaning "dog"',
@@ -213,6 +214,153 @@ WORDS_DATA = {
         'translation': 'eye'
     },
 }
+@app.before_request
+def before_request():
+    session.permanent = True  # Make session permanent
+    
+    # Generate unique session ID if not exists
+    if 'user_id' not in session:
+        session['user_id'] = str(uuid.uuid4())
+        session['created_at'] = datetime.now().isoformat()
+        session['total_sessions'] = 1
+        session['current_session_start'] = datetime.now().isoformat()
+        session['page_visits'] = 0
+    
+    # Only increment page visits, not sessions
+    if request.endpoint and request.endpoint not in ['static', 'get_session_info']:
+        session['page_visits'] = session.get('page_visits', 0) + 1
+
+
+@app.route('/api/session/info')
+def get_session_info():
+    # Only show welcome message once per session
+    show_welcome = session.get('welcome_shown', False)
+    if not show_welcome:
+        session['welcome_shown'] = True
+    
+    return jsonify({
+        'user_id': session.get('user_id'),
+        'created_at': session.get('created_at'),
+        'total_sessions': session.get('total_sessions', 1),
+        'page_visits': session.get('page_visits', 0),
+        'show_welcome': not show_welcome,
+        'is_new_user': session.get('total_sessions', 1) == 1
+    })
+
+# Add route to mark syllable as mastered
+@app.route('/api/syllable/<syllable>/master', methods=['POST'])
+def master_syllable(syllable):
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'No session found'}), 400
+        
+        # Get current mastered syllables from session
+        mastered = session.get('mastered_syllables', [])
+        
+        if syllable not in mastered:
+            mastered.append(syllable)
+            session['mastered_syllables'] = mastered
+            
+            # Also update points
+            current_points = session.get('total_points', 0)
+            session['total_points'] = current_points + 100
+            
+            return jsonify({
+                'success': True,
+                'message': f'Syllable {syllable} mastered!',
+                'total_mastered': len(mastered),
+                'points_earned': 100,
+                'total_points': session['total_points']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Syllable already mastered'
+            })
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Add route to save quiz score
+@app.route('/api/quiz/save-score', methods=['POST'])
+def save_quiz_score():
+    try:
+        data = request.get_json()
+        user_id = session.get('user_id')
+        
+        if not user_id:
+            return jsonify({'error': 'No session found'}), 400
+        
+        # Get current high scores (keep top 3)
+        high_scores = session.get('quiz_high_scores', [])
+        
+        new_score = {
+            'score': data.get('score', 0),
+            'accuracy': data.get('accuracy', 0),
+            'date': datetime.now().isoformat(),
+            'difficulty': data.get('difficulty', 'easy')
+        }
+        
+        high_scores.append(new_score)
+        # Sort by score descending and keep top 3
+        high_scores.sort(key=lambda x: x['score'], reverse=True)
+        session['quiz_high_scores'] = high_scores[:3]
+        
+        return jsonify({
+            'success': True,
+            'high_scores': session['quiz_high_scores'],
+            'is_new_high_score': len(high_scores) == 1 or new_score['score'] == high_scores[0]['score']
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/progress/get')
+def get_progress():
+    user_id = session.get('user_id')
+    
+    return jsonify({
+        'user_id': user_id,
+        'mastered_syllables': session.get('mastered_syllables', []),
+        'total_points': session.get('total_points', 0),
+        'quiz_high_scores': session.get('quiz_high_scores', []),
+        'session_info': {
+            'created_at': session.get('created_at'),
+            'total_sessions': session.get('total_sessions', 1),
+            'page_visits': session.get('page_visits', 0)
+        }
+    })
+
+@app.route('/api/progress/sync', methods=['POST'])
+def sync_progress():
+    try:
+        data = request.get_json()
+        user_id = session.get('user_id')
+        
+        if not user_id:
+            return jsonify({'error': 'No session found'}), 400
+
+        progress_data = {
+            'user_id': user_id,
+            'completed': data.get('completed', []),
+            'points': data.get('points', 0),
+            'total_time': data.get('total_time', 0),
+            'last_updated': datetime.now().isoformat()
+        }
+        
+        session['progress'] = progress_data
+        
+        return jsonify({
+            'success': True,
+            'message': 'Progress synced successfully',
+            'user_id': user_id
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/')
 def home():
@@ -462,11 +610,8 @@ def predict_specific_syllable(syllable):
             
         image_file = request.files['image']
         
-        # Here you would integrate your trained model
-        # For now, using mock prediction logic
-        
-        # Mock face/mouth detection
-        face_detected = True  # Your face detection logic here
+        # Mock face/mouth detection - higher chance of detection
+        face_detected = random.random() > 0.1  # 90% chance of detection
         
         if not face_detected:
             return jsonify({
@@ -474,17 +619,27 @@ def predict_specific_syllable(syllable):
                 'message': 'No face detected'
             })
         
-        # Mock model prediction - replace with your actual model
-        import random
+        # Mock model prediction with bias toward correct answer
         all_syllables = list(SYLLABLES_DATA.keys())
-        predicted_syllable = random.choice(all_syllables)
+        
+        # 70% chance of getting the correct syllable
+        if random.random() < 0.7:
+            predicted_syllable = syllable
+        else:
+            # 30% chance of getting a different syllable
+            other_syllables = [s for s in all_syllables if s != syllable]
+            predicted_syllable = random.choice(other_syllables) if other_syllables else syllable
         
         # Calculate if prediction matches target
         is_correct = predicted_syllable.lower() == syllable.lower()
         
-        # Mock confidence scores
-        target_confidence = random.uniform(0.7, 0.95) if is_correct else random.uniform(0.3, 0.6)
-        accuracy = target_confidence if is_correct else random.uniform(0.4, 0.7)
+        # More realistic confidence scores
+        if is_correct:
+            target_confidence = random.uniform(0.75, 0.95)
+            accuracy = random.uniform(0.8, 0.95)
+        else:
+            target_confidence = random.uniform(0.3, 0.6)
+            accuracy = random.uniform(0.4, 0.7)
         
         return jsonify({
             'detected': True,
@@ -499,7 +654,7 @@ def predict_specific_syllable(syllable):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-    
+
 @app.route('/word-quiz')
 def word_quiz():
     return render_template('word-quiz.html')

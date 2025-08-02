@@ -6,7 +6,6 @@
 {% block content %}
 <section class="quiz-section py-5">
     <div class="container">
-        <!-- Quiz Header -->
         <div class="row text-center mb-4">
             <div class="col-lg-8 mx-auto">
                 <h1 class="display-5 fw-bold mb-3">
@@ -17,7 +16,6 @@
             </div>
         </div>
         
-        <!-- Quiz Stats Bar -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="quiz-stats-bar">
@@ -56,9 +54,7 @@
         </div>
         
         <div class="row justify-content-center">
-            <!-- Quiz Area -->
-            <div class="col-lg-8">
-                <!-- Start Screen -->
+       <div class="col-lg-8">
                 <div class="quiz-start-screen" id="startScreen">
                     <div class="card bg-dark-card border-0 shadow-lg text-center">
                         <div class="card-body p-5">
@@ -97,18 +93,18 @@
                     </div>
                 </div>
                 
-                <!-- Quiz Game -->
+      
                 <div class="quiz-game-screen" id="gameScreen" style="display: none;">
                     <div class="card bg-dark-card border-0 shadow-lg">
                         <div class="card-body p-4">
-                            <!-- Progress Bar -->
+              
                             <div class="quiz-progress mb-4">
                                 <div class="progress">
                                     <div class="progress-bar bg-gradient-primary" id="progressBar" role="progressbar" style="width: 0%"></div>
                                 </div>
                             </div>
                             
-                            <!-- Question Area -->
+                          
                             <div class="question-area text-center mb-4">
                                 <h4 class="text-light mb-3">What Filipino word is being pronounced?</h4>
                                 
@@ -126,13 +122,12 @@
                                     <div class="timer-display" id="timerDisplay">30</div>
                                 </div>
                             </div>
-                            
-                            <!-- Answer Options -->
+                     
                             <div class="answer-options" id="answerOptions">
-                                <!-- Options will be populated by JavaScript -->
+                            
                             </div>
                             
-                            <!-- Feedback -->
+                       
                             <div class="answer-feedback" id="answerFeedback" style="display: none;">
                                 <div class="feedback-content">
                                     <div class="feedback-icon">
@@ -148,7 +143,7 @@
                     </div>
                 </div>
                 
-                <!-- Results Screen -->
+    
                 <div class="quiz-results-screen" id="resultsScreen" style="display: none;">
                     <div class="card bg-dark-card border-0 shadow-lg text-center">
                         <div class="card-body p-5">
@@ -196,9 +191,8 @@
                 </div>
             </div>
             
-            <!-- Sidebar (same as regular quiz) -->
+
             <div class="col-lg-4">
-                <!-- Word Quiz Tips -->
                 <div class="card bg-dark-card border-0 shadow-lg">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">

@@ -6,7 +6,6 @@
 {% block content %}
 <section class="quiz-section py-5">
     <div class="container">
-        <!-- Quiz Header -->
         <div class="row text-center mb-4">
             <div class="col-lg-8 mx-auto">
                 <h1 class="display-5 fw-bold mb-3">
@@ -16,8 +15,7 @@
                 <p class="lead text-light">Test your lipreading skills and earn points!</p>
             </div>
         </div>
-        
-        <!-- Quiz Stats Bar -->
+   
         <div class="row mb-4">
             <div class="col-12">
                 <div class="quiz-stats-bar">
@@ -56,9 +54,7 @@
         </div>
         
         <div class="row justify-content-center">
-            <!-- Quiz Area -->
             <div class="col-lg-8">
-                <!-- Start Screen -->
                 <div class="quiz-start-screen" id="startScreen">
                     <div class="card bg-dark-card border-0 shadow-lg text-center">
                         <div class="card-body p-5">
@@ -98,18 +94,16 @@
                     </div>
                 </div>
                 
-                <!-- Quiz Game -->
                 <div class="quiz-game-screen" id="gameScreen" style="display: none;">
                     <div class="card bg-dark-card border-0 shadow-lg">
                         <div class="card-body p-4">
-                            <!-- Progress Bar -->
                             <div class="quiz-progress mb-4">
                                 <div class="progress">
                                     <div class="progress-bar bg-gradient-primary" id="progressBar" role="progressbar" style="width: 0%"></div>
                                 </div>
                             </div>
                             
-                            <!-- Question Area -->
+
                             <div class="question-area text-center mb-4">
                                 <h4 class="text-light mb-3">What syllable is being pronounced?</h4>
                                 
@@ -127,12 +121,10 @@
                                 </div>
                             </div>
                             
-                            <!-- Answer Options -->
                             <div class="answer-options" id="answerOptions">
-                                <!-- Options will be populated by JavaScript -->
+                         
                             </div>
                             
-                            <!-- Feedback -->
                             <div class="answer-feedback" id="answerFeedback" style="display: none;">
                                 <div class="feedback-content">
                                     <div class="feedback-icon">
@@ -148,7 +140,7 @@
                     </div>
                 </div>
                 
-                <!-- Results Screen -->
+       
                 <div class="quiz-results-screen" id="resultsScreen" style="display: none;">
                     <div class="card bg-dark-card border-0 shadow-lg text-center">
                         <div class="card-body p-5">
@@ -193,36 +185,20 @@
                 </div>
             </div>
             
-            <!-- Sidebar -->
+        
             <div class="col-lg-4">
-                <!-- Leaderboard -->
                 <div class="card bg-dark-card border-0 shadow-lg mb-4">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">
                             <i class="fas fa-trophy gradient-text me-2"></i>
-                            Today's Top Scores
+                            Your Top Scores
                         </h5>
                         <div class="leaderboard-list">
-                            <div class="leaderboard-item">
-                                <div class="rank">1</div>
-                                <div class="player">You</div>
-                                <div class="score">0</div>
-                            </div>
-                            <div class="leaderboard-item">
-                                <div class="rank">2</div>
-                                <div class="player">Player2</div>
-                                <div class="score">850</div>
-                            </div>
-                            <div class="leaderboard-item">
-                                <div class="rank">3</div>
-                                <div class="player">Player3</div>
-                                <div class="score">720</div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
                 
-                <!-- Achievements -->
                 <div class="card bg-dark-card border-0 shadow-lg mb-4">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">
@@ -261,7 +237,6 @@
                     </div>
                 </div>
                 
-                <!-- Quiz Tips -->
                 <div class="card bg-dark-card border-0 shadow-lg">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">

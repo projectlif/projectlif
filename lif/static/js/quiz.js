@@ -57,7 +57,61 @@ class QuizManager {
 
     window.LipLearn.showNotification("Quiz started! Good luck!", "info")
   }
+  async saveHighScore() {
+    const accuracy = (this.correctAnswers / this.totalQuestions) * 100
+    
+    const scoreData = {
+        score: this.score,
+        accuracy: accuracy,
+        difficulty: this.difficulty
+    }
+    
+    // Save to session via API
+    if (window.SessionManager) {
+        const result = await window.SessionManager.saveQuizScore(scoreData)
+        if (result && result.high_scores) {
+            this.updateLeaderboardWithSessionScores(result.high_scores)
+        }
+    }
+    
+    // Also save to localStorage as backup
+    const highScores = JSON.parse(localStorage.getItem("liplearn_highscores") || "[]")
+    highScores.push(scoreData)
+    highScores.sort((a, b) => b.score - a.score)
+    localStorage.setItem("liplearn_highscores", JSON.stringify(highScores.slice(0, 3)))
+}
 
+updateLeaderboardWithSessionScores(highScores) {
+    const leaderboardList = document.querySelector(".leaderboard-list")
+    if (!leaderboardList) return
+
+    // Clear existing entries
+    leaderboardList.innerHTML = ''
+    
+    // Add session high scores
+    highScores.forEach((score, index) => {
+        const entry = document.createElement('div')
+        entry.className = 'leaderboard-item'
+        entry.innerHTML = `
+            <div class="rank">${index + 1}</div>
+            <div class="player">Your Score #${index + 1}</div>
+            <div class="score">${score.score}</div>
+        `
+        leaderboardList.appendChild(entry)
+    })
+    
+    // Fill remaining slots with placeholders
+    for (let i = highScores.length; i < 3; i++) {
+        const entry = document.createElement('div')
+        entry.className = 'leaderboard-item'
+        entry.innerHTML = `
+            <div class="rank">${i + 1}</div>
+            <div class="player">-</div>
+            <div class="score">0</div>
+        `
+        leaderboardList.appendChild(entry)
+    }
+}
   async loadQuestions() {
     // Generate questions based on difficulty
     for (let i = 0; i < this.totalQuestions; i++) {
@@ -130,19 +184,10 @@ shuffleArray(array) {
 
     const question = this.questions[this.currentQuestion]
 
-    // Update progress
     this.updateProgress()
-
-    // Update question number
     document.getElementById("questionNumber").textContent = this.currentQuestion + 1
-
-    // Show GIF
     this.displayQuestionGif(question)
-
-    // Show options
     this.displayAnswerOptions(question)
-
-    // Start timer
     this.startTimer()
   }
 
@@ -155,14 +200,15 @@ displayQuestionGif(question) {
         img.className = 'img-fluid rounded';
         img.style.cssText = 'width: 100%; height: 100%; object-fit: contain;';
         
-        // Force infinite loop
+
+
         const restartGif = () => {
             const timestamp = new Date().getTime();
             img.src = `${question.gif}?t=${timestamp}`;
         };
         
         img.onload = () => {
-            setTimeout(restartGif, 2500); // Restart after 2.5 seconds
+            setTimeout(restartGif, 2500); 
         };
         
         // Set up continuous restart
@@ -351,8 +397,9 @@ displayQuestionGif(question) {
     document.getElementById("currentScore").textContent = this.score
     document.getElementById("currentStreak").textContent = this.streak
   }
-
-  endQuiz() {
+async endQuiz() {
+    console.log('🏁 Quiz ending...')
+    
     this.stopTimer()
 
     // Hide game screen, show results
@@ -362,13 +409,20 @@ displayQuestionGif(question) {
     // Calculate final stats
     const accuracy = (this.correctAnswers / this.totalQuestions) * 100
 
+    console.log('📊 Final quiz stats:', {
+        score: this.score,
+        accuracy: accuracy,
+        bestStreak: this.bestStreak,
+        difficulty: this.difficulty
+    })
+
     // Update results display
     document.getElementById("finalScore").textContent = this.score
     document.getElementById("finalAccuracy").textContent = `${Math.round(accuracy)}%`
     document.getElementById("finalStreak").textContent = this.bestStreak
 
     // Save high score
-    this.saveHighScore()
+    await this.saveHighScore()
 
     // Update leaderboard
     this.updateLeaderboard()
@@ -377,29 +431,81 @@ displayQuestionGif(question) {
     this.checkAchievements(accuracy)
 
     window.LipLearn.showNotification("Quiz completed! Check your results.", "success")
-  }
+}
 
-  saveHighScore() {
+async saveHighScore() {
+    console.log('💾 Saving high score...')
+    
+    const accuracy = (this.correctAnswers / this.totalQuestions) * 100
+    
+    const scoreData = {
+        score: this.score,
+        accuracy: accuracy,
+        difficulty: this.difficulty
+    }
+    
+    console.log('📊 Score data to save:', scoreData)
+    
+    // Save to session via API
+    if (window.SessionManager) {
+        const result = await window.SessionManager.saveQuizScore(scoreData)
+        console.log('📊 Quiz save result:', result)
+        
+        if (result && result.high_scores) {
+            this.updateLeaderboardWithSessionScores(result.high_scores)
+        }
+    }
+    
+    // Also save to localStorage as backup
     const highScores = JSON.parse(localStorage.getItem("liplearn_highscores") || "[]")
-
-    const newScore = {
-      score: this.score,
-      accuracy: (this.correctAnswers / this.totalQuestions) * 100,
-      streak: this.bestStreak,
-      difficulty: this.difficulty,
-      date: new Date().toISOString(),
-    }
-
-    highScores.push(newScore)
+    highScores.push(scoreData)
     highScores.sort((a, b) => b.score - a.score)
+    localStorage.setItem("liplearn_highscores", JSON.stringify(highScores.slice(0, 3)))
+}
 
-    // Keep only top 10 scores
-    if (highScores.length > 10) {
-      highScores.splice(10)
+updateLeaderboardWithSessionScores(highScores) {
+    console.log('🏆 Updating leaderboard with session scores:', highScores)
+    
+    const leaderboardList = document.querySelector(".leaderboard-list")
+    if (!leaderboardList) return
+
+    // Clear existing entries
+    leaderboardList.innerHTML = ''
+    
+    // Add session high scores
+    highScores.forEach((score, index) => {
+        const entry = document.createElement('div')
+        entry.className = 'leaderboard-item'
+        entry.innerHTML = `
+            <div class="rank">${index + 1}</div>
+            <div class="player">Your Score #${index + 1}</div>
+            <div class="score">${score.score}</div>
+        `
+        leaderboardList.appendChild(entry)
+    })
+    
+    // Fill remaining slots with placeholders
+    for (let i = highScores.length; i < 3; i++) {
+        const entry = document.createElement('div')
+        entry.className = 'leaderboard-item'
+        entry.innerHTML = `
+            <div class="rank">${i + 1}</div>
+            <div class="player">-</div>
+            <div class="score">0</div>
+        `
+        leaderboardList.appendChild(entry)
     }
+    
+    console.log('✅ Leaderboard updated successfully')
+}
 
-    localStorage.setItem("liplearn_highscores", JSON.stringify(highScores))
-  }
+// Update the updateLeaderboard method to use session scores
+updateLeaderboard() {
+    // This method will be called but the real update happens in updateLeaderboardWithSessionScores
+    console.log('📊 Leaderboard update requested (handled by session scores)')
+}
+
+
 
   updateLeaderboard() {
     const leaderboardList = document.querySelector(".leaderboard-list")

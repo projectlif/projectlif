@@ -1,10 +1,6 @@
-// Main JavaScript file for LipLearn
-
-// Global variables
 let isScrolling = false
-let bootstrap // Declare the bootstrap variable
+let bootstrap 
 
-// Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   initializeAnimations()
   initializeNavigation()
@@ -12,9 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeTooltips()
 })
 
-// Animation initialization
 function initializeAnimations() {
-  // Animate elements on scroll
   const observerOptions = {
     threshold: 0.1,
     rootMargin: "0px 0px -50px 0px",
@@ -28,17 +22,14 @@ function initializeAnimations() {
     })
   }, observerOptions)
 
-  // Observe all elements with animate-on-scroll class
   document.querySelectorAll(".animate-on-scroll").forEach((el) => {
     observer.observe(el)
   })
 }
 
-// Navigation functionality
 function initializeNavigation() {
   const navbar = document.querySelector(".navbar")
 
-  // Add scroll effect to navbar
   window.addEventListener("scroll", () => {
     if (window.scrollY > 50) {
       navbar.classList.add("scrolled")
@@ -46,8 +37,6 @@ function initializeNavigation() {
       navbar.classList.remove("scrolled")
     }
   })
-
-  // Mobile menu handling
   const navbarToggler = document.querySelector(".navbar-toggler")
   const navbarCollapse = document.querySelector(".navbar-collapse")
 
@@ -56,7 +45,6 @@ function initializeNavigation() {
       navbarCollapse.classList.toggle("show")
     })
 
-    // Close mobile menu when clicking on links
     document.querySelectorAll(".nav-link").forEach((link) => {
       link.addEventListener("click", () => {
         navbarCollapse.classList.remove("show")
@@ -65,9 +53,7 @@ function initializeNavigation() {
   }
 }
 
-// Scroll effects
 function initializeScrollEffects() {
-  // Smooth scrolling for anchor links
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
       e.preventDefault()
@@ -81,7 +67,6 @@ function initializeScrollEffects() {
     })
   })
 
-  // Parallax effect for hero section
   const heroSection = document.querySelector(".hero-section")
   if (heroSection) {
     window.addEventListener("scroll", () => {
@@ -98,16 +83,13 @@ function initializeScrollEffects() {
   }
 }
 
-// Initialize tooltips
 function initializeTooltips() {
-  // Initialize Bootstrap tooltips if available
   if (typeof bootstrap !== "undefined") {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     tooltipTriggerList.map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl))
   }
 }
 
-// Utility functions
 function showNotification(message, type = "info") {
   const notification = document.createElement("div")
   notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`
@@ -119,7 +101,6 @@ function showNotification(message, type = "info") {
 
   document.body.appendChild(notification)
 
-  // Auto remove after 5 seconds
   setTimeout(() => {
     if (notification.parentNode) {
       notification.remove()
@@ -145,22 +126,19 @@ function debounce(func, wait) {
   }
 }
 
-// Force GIF infinite loop
 function makeGifInfinite(img) {
-    const originalSrc = img.src.split('?')[0]; // Remove any query params
+    const originalSrc = img.src.split('?')[0]; 
     
     img.onload = function() {
-        // Get GIF duration (approximate)
         setTimeout(() => {
-            if (img.parentNode) { // Check if still in DOM
+            if (img.parentNode) { 
                 const timestamp = new Date().getTime();
                 img.src = `${originalSrc}?t=${timestamp}`;
             }
-        }, 3000); // Restart every 3 seconds (adjust based on your GIF length)
+        }, 3000);
     };
 }
 
-// Apply to all GIFs on page load
 document.addEventListener('DOMContentLoaded', function() {
     setInterval(() => {
         document.querySelectorAll('img[src*=".gif"]').forEach(img => {
@@ -172,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 
-// Export functions for use in other scripts
 window.LipLearn = {
   showNotification,
   formatTime,
