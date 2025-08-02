@@ -35,7 +35,6 @@
             </div>
         </div>
         
-        <!-- Syllables Grid -->
         <div class="row g-4" id="syllablesGrid">
             {% for syllable, data in syllables.items() %}
             <div class="col-md-6 col-lg-4 syllable-card" data-difficulty="{{ data.difficulty }}">
@@ -77,8 +76,7 @@
             </div>
             {% endfor %}
         </div>
-        
-        <!-- Progress Section -->
+
         <div class="row mt-5">
             <div class="col-12">
                 <div class="card bg-dark-card border-0 shadow-lg">
@@ -91,31 +89,31 @@
                             <div class="row text-center">
                                 <div class="col-md-3">
                                     <div class="progress-item">
-                                        <div class="progress-value">{{ syllables|length }}</div>
+                                        <div class="progress-value" id="totalSyllables">{{ syllables|length }}</div>
                                         <div class="progress-label">Total Syllables</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-3 text-light">
                                     <div class="progress-item">
-                                        <div class="progress-value">0</div>
+                                        <div class="progress-value" id="completedSyllables">0</div>
                                         <div class="progress-label">Completed</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-3 text-light">
                                     <div class="progress-item">
-                                        <div class="progress-value">0%</div>
+                                        <div class="progress-value" id="progressPercentage">0%</div>
                                         <div class="progress-label">Progress</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-3 text-light">
                                     <div class="progress-item">
-                                        <div class="progress-value">0</div>
+                                        <div class="progress-value" id="pointsEarned">0</div>
                                         <div class="progress-label">Points Earned</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="progress mt-3">
-                                <div class="progress-bar bg-gradient-primary" role="progressbar" style="width: 0%"></div>
+                            <div class="progress mt-3 text-light">
+                                <div class="progress-bar bg-gradient-primary" id="progressBar" role="progressbar" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>

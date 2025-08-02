@@ -6,7 +6,6 @@
 {% block content %}
 <section class="syllable-section py-5">
     <div class="container">
-        <!-- Header -->
         <div class="row text-center mb-4">
             <div class="col-lg-8 mx-auto">
                 <nav aria-label="breadcrumb">
@@ -31,9 +30,7 @@
         </div>
         
         <div class="row">
-            <!-- Main Content -->
             <div class="col-lg-8">
-                <!-- Pronunciation Guide -->
                 <div class="card bg-dark-card border-0 shadow-lg mb-4">
                     <div class="card-body p-4">
                         <h4 class="card-title text-light mb-3">
@@ -52,12 +49,11 @@
                         
                         <div class="description-box">
                             <h5 class="text-light mb-3">How to Pronounce:</h5>
-                            <p class="text-muted">{{ data.description }}</p>
+                            <p class="text-light">{{ data.description }}</p>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Practice Section -->
+
                 <div class="card bg-dark-card border-0 shadow-lg mb-4">
                     <div class="card-body p-4">
                         <h4 class="card-title text-light mb-3">
@@ -89,7 +85,25 @@
                                     <i class="fas fa-stop me-2"></i>Stop Practice
                                 </button>
                             </div>
-                            
+                            <div class="completion-section mt-4"  id="completionSection">
+    <div class="alert alert-success">
+        <h6><i class="fas fa-star me-2"></i>Great Practice Session!</h6>
+        <p class="mb-3">You've practiced well. Mark this syllable as mastered?</p>
+        <button class="btn btn-success" id="markMasteredBtn">
+            <i class="fas fa-crown me-2"></i>Mark as Mastered
+        </button>
+    </div>
+</div>
+
+<div class="testing-section mt-3" style="border: 2px dashed #6c757d; padding: 1rem; border-radius: 10px;">
+    <small class="text-muted">Testing Controls:</small><br>
+    <button class="btn btn-sm btn-outline-secondary me-2" id="simulateGoodPractice">
+        Simulate Good Practice
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" id="simulatePoorPractice">
+        Simulate Poor Practice
+    </button>
+</div>
                             <div class="practice-feedback mt-4" id="practiceFeedback" style="display: none;">
                                 <div class="feedback-card">
                                     <h6 class="text-light">Practice Results:</h6>
@@ -101,9 +115,7 @@
                 </div>
             </div>
             
-            <!-- Sidebar -->
             <div class="col-lg-4">
-                <!-- Quick Stats -->
                 <div class="card bg-dark-card border-0 shadow-lg mb-4">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">
@@ -129,7 +141,6 @@
                     </div>
                 </div>
                 
-                <!-- Tips -->
                 <div class="card bg-dark-card border-0 shadow-lg mb-4">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">
@@ -156,8 +167,7 @@
                         </ul>
                     </div>
                 </div>
-                
-                <!-- Navigation -->
+
                 <div class="card bg-dark-card border-0 shadow-lg">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">

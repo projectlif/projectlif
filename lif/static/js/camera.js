@@ -1,5 +1,3 @@
-// Camera functionality for LipLearn
-
 class CameraManager {
   constructor() {
     this.video = document.getElementById("cameraFeed")
@@ -33,7 +31,6 @@ class CameraManager {
 
   async startCamera() {
     try {
-      // Request camera permission
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },
@@ -48,12 +45,10 @@ class CameraManager {
         this.video.play()
       }
 
-      // Update UI
       this.updateCameraControls(true)
       this.startPredictions()
       this.startSessionTimer()
 
-      // Show recording indicator
       const indicator = document.getElementById("recordingIndicator")
       if (indicator) {
         indicator.style.display = "flex"
@@ -79,7 +74,7 @@ class CameraManager {
     this.stopPredictions()
     this.updateCameraControls(false)
 
-    // Hide recording indicator
+
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) {
       indicator.style.display = "none"
@@ -106,7 +101,6 @@ class CameraManager {
   }
 
   startPredictions() {
-    // Start making predictions every 2 seconds
     this.predictionInterval = setInterval(() => {
       this.makePrediction()
     }, 2000)
@@ -123,13 +117,11 @@ class CameraManager {
     if (!this.isRecording) return
 
     try {
-        // Capture frame from video
         if (this.video && this.canvas && this.ctx) {
             this.canvas.width = this.video.videoWidth
             this.canvas.height = this.video.videoHeight
             this.ctx.drawImage(this.video, 0, 0)
 
-            // Convert to blob and send to server
             this.canvas.toBlob(
                 async (blob) => {
                     const formData = new FormData()
@@ -146,7 +138,6 @@ class CameraManager {
                             this.displayPredictions(data.predictions)
                             this.updateSessionStats(data.predictions)
                         } else {
-                            // Show "no face detected" message
                             this.displayNoFaceMessage()
                         }
                     } else {

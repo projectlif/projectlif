@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Live Camera -  Project LIF{% endblock %}
+{% block title %}Live Camera - Project LIF{% endblock %}
 {% block meta_description %}Real-time lip reading analysis with AI-powered predictions and confidence scores.{% endblock %}
 
 {% block content %}
@@ -15,13 +15,12 @@
                 <p class="lead text-light">Speak naturally and see real-time lip reading predictions</p>
             </div>
         </div>
-        
+
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="camera-container">
                     <div class="card bg-dark-card border-0 shadow-lg">
                         <div class="card-body p-4">
-                            <!-- Camera Feed -->
                             <div class="camera-feed-container mb-4">
                                 <video id="cameraFeed" class="camera-feed" autoplay muted playsinline></video>
                                 <canvas id="cameraCanvas" class="camera-canvas" style="display: none;"></canvas>
@@ -32,8 +31,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Controls -->
+
                             <div class="camera-controls text-center mb-4">
                                 <button id="startCamera" class="btn btn-primary btn-lg me-3">
                                     <i class="fas fa-play me-2"></i>Start Camera
@@ -42,8 +40,8 @@
                                     <i class="fas fa-stop me-2"></i>Stop Camera
                                 </button>
                             </div>
-                            
-                            <!-- Predictions -->
+
+         
                             <div class="predictions-container">
                                 <h5 class="text-light mb-3">
                                     <i class="fas fa-chart-bar gradient-text me-2"></i>
@@ -60,8 +58,7 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Tips Sidebar -->
+
             <div class="col-lg-4">
                 <div class="tips-container">
                     <div class="card bg-dark-card border-0 shadow-lg">
@@ -94,8 +91,7 @@
                             </ul>
                         </div>
                     </div>
-                    
-                    <!-- Stats Card -->
+
                     <div class="card bg-dark-card border-0 shadow-lg mt-4">
                         <div class="card-body">
                             <h5 class="card-title text-light mb-3">
@@ -127,6 +123,15 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block styles %}
+<style>
+.camera-feed,
+.camera-canvas {
+    transform: scaleX(-1); /* Mirror effect */
+}
+</style>
 {% endblock %}
 
 {% block extra_scripts %}

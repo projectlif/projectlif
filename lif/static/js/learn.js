@@ -1,14 +1,35 @@
-// Learning page functionality
-
 class LearningManager {
   constructor() {
     this.currentFilter = "all"
     this.initializeEventListeners()
     this.initializeProgress()
-    this.setupInfiniteGifs() // Add this line
+    this.setupInfiniteGifs()
+    this.setupProgressListener()
 }
 
-// Add this method
+setupProgressListener() {
+    // Listen for storage changes from other tabs/pages
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'liplearn_progress') {
+            console.log('📢 Storage change detected, refreshing progress...')
+            this.loadSessionProgress()
+        }
+    })
+    
+    // Listen for custom progress events
+    window.addEventListener('progressUpdated', (event) => {
+        console.log('📢 Progress update event received on learn page:', event.detail)
+        this.updateProgressDisplay(event.detail)
+    })
+    
+    // Refresh progress every 5 seconds when page is visible
+    setInterval(() => {
+        if (!document.hidden) {
+            console.log('🔄 Periodic progress refresh...')
+            this.loadSessionProgress()
+        }
+    }, 5000)
+}
 setupInfiniteGifs() {
     setInterval(() => {
         document.querySelectorAll('.gif-preview').forEach(img => {
@@ -23,18 +44,16 @@ setupInfiniteGifs() {
                 }, 100);
             }
         });
-    }, 3000); // Restart every 3 seconds
+    }, 3000); 
 }
 
   initializeEventListeners() {
-    // Difficulty filter buttons
     document.querySelectorAll(".filter-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         this.handleFilterChange(e.target.dataset.difficulty)
       })
     })
 
-    // Syllable card hover effects
     document.querySelectorAll(".syllable-card").forEach((card) => {
       card.addEventListener("mouseenter", this.handleCardHover)
       card.addEventListener("mouseleave", this.handleCardLeave)
@@ -42,13 +61,11 @@ setupInfiniteGifs() {
   }
 
   handleFilterChange(difficulty) {
-    // Update active filter button
     document.querySelectorAll(".filter-btn").forEach((btn) => {
       btn.classList.remove("active")
     })
     document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add("active")
 
-    // Filter syllable cards
     this.currentFilter = difficulty
     this.filterSyllables()
   }
@@ -62,7 +79,6 @@ setupInfiniteGifs() {
       if (this.currentFilter === "all" || cardDifficulty === this.currentFilter) {
         card.classList.remove("hidden")
         card.style.display = "block"
-        // Animate in
         setTimeout(() => {
           card.style.opacity = "1"
           card.style.transform = "translateY(0)"
@@ -98,61 +114,123 @@ setupInfiniteGifs() {
     }
   }
 
-  initializeProgress() {
-    // Load progress from localStorage
-    const progress = this.loadProgress()
-    this.updateProgressDisplay(progress)
-  }
+async initializeProgress() {
+    window.addEventListener('progressUpdated', (event) => {
+        this.updateProgressDisplay(event.detail)
+    })
+    
+    await this.loadSessionProgress()
+}
 
-  loadProgress() {
-    const saved = localStorage.getItem("liplearn_progress")
-    return saved
-      ? JSON.parse(saved)
-      : {
-          completed: [],
-          points: 0,
-          totalTime: 0,
+async loadSessionProgress() {
+    try {
+        const response = await fetch('/api/progress/get')
+        if (response.ok) {
+            const data = await response.json()
+            
+            const progress = {
+                completed: data.mastered_syllables || [],
+                points: data.total_points || 0,
+                totalTime: 0 
+            }
+            
+            this.updateProgressDisplay(progress)
+            this.markMasteredSyllables(data.mastered_syllables || [])
         }
-  }
+    } catch (error) {
+        console.error('Error loading session progress:', error)
+        const progress = this.loadProgress()
+        this.updateProgressDisplay(progress)
+    }
+}
+
+markMasteredSyllables(masteredSyllables) {
+    masteredSyllables.forEach(syllable => {
+        const syllableCard = document.querySelector(`[href*="learn/${syllable}"]`)?.closest('.syllable-card')
+        if (syllableCard) {
+            syllableCard.classList.add('mastered')
+            
+            if (!syllableCard.querySelector('.mastery-badge')) {
+                const badge = document.createElement('div')
+                badge.className = 'mastery-badge'
+                badge.innerHTML = '<i class="fas fa-crown text-warning"></i>'
+                badge.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: rgba(255, 193, 7, 0.2);
+                    border: 1px solid #ffc107;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `
+                syllableCard.style.position = 'relative'
+                syllableCard.appendChild(badge)
+            }
+        }
+    })
+}
 
   saveProgress(progress) {
     localStorage.setItem("liplearn_progress", JSON.stringify(progress))
   }
 
-  updateProgressDisplay(progress) {
+
+updateProgressDisplay(progress) {
+    console.log('📊 Updating progress display with:', progress)
+    
     const totalSyllables = document.querySelectorAll(".syllable-card").length
-    const completedCount = progress.completed.length
+    const completedCount = progress.completed ? progress.completed.length : 0
     const progressPercentage = totalSyllables > 0 ? (completedCount / totalSyllables) * 100 : 0
 
-    // Update progress stats
-    const completedEl = document.querySelector(".progress-stats .progress-item:nth-child(2) .progress-value")
-    const progressEl = document.querySelector(".progress-stats .progress-item:nth-child(3) .progress-value")
-    const pointsEl = document.querySelector(".progress-stats .progress-item:nth-child(4) .progress-value")
-    const progressBar = document.querySelector(".progress-bar")
-
-    if (completedEl) completedEl.textContent = completedCount
-    if (progressEl) progressEl.textContent = `${Math.round(progressPercentage)}%`
-    if (pointsEl) pointsEl.textContent = progress.points
-    if (progressBar) progressBar.style.width = `${progressPercentage}%`
-
-    // Mark completed syllables
-    progress.completed.forEach((syllable) => {
-      const card = document.querySelector(`[href*="${syllable}"]`)?.closest(".syllable-card")
-      if (card) {
-        card.classList.add("completed")
-        const badge = document.createElement("div")
-        badge.className = "completion-badge"
-        badge.innerHTML = '<i class="fas fa-check-circle text-success"></i>'
-        card.querySelector(".card-body").appendChild(badge)
-      }
+    console.log('📈 Progress calculations:', {
+        totalSyllables,
+        completedCount,
+        progressPercentage,
+        points: progress.points
     })
-  }
+
+    // Update progress stats with IDs
+    const completedEl = document.getElementById("completedSyllables")
+    const progressEl = document.getElementById("progressPercentage")
+    const pointsEl = document.getElementById("pointsEarned")
+    const progressBar = document.getElementById("progressBar")
+
+    if (completedEl) {
+        completedEl.textContent = completedCount
+        console.log('✅ Updated completed syllables:', completedCount)
+    }
+    
+    if (progressEl) {
+        progressEl.textContent = `${Math.round(progressPercentage)}%`
+        console.log('✅ Updated progress percentage:', Math.round(progressPercentage))
+    }
+    
+    if (pointsEl) {
+        pointsEl.textContent = progress.points || 0
+        console.log('✅ Updated points:', progress.points)
+    }
+    
+    if (progressBar) {
+        progressBar.style.width = `${progressPercentage}%`
+        console.log('✅ Updated progress bar:', progressPercentage)
+    }
+
+    // Mark completed syllables with visual indicators
+    if (progress.completed && progress.completed.length > 0) {
+        this.markMasteredSyllables(progress.completed)
+    }
+}
+
 
   markSyllableCompleted(syllable) {
     const progress = this.loadProgress()
     if (!progress.completed.includes(syllable)) {
       progress.completed.push(syllable)
-      progress.points += 50 // Award points for completion
+      progress.points += 50
       this.saveProgress(progress)
       this.updateProgressDisplay(progress)
 
@@ -197,7 +275,7 @@ function playPreview(syllable) {
     
     document.body.appendChild(modal);
     
-    // Close modal and clear interval
+
     const closeModal = () => {
         clearInterval(intervalId);
         modal.remove();
@@ -222,7 +300,6 @@ function replayModalGif(button) {
     img.src = `${currentSrc}?t=${newTimestamp}`;
 }
 
-// Initialize learning manager
 document.addEventListener("DOMContentLoaded", () => {
   new LearningManager()
 })

@@ -301,6 +301,7 @@ body {
     max-width: 640px;
     height: auto;
     border-radius: 10px;
+    transform: scaleX(-1);
 }
 
 
@@ -1213,5 +1214,36 @@ img[src*=".gif"] {
 @media (max-width: 768px) {
     .results-grid {
         grid-template-columns: 1fr;
+    }
+}
+/* Progress update animations */
+.progress-value {
+    transition: all 0.3s ease;
+}
+
+.progress-value.updated {
+    transform: scale(1.1);
+    color: var(--success-color);
+}
+
+.progress-bar {
+    transition: width 0.5s ease;
+}
+
+.mastery-badge {
+    animation: masteryPop 0.5s ease-out;
+}
+
+@keyframes masteryPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
     }
 }

@@ -10,20 +10,48 @@ class SyllableLearning {
 
     this.initializeEventListeners()
     this.setupInfiniteGif()
+    this.checkMasteryStatus()
   }
 
-  initializeEventListeners() {
+ initializeEventListeners() {
     const startPracticeBtn = document.getElementById("startPractice")
     const stopPracticeBtn = document.getElementById("stopPractice")
+    const markMasteredBtn = document.getElementById("markMasteredBtn") 
 
     if (startPracticeBtn) {
-      startPracticeBtn.addEventListener("click", () => this.startPractice())
+        startPracticeBtn.addEventListener("click", () => this.startPractice())
     }
 
     if (stopPracticeBtn) {
-      stopPracticeBtn.addEventListener("click", () => this.stopPractice())
+        stopPracticeBtn.addEventListener("click", () => this.stopPractice())
     }
-  }
+
+    if (markMasteredBtn) {
+        markMasteredBtn.addEventListener("click", () => this.markAsMastered())
+    }
+}
+
+async checkMasteryStatus() {
+    try {
+        const response = await fetch('/api/progress/get')
+        if (response.ok) {
+            const data = await response.json()
+            const masteredSyllables = data.mastered_syllables || []
+            
+            console.log('🔍 Checking mastery status for:', this.syllableData.syllable)
+            console.log('📋 Mastered syllables:', masteredSyllables)
+            
+            if (masteredSyllables.includes(this.syllableData.syllable)) {
+                this.updateMasteryStatus(true)
+                console.log('👑 Syllable already mastered!')
+            }
+        }
+    } catch (error) {
+        console.error('Error checking mastery status:', error)
+    }
+}
+
+
 
   setupInfiniteGif() {
     const gifImg = document.querySelector(".gif-demo")
@@ -316,62 +344,191 @@ class SyllableLearning {
     }
   }
 
-  showPracticeResults() {
+showPracticeResults() {
     this.stopRealTimeAnalysis()
 
     const feedbackContainer = document.getElementById("practiceFeedback")
     const resultsContainer = document.getElementById("practiceResults")
+    const completionSection = document.getElementById("completionSection")
 
     if (feedbackContainer && resultsContainer && this.practiceResults.length > 0) {
-      const totalAttempts = this.practiceResults.length
-      const correctAttempts = this.practiceResults.filter((r) => r.correct).length
-      const avgAccuracy = this.practiceResults.reduce((sum, r) => sum + r.accuracy, 0) / totalAttempts
-      const avgConfidence = this.practiceResults.reduce((sum, r) => sum + r.confidence, 0) / totalAttempts
+        const totalAttempts = this.practiceResults.length
+        const correctAttempts = this.practiceResults.filter((r) => r.correct).length
+        const avgAccuracy = this.practiceResults.reduce((sum, r) => sum + r.accuracy, 0) / totalAttempts
+        const avgConfidence = this.practiceResults.reduce((sum, r) => sum + r.confidence, 0) / totalAttempts
 
-      resultsContainer.innerHTML = `
-        <div class="results-grid">
-          <div class="result-stat">
-            <div class="result-value">${totalAttempts}</div>
-            <div class="result-label">Attempts</div>
-          </div>
-          <div class="result-stat">
-            <div class="result-value">${correctAttempts}</div>
-            <div class="result-label">Correct</div>
-          </div>
-          <div class="result-stat">
-            <div class="result-value">${Math.round(avgAccuracy * 100)}%</div>
-            <div class="result-label">Accuracy</div>
-          </div>
-          <div class="result-stat">
-            <div class="result-value">${Math.round(avgConfidence * 100)}%</div>
-            <div class="result-label">Confidence</div>
-          </div>
-        </div>
-        <div class="detailed-feedback mt-3">
-          <p class="text-light"><strong>Target:</strong> ${this.syllableData.syllable.toUpperCase()}</p>
-          <p class="text-light"><strong>Success Rate:</strong> ${Math.round((correctAttempts / totalAttempts) * 100)}%</p>
-        </div>
-        <div class="practice-recommendation mt-3">
-          ${this.getPracticeRecommendation(avgAccuracy)}
-        </div>
-      `
+        console.log('📊 Practice results:', {
+            totalAttempts,
+            correctAttempts,
+            avgAccuracy,
+            avgConfidence,
+            successRate: (correctAttempts / totalAttempts) * 100
+        })
 
-      feedbackContainer.style.display = "block"
+        resultsContainer.innerHTML = `
+            <div class="results-grid">
+                <div class="result-stat">
+                    <div class="result-value">${totalAttempts}</div>
+                    <div class="result-label">Attempts</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value">${correctAttempts}</div>
+                    <div class="result-label">Correct</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value">${Math.round(avgAccuracy * 100)}%</div>
+                    <div class="result-label">Accuracy</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value">${Math.round(avgConfidence * 100)}%</div>
+                    <div class="result-label">Confidence</div>
+                </div>
+            </div>
+            <div class="detailed-feedback mt-3">
+                <p class="text-light"><strong>Target:</strong> ${this.syllableData.syllable.toUpperCase()}</p>
+                <p class="text-light"><strong>Success Rate:</strong> ${Math.round((correctAttempts / totalAttempts) * 100)}%</p>
+            </div>
+            <div class="practice-recommendation mt-3">
+                ${this.getPracticeRecommendation(avgAccuracy)}
+            </div>
+        `
 
-      // Mark as completed if good performance
-      if (avgAccuracy > 0.75 && correctAttempts >= 3) {
-        this.markSyllableCompleted()
-      }
+        feedbackContainer.style.display = "block"
+
+        // More lenient completion conditions
+        const successRate = correctAttempts / totalAttempts
+        const shouldShowCompletion = (
+            (avgAccuracy > 0.5 && correctAttempts >= 2) || // 50% accuracy with 2+ correct
+            (successRate >= 0.6 && totalAttempts >= 3) ||   // 60% success rate with 3+ attempts
+            (correctAttempts >= 3)                          // Or just 3+ correct attempts
+        )
+
+        console.log('🎯 Completion check:', {
+            avgAccuracy: avgAccuracy,
+            correctAttempts: correctAttempts,
+            successRate: successRate,
+            totalAttempts: totalAttempts,
+            shouldShow: shouldShowCompletion
+        })
+
+        if (shouldShowCompletion && completionSection) {
+            completionSection.style.display = "block"
+            console.log('✨ Showing completion section - criteria met!')
+            
+     
+            completionSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        } else {
+            console.log('❌ Completion section not shown - criteria not met')
+        }
+
     } else if (this.practiceResults.length === 0) {
-      resultsContainer.innerHTML = `
-        <p class="text-muted text-center">No analysis results. Make sure your face is visible and try speaking the syllable clearly.</p>
-      `
-      feedbackContainer.style.display = "block"
+        resultsContainer.innerHTML = `
+            <p class="text-muted text-center">No analysis results. Make sure your face is visible and try speaking the syllable clearly.</p>
+        `
+        feedbackContainer.style.display = "block"
+        console.log('⚠️ No practice results to show')
     }
 
     // Reset for next session
     this.practiceResults = []
-  }
+}
+
+initializeEventListeners() {
+    const startPracticeBtn = document.getElementById("startPractice")
+    const stopPracticeBtn = document.getElementById("stopPractice")
+    const markMasteredBtn = document.getElementById("markMasteredBtn")
+    
+    // Testing buttons
+    const simulateGoodBtn = document.getElementById("simulateGoodPractice")
+    const simulatePoorBtn = document.getElementById("simulatePoorPractice")
+
+    if (startPracticeBtn) {
+        startPracticeBtn.addEventListener("click", () => this.startPractice())
+    }
+
+    if (stopPracticeBtn) {
+        stopPracticeBtn.addEventListener("click", () => this.stopPractice())
+    }
+
+    if (markMasteredBtn) {
+        markMasteredBtn.addEventListener("click", () => this.markAsMastered())
+    }
+
+    // Testing event listeners
+    if (simulateGoodBtn) {
+        simulateGoodBtn.addEventListener("click", () => this.simulateGoodPractice())
+    }
+
+    if (simulatePoorBtn) {
+        simulatePoorBtn.addEventListener("click", () => this.simulatePoorPractice())
+    }
+}
+
+simulateGoodPractice() {
+    console.log('🧪 Simulating good practice session...')
+    
+    this.practiceResults = [
+        { timestamp: Date.now(), accuracy: 0.9, correct: true, confidence: 0.85 },
+        { timestamp: Date.now(), accuracy: 0.85, correct: true, confidence: 0.8 },
+        { timestamp: Date.now(), accuracy: 0.8, correct: true, confidence: 0.75 },
+        { timestamp: Date.now(), accuracy: 0.7, correct: false, confidence: 0.6 },
+        { timestamp: Date.now(), accuracy: 0.88, correct: true, confidence: 0.82 }
+    ]
+    
+    this.showPracticeResults()
+}
+
+simulatePoorPractice() {
+    console.log('🧪 Simulating poor practice session...')
+    
+    this.practiceResults = [
+        { timestamp: Date.now(), accuracy: 0.4, correct: false, confidence: 0.3 },
+        { timestamp: Date.now(), accuracy: 0.3, correct: false, confidence: 0.25 },
+        { timestamp: Date.now(), accuracy: 0.6, correct: true, confidence: 0.55 },
+        { timestamp: Date.now(), accuracy: 0.35, correct: false, confidence: 0.4 }
+    ]
+    
+    this.showPracticeResults()
+}
+
+
+async markAsMastered() {
+    console.log(`🎯 Attempting to mark ${this.syllableData.syllable} as mastered`)
+    
+    if (window.SessionManager) {
+        const success = await window.SessionManager.markSyllableMastered(this.syllableData.syllable)
+        
+        if (success) {
+            this.updateMasteryStatus(true)
+            
+            // Hide completion section
+            const completionSection = document.getElementById("completionSection")
+            if (completionSection) {
+                completionSection.style.display = "none"
+            }
+            
+            // Trigger progress update for other components
+            const progress = window.SessionManager.getLocalProgress()
+            window.dispatchEvent(new CustomEvent('progressUpdated', {
+                detail: progress
+            }))
+            
+            // Also trigger storage event for cross-tab updates
+            localStorage.setItem('liplearn_progress_trigger', Date.now().toString())
+            
+            console.log('✅ Syllable marked as mastered successfully!')
+            
+            // Show success message with navigation option
+            if (window.LipLearn && window.LipLearn.showNotification) {
+                setTimeout(() => {
+                    if (confirm('Syllable mastered! Would you like to go back to the learning page to see your progress?')) {
+                        window.location.href = '/learn'
+                    }
+                }, 1000)
+            }
+        }
+    }
+}
 
   getPracticeRecommendation(accuracy) {
     if (accuracy > 0.9) {
@@ -384,23 +541,52 @@ class SyllableLearning {
       return '<p class="text-info"><i class="fas fa-redo me-2"></i>Keep practicing! Watch the demo again and try to match the mouth movements.</p>'
     }
   }
-
-  markSyllableCompleted() {
-    const progress = JSON.parse(localStorage.getItem("liplearn_progress") || '{"completed":[],"points":0}')
-
-    if (!progress.completed.includes(this.syllableData.syllable)) {
-      progress.completed.push(this.syllableData.syllable)
-      progress.points += 100
-      localStorage.setItem("liplearn_progress", JSON.stringify(progress))
-
-      if (window.LipLearn && window.LipLearn.showNotification) {
-        window.LipLearn.showNotification(
-          `🎉 Congratulations! You've mastered "${this.syllableData.syllable.toUpperCase()}" and earned 100 points!`,
-          "success",
-        )
-      }
+async markSyllableCompleted() {
+    if (window.SessionManager) {
+        const wasMastered = await window.SessionManager.markSyllableMastered(this.syllableData.syllable)
+        
+        if (wasMastered) {
+            this.showCompletionCelebration()
+            this.updateMasteryStatus(true)
+        }
     }
-  }
+}
+
+updateMasteryStatus(isMastered) {
+    console.log(`👑 Updating mastery status: ${isMastered}`)
+
+    const header = document.querySelector('.syllable-section h1')
+    if (header && isMastered && !header.querySelector('.mastery-badge')) {
+        const masteryBadge = document.createElement('span')
+        masteryBadge.className = 'badge bg-success ms-2 mastery-badge'
+        masteryBadge.innerHTML = '<i class="fas fa-crown me-1"></i>Mastered'
+        header.appendChild(masteryBadge)
+        
+        console.log('👑 Mastery badge added to header')
+    }
+}
+
+showCompletionCelebration() {
+
+    const celebration = document.createElement('div')
+    celebration.innerHTML = '🎉🎊✨'
+    celebration.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3rem;
+        z-index: 10000;
+        animation: celebrationBounce 2s ease-out;
+        pointer-events: none;
+    `
+    
+    document.body.appendChild(celebration)
+    
+    setTimeout(() => {
+        celebration.remove()
+    }, 2000)
+}
 }
 
 // Simple fallback camera functionality
@@ -481,7 +667,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 })
 
-// Add required CSS
 const style = document.createElement("style")
 style.textContent = `
   @keyframes fadeInOut {
@@ -580,3 +765,5 @@ style.textContent = `
   }
 `
 document.head.appendChild(style)
+
+
