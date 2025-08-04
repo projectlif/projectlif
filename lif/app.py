@@ -391,3 +391,15 @@ def get_word_quiz_question():
         'translation': WORDS_DATA[word]['translation'],
         'options': options
     })
+
+@app.route('/api/reset', methods=['POST'])
+def reset_predictions():
+    try:
+        # Example: Reset session values if you're tracking them
+        session['total_predictions'] = 0
+        session['avg_confidence'] = 0
+        session['top_syllable'] = "-"
+        
+        return jsonify({'status': 'success', 'message': 'Predictions reset successfully'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500

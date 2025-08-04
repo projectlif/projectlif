@@ -50,4 +50,15 @@
         padding: 6px 10px;
     }
 }
+.prediction-placeholder {
+    opacity: 0.8;
+}
 
+.prediction-placeholder i {
+    font-size: 2.5rem;
+    color: #aaa; /* light gray para visible */
+}
+
+.prediction-placeholder p {
+    color: #ccc;
+}

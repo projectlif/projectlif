@@ -8,6 +8,10 @@ class CameraManager {
     this.stream = null
     this.isRecording = false
     this.predictionInterval = null
+
+    // 🔄 New: timeout para auto-reset kapag walang face
+    this.noFaceTimeout = null
+
     this.sessionStats = {
       totalPredictions: 0,
       confidenceSum: 0,
@@ -33,13 +37,8 @@ class CameraManager {
 
   async startCamera() {
     try {
-      // Request camera permission
       this.stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: "user",
-        },
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
         audio: false,
       })
 
@@ -48,16 +47,12 @@ class CameraManager {
         this.video.play()
       }
 
-      // Update UI
       this.updateCameraControls(true)
       this.startPredictions()
       this.startSessionTimer()
 
-      // Show recording indicator
       const indicator = document.getElementById("recordingIndicator")
-      if (indicator) {
-        indicator.style.display = "flex"
-      }
+      if (indicator) indicator.style.display = "flex"
 
       window.LipLearn.showNotification("Camera started successfully!", "success")
     } catch (error) {
@@ -79,11 +74,11 @@ class CameraManager {
     this.stopPredictions()
     this.updateCameraControls(false)
 
-    // Hide recording indicator
     const indicator = document.getElementById("recordingIndicator")
-    if (indicator) {
-      indicator.style.display = "none"
-    }
+    if (indicator) indicator.style.display = "none"
+
+    // 🔄 Reset predictions display kapag camera stopped
+    this.resetPredictionsDisplay()
 
     window.LipLearn.showNotification("Camera stopped", "info")
   }
@@ -93,20 +88,14 @@ class CameraManager {
     const stopBtn = document.getElementById("stopCamera")
 
     if (startBtn && stopBtn) {
-      if (isActive) {
-        startBtn.style.display = "none"
-        stopBtn.style.display = "inline-block"
-      } else {
-        startBtn.style.display = "inline-block"
-        stopBtn.style.display = "none"
-      }
+      startBtn.style.display = isActive ? "none" : "inline-block"
+      stopBtn.style.display = isActive ? "inline-block" : "none"
     }
 
     this.isRecording = isActive
   }
 
   startPredictions() {
-    // Start making predictions every 2 seconds
     this.predictionInterval = setInterval(() => {
       this.makePrediction()
     }, 2000)
@@ -123,71 +112,82 @@ class CameraManager {
     if (!this.isRecording) return
 
     try {
-        // Capture frame from video
-        if (this.video && this.canvas && this.ctx) {
-            this.canvas.width = this.video.videoWidth
-            this.canvas.height = this.video.videoHeight
-            this.ctx.drawImage(this.video, 0, 0)
+      if (this.video && this.canvas && this.ctx) {
+        this.canvas.width = this.video.videoWidth
+        this.canvas.height = this.video.videoHeight
+        this.ctx.drawImage(this.video, 0, 0)
 
-            // Convert to blob and send to server
-            this.canvas.toBlob(
-                async (blob) => {
-                    const formData = new FormData()
-                    formData.append("image", blob, "frame.jpg")
+        this.canvas.toBlob(async (blob) => {
+          const formData = new FormData()
+          formData.append("image", blob, "frame.jpg")
 
-                    const response = await fetch("/api/predict", {
-                        method: "POST",
-                        body: formData,
-                    })
+          const response = await fetch("/api/predict", { method: "POST", body: formData })
 
-                    if (response.ok) {
-                        const data = await response.json()
-                        if (data.predictions && data.predictions.length > 0) {
-                            this.displayPredictions(data.predictions)
-                            this.updateSessionStats(data.predictions)
-                        } else {
-                            // Show "no face detected" message
-                            this.displayNoFaceMessage()
-                        }
-                    } else {
-                        console.error('Prediction failed:', response.statusText)
-                    }
-                },
-                "image/jpeg",
-                0.8,
-            )
-        }
+          if (response.ok) {
+            const data = await response.json()
+            if (data.predictions && data.predictions.length > 0) {
+              this.displayPredictions(data.predictions)
+              this.updateSessionStats(data.predictions)
+              clearTimeout(this.noFaceTimeout) // ✅ clear reset timer kapag may face
+            } else {
+              this.displayNoFaceMessage()
+            }
+          } else {
+            console.error("Prediction failed:", response.statusText)
+          }
+        }, "image/jpeg", 0.8)
+      }
     } catch (error) {
-        console.error("Error making prediction:", error)
+      console.error("Error making prediction:", error)
     }
-}
+  }
 
-displayNoFaceMessage() {
+  displayNoFaceMessage() {
     const predictionsList = document.getElementById("predictionsList")
     if (!predictionsList) return
 
     predictionsList.innerHTML = `
-        <div class="prediction-placeholder text-center text-muted py-4">
-            <i class="fas fa-user-slash fa-2x mb-3"></i>
-            <p>No face detected. Please position your face in front of the camera.</p>
-        </div>
+      <div class="prediction-placeholder text-center text-muted py-4">
+          <i class="fas fa-user-slash fa-2x mb-3"></i>
+          <p>No face detected. Please position your face in front of the camera.</p>
+      </div>
     `
-}
+
+    // ⏳ After 5 sec of no face → reset predictions display
+    clearTimeout(this.noFaceTimeout)
+    this.noFaceTimeout = setTimeout(() => {
+      if (this.isRecording) {
+        this.resetPredictionsDisplay()
+      }
+    }, 5000)
+  }
+
+  resetPredictionsDisplay() {
+    const predictionsList = document.getElementById("predictionsList")
+    if (!predictionsList) return
+
+    predictionsList.innerHTML = `
+      <div class="prediction-placeholder text-center py-4">
+          <i class="fa-solid fa-camera-slash fa-3x mb-3 text-secondary"></i>
+          <p class="mb-1 fw-semibold text-secondary">Predictions Off</p>
+          <small class="text-muted">Turn on camera to start predictions</small>
+      </div>
+    `
+  }
 
   displayPredictions(predictions) {
     const predictionsList = document.getElementById("predictionsList")
     if (!predictionsList) return
 
     predictionsList.innerHTML = ""
-
     predictions.forEach((prediction, index) => {
       const predictionElement = document.createElement("div")
       predictionElement.className = "prediction-item"
       predictionElement.style.animationDelay = `${index * 0.1}s`
       predictionElement.innerHTML = `
-                <span class="syllable">${prediction.syllable.toUpperCase()}</span>
-                <span class="confidence">${Math.round(prediction.confidence * 100)}%</span>
-            `
+        <span class="syllable">${prediction.syllable.toUpperCase()}</span>
+        <span class="confidence">${Math.round(prediction.confidence * 100)}%</span>
+      `
       predictionsList.appendChild(predictionElement)
     })
   }
@@ -196,16 +196,12 @@ displayNoFaceMessage() {
     if (predictions.length === 0) return
 
     this.sessionStats.totalPredictions++
-
     const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length
     this.sessionStats.confidenceSum += avgConfidence
 
     const topPrediction = predictions[0]
-    if (this.sessionStats.syllableCounts[topPrediction.syllable]) {
-      this.sessionStats.syllableCounts[topPrediction.syllable]++
-    } else {
-      this.sessionStats.syllableCounts[topPrediction.syllable] = 1
-    }
+    this.sessionStats.syllableCounts[topPrediction.syllable] =
+      (this.sessionStats.syllableCounts[topPrediction.syllable] || 0) + 1
 
     this.updateStatsDisplay()
   }
@@ -215,19 +211,15 @@ displayNoFaceMessage() {
     const avgConfidenceEl = document.getElementById("avgConfidence")
     const topSyllableEl = document.getElementById("topSyllable")
 
-    if (totalPredictionsEl) {
-      totalPredictionsEl.textContent = this.sessionStats.totalPredictions
-    }
-
+    if (totalPredictionsEl) totalPredictionsEl.textContent = this.sessionStats.totalPredictions
     if (avgConfidenceEl && this.sessionStats.totalPredictions > 0) {
       const avgConfidence = (this.sessionStats.confidenceSum / this.sessionStats.totalPredictions) * 100
       avgConfidenceEl.textContent = `${Math.round(avgConfidence)}%`
     }
-
     if (topSyllableEl) {
       const topSyllable = Object.keys(this.sessionStats.syllableCounts).reduce(
         (a, b) => (this.sessionStats.syllableCounts[a] > this.sessionStats.syllableCounts[b] ? a : b),
-        "-",
+        "-"
       )
       topSyllableEl.textContent = topSyllable.toUpperCase()
     }
@@ -235,14 +227,11 @@ displayNoFaceMessage() {
 
   startSessionTimer() {
     this.sessionStats.startTime = Date.now()
-
     setInterval(() => {
       if (this.sessionStats.startTime && this.isRecording) {
         const elapsed = Math.floor((Date.now() - this.sessionStats.startTime) / 1000)
         const sessionTimeEl = document.getElementById("sessionTime")
-        if (sessionTimeEl) {
-          sessionTimeEl.textContent = window.LipLearn.formatTime(elapsed)
-        }
+        if (sessionTimeEl) sessionTimeEl.textContent = window.LipLearn.formatTime(elapsed)
       }
     }, 1000)
   }
