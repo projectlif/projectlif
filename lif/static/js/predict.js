@@ -127,7 +127,7 @@ class CameraManager {
                     const formData = new FormData()
                     formData.append("image", blob, "frame.jpg")
 
-                    const response = await fetch("/api/predict", {
+                    const response = await fetch("/api/predict_word", {
                         method: "POST",
                         body: formData,
                     })

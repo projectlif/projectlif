@@ -216,7 +216,7 @@ WORDS_DATA = {
 }
 @app.before_request
 def before_request():
-    session.permanent = True  # Make session permanent
+    session.permanent = True
     
     # Generate unique session ID if not exists
     if 'user_id' not in session:
@@ -366,9 +366,15 @@ def sync_progress():
 def home():
     return render_template('index.html')
 
+@app.route('/predict')
+def predict():
+    return render_template('predict_words.html')
+
+
 @app.route('/camera')
 def camera():
     return render_template('camera.html')
+
 
 @app.route('/learn')
 def learn():
@@ -433,8 +439,6 @@ if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
 
 
-
-# Add these configurations after the imports
 MODEL_PATH = "model_vowelspcv150.h5"
 DLIB_PATH = "face_weights.dat"
 LABELS = ["a", "e", "i", "o", "u"]
@@ -442,14 +446,11 @@ SEQUENCE_LENGTH = 22
 FRAME_WIDTH, FRAME_HEIGHT = 112, 80
 MOUTH_MOVEMENT_THRESHOLD = 12
 
-# Load model and detector globally
 model = tf.keras.models.load_model(MODEL_PATH)
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(DLIB_PATH)
 
-# Add your extract_mouth function here
 def extract_mouth(frame, landmarks):
-    # Copy your exact extract_mouth function from predict.py
     mouth_points = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(48, 68)])
     x, y, w, h = cv2.boundingRect(mouth_points)
     margin = 10
@@ -486,21 +487,18 @@ def extract_mouth(frame, landmarks):
 @app.route('/api/predict', methods=['POST'])
 def predict_syllable():
     try:
-        # Get image data from request
         if 'image' in request.files:
             file = request.files['image']
             image_data = file.read()
         else:
             return jsonify({'error': 'No image provided'}), 400
         
-        # Convert to OpenCV format
         nparr = np.frombuffer(image_data, np.uint8)
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
         if frame is None:
             return jsonify({'error': 'Invalid image format'}), 400
         
-        # Detect face and extract mouth
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = detector(gray)
         
@@ -510,16 +508,13 @@ def predict_syllable():
         face = faces[0]
         landmarks = predictor(gray, face)
         mouth = extract_mouth(frame, landmarks)
-        
-        # For single frame prediction, create a sequence by repeating the frame
+
         sequence = np.array([mouth] * SEQUENCE_LENGTH)
         sequence_input = sequence[None, ...]
-        
-        # Make prediction
+
         preds = model.predict(sequence_input, verbose=0)[0]
         top5 = preds.argsort()[::-1][:5]
-        
-        # Format results
+
         predictions = []
         for i in top5:
             predictions.append({
@@ -602,6 +597,143 @@ def predict_syllable():
         print(f"Syllable prediction error: {e}")
         return jsonify({'error': 'Prediction failed'}), 500
     
+# === Word-level Model Configuration ===
+WORD_MODEL_PATH = "model_w.h5"
+WORD_LABELS = ["abo", "iba", "bati", "bato", "bota", "buti", "daga", "diwa", "gulo", "dusa"]
+WORD_SEQUENCE_LENGTH = 32
+WORD_FRAME_WIDTH = 80
+WORD_FRAME_HEIGHT = 112
+
+# Load word model
+word_model = tf.keras.models.load_model(WORD_MODEL_PATH)
+
+@app.route('/api/predict_word', methods=['POST'])
+def predict_word():
+    try:
+        if 'image' in request.files:
+            file = request.files['image']
+            image_data = file.read()
+        else:
+            return jsonify({'error': 'No image provided'}), 400
+
+        nparr = np.frombuffer(image_data, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        if frame is None:
+            return jsonify({'error': 'Invalid image format'}), 400
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray)
+
+        if not faces:
+            return jsonify({'predictions': []})
+
+        face = faces[0]
+        landmarks = predictor(gray, face)
+        mouth = extract_mouth(frame, landmarks)  # Reuse same function
+
+        # Create sequence of 32 identical frames (you can improve this later)
+        sequence = np.array([mouth] * WORD_SEQUENCE_LENGTH)
+        sequence_input = sequence[None, ...]
+
+        preds = word_model.predict(sequence_input, verbose=0)[0]
+        top5 = preds.argsort()[::-1][:5]
+
+        predictions = [{
+            'syllable': WORD_LABELS[i],  # still using 'syllable' key for frontend consistency
+            'confidence': float(preds[i])
+        } for i in top5]
+
+        return jsonify({'predictions': predictions})
+
+    except Exception as e:
+        print(f"Word prediction error: {e}")
+        return jsonify({'error': 'Prediction failed'}), 500
+
+    try:
+        if "image" not in request.files:
+            return jsonify({"error": "No image provided"}), 400
+
+        file = request.files["image"]
+        image_data = file.read()
+        nparr = np.frombuffer(image_data, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        if frame is None:
+            return jsonify({"error": "Invalid image"}), 400
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray)
+        if not faces:
+            return jsonify({"error": "No face detected"}), 400
+
+        face = faces[0]
+        landmarks = predictor(gray, face)
+        mouth = extract_mouth(frame, landmarks)
+
+        sequence_input = np.expand_dims(mouth, axis=0)          # (1, 112, 80, 3)
+        sequence_input = np.expand_dims(sequence_input, axis=0) # (1, 1, 112, 80, 3)
+
+        preds = word_model.predict(sequence_input, verbose=0)[0]
+        top5 = preds.argsort()[::-1][:5]
+        predictions = [{"word": WORD_LABELS[i], "confidence": float(preds[i])} for i in top5]
+
+        return jsonify({"predictions": predictions})
+    
+    except Exception as e:
+        print("Word prediction error:", e)
+        return jsonify({"error": "Prediction failed"}), 500
+    try:
+        if 'frames' not in request.files:
+            return jsonify({'error': 'No frames provided'}), 400
+
+        # Parse multiple frame images from form
+        frames = []
+        for i in range(WORD_SEQUENCE_LENGTH):
+            file_key = f'frame_{i}'
+            if file_key not in request.files:
+                return jsonify({'error': f'Missing frame {i}'}), 400
+
+            file = request.files[file_key]
+            image_data = file.read()
+            nparr = np.frombuffer(image_data, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+            if frame is None:
+                return jsonify({'error': f'Invalid frame {i}'}), 400
+
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = detector(gray)
+            if not faces:
+                return jsonify({'error': f'No face detected on frame {i}'}), 400
+
+            face = faces[0]
+            landmarks = predictor(gray, face)
+            mouth = extract_mouth(frame, landmarks)
+            frames.append(mouth)
+
+        if len(frames) != WORD_SEQUENCE_LENGTH:
+            return jsonify({'error': 'Incomplete sequence'}), 400
+
+        sequence_input = np.array(frames)[None, ...]  # shape (1, 32, 112, 80, 3)
+        preds = word_model.predict(sequence_input, verbose=0)[0]
+        top5 = preds.argsort()[::-1][:5]
+
+        predictions = []
+        for i in top5:
+            predictions.append({
+                'word': WORD_LABELS[i],
+                'confidence': float(preds[i])
+            })
+
+        return jsonify({'predictions': predictions})
+
+    except Exception as e:
+        print(f"Word prediction error: {e}")
+        return jsonify({'error': 'Prediction failed'}), 500
+
+
+
 @app.route('/api/predict/syllable/<syllable>', methods=['POST'])
 def predict_specific_syllable(syllable):
     try:
