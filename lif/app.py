@@ -140,6 +140,56 @@ SYLLABLES_DATA = {
         #'gif': '/static/gifs/ga.gif',
         'difficulty': 3
     },
+    'ha': {
+        'description': 'The H is a voiceless glottal fricative — it is made by gently pushing air through the vocal cords without vibration. The A is an open vowel: the jaw drops, the tongue stays low, and the lips are neutral.',
+        #'gif': '/static/gifs/ha.gif',
+        'difficulty': 3
+    },
+    'he': {
+        'description': 'The H is airy and soft, and the E is a mid-front vowel: tongue is forward, lips slightly spread. The sound is light and short.',
+        #'gif': '/static/gifs/ha.gif',
+        'difficulty': 3
+    },
+    'hi': {
+        'description': 'The H is again breathy and soft, and the I is a high front vowel — lips spread like a smile, and the tongue is high.',
+        #'gif': '/static/gifs/ha.gif',
+        'difficulty': 3
+    },
+    'ho': {
+        'description': 'The H sound comes from the throat, soft and airy. The O is a mid-back rounded vowel — the lips form a small circle, and the tongue is pulled back slightly.',
+        #'gif': '/static/gifs/ha.gif',
+        'difficulty': 3
+    },
+    'hu': {
+        'description': 'The H sound is gentle and made in the throat. The U is a high back rounded vowel — lips are tightly rounded, and the tongue is high and back.',
+        #'gif': '/static/gifs/ha.gif',
+        'difficulty': 3
+    },
+    'la': {
+        'description': 'The L is a voiced alveolar lateral consonant — the tongue tip touches just behind the upper front teeth, and air flows around the sides of the tongue. The A is an open vowel: jaw drops, tongue is low, lips neutral.',
+        #'gif': '/static/gifs/la.gif',
+        'difficulty': 3
+    },
+    'le': {
+        'description': 'The L is formed with the tip of the tongue touching the alveolar ridge. The E is a short “eh” sound: tongue moves forward, lips slightly spread.',
+        #'gif': '/static/gifs/la.gif',
+        'difficulty': 3
+    },
+    'li': {
+        'description': 'The L starts at the alveolar ridge, and the I is a high front vowel: tongue is raised, lips spread in a smile.',
+        #'gif': '/static/gifs/la.gif',
+        'difficulty': 3
+    },
+    'lo': {
+        'description': 'The L is voiced and made at the front with the tongue touching just behind the teeth. The O is a rounded back vowel — lips form a small circle, and the tongue moves slightly back.',
+        #'gif': '/static/gifs/la.gif',
+        'difficulty': 3
+    },
+    'lu': {
+        'description': 'The L uses the tongue tip touching the alveolar ridge. The U is a high back vowel — lips are rounded, and the tongue is high and back.',
+        #'gif': '/static/gifs/la.gif',
+        'difficulty': 3
+    },
 }
 
 # Sample data for Filipino words
