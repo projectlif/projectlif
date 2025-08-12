@@ -45,21 +45,56 @@ SYLLABLES_DATA = {
         'gif': '/static/gifs/ba.gif',
         'difficulty': 2
     },
-    'ba': {
-        'description': 'Press lips together, then release with a puff of air while opening to "a" position.',
-        'gif': '/static/gifs/ba.gif',
+    'be': {
+        'description': 'The B begins the same as in ba, with the lips pressing together and then releasing. The E is a mid-front vowel with a short “eh” sound. The jaw is slightly open, and the lips gently spread. The feeling for this sound is a soft pop followed by a short, forward vowel.',
+        #'gif': '/static/gifs/ba.gif',
         'difficulty': 2
+    },
+    'bi': {
+        'description': 'The B is produced by closing and releasing the lips, and the I sound is a high front vowel. The tongue is raised toward the roof of the mouth, and the lips are spread like a smile. The feeling for this sound is a gentle pop from the lips and a bright, sharp “ee” sound.',
+        #'gif': '/static/gifs/ba.gif',
+        'difficulty': 2
+    },
+    'bo': {
+        'description': 'The B is voiced and made with a lip press and release. The O is a mid-back rounded vowel. The lips round into a small circle, and the tongue pulls back slightly. The feeling for this sound is a soft, voiced beginning with a rounded, “oh” finish.',
+        #'gif': '/static/gifs/ba.gif',
+        'difficulty': 2
+    },
+    'bu': {
+        'description': 'The B starts with closed lips and a voiced release. The U is a high back rounded vowel — the lips are tightly rounded and the tongue rises toward the back of the mouth. The feeling for this sound is a closed burst followed by a deep, “oo” vowel.',
+        #'gif': '/static/gifs/ba.gif',
+        'difficulty': 2
+    },
+    'ka': {
+        'description': 'Back of tongue touches soft palate, then releases with "a" mouth position.',
+        'gif': '/static/gifs/ka.gif',
+        'difficulty': 3
+    },
+    'ke': {
+        'description': 'The K is made by blocking airflow at the back of the mouth with the tongue and then releasing it quickly. The E is a mid-front vowel — the mouth opens slightly, the tongue is forward, and the lips are lightly spread. The feeling is a hard release followed by a short “eh” sound.',
+        #'gif': '/static/gifs/ka.gif',
+        'difficulty': 3
+    },
+    'ki': {
+        'description': 'The K is formed by the tongue blocking the back of the mouth (velar area), followed by a clean burst of air. The I is a high front vowel, so the lips stretch slightly and the tongue is raised toward the roof of the mouth. The feeling is a sharp stop followed by a bright “ee” sound.',
+        #'gif': '/static/gifs/ka.gif',
+        'difficulty': 3
+    },
+    'ko': {
+        'description': 'The K sound forms at the back of the mouth with no vocal cord vibration. The O is a mid-back rounded vowel. The lips form a round shape, and the tongue is positioned toward the back. The feeling is a back-of-the-throat burst followed by a rounded “oh.”',
+        #'gif': '/static/gifs/ka.gif',
+        'difficulty': 3
+    },
+    'ku': {
+        'description': 'The K is voiceless and made at the back of the mouth, while the U is a high back rounded vowel. The lips round tightly, and the tongue moves high and back. The feeling is a clean stop followed by a closed, “oo” sound.',
+        #'gif': '/static/gifs/ka.gif',
+        'difficulty': 3
     },
     'da': {
         'description': 'Touch tongue tip to roof of mouth behind teeth, then release to "a" position.',
         'gif': '/static/gifs/da.gif',
         'difficulty': 3
     },
-    'ka': {
-        'description': 'Back of tongue touches soft palate, then releases with "a" mouth position.',
-        'gif': '/static/gifs/ka.gif',
-        'difficulty': 3
-    }
 }
 
 # Sample data for Filipino words
