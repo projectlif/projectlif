@@ -95,6 +95,51 @@ SYLLABLES_DATA = {
         'gif': '/static/gifs/da.gif',
         'difficulty': 3
     },
+    'de': {
+        'description': 'The D starts with vibration at the teeth, and the E is a short “eh” sound — tongue mid-front, lips slightly spread.',
+        #'gif': '/static/gifs/da.gif',
+        'difficulty': 3
+    },
+    'di': {
+        'description': 'The D is voiced at the teeth, while the I is a high front vowel — tongue high and lips spread.',
+        #'gif': '/static/gifs/da.gif',
+        'difficulty': 3
+    },
+    'do': {
+        'description': 'The D is made with vibration at the teeth, and the O is a rounded mid-back sound — lips round, tongue shifts back.',
+        #'gif': '/static/gifs/da.gif',
+        'difficulty': 3
+    },
+    'du': {
+        'description': 'The D is voiced at the teeth, and the U is a high back vowel — lips round, tongue rises toward the back.',
+        #'gif': '/static/gifs/da.gif',
+        'difficulty': 3
+    },
+    'ga': {
+        'description': 'The G is a voiced velar stop — just like K, it is made at the back of the mouth (tongue touches the soft palate), but with vocal cord vibration. The A sound is open: the jaw drops, tongue stays low, and lips are neutral.',
+        #'gif': '/static/gifs/ga.gif',
+        'difficulty': 3
+    },
+    'ge': {
+        'description': 'The G starts at the back of the mouth, with vibration, and the E is a short “eh” sound: tongue is mid-front, lips slightly spread.',
+        #'gif': '/static/gifs/ga.gif',
+        'difficulty': 3
+    },
+    'gi': {
+        'description': 'The G is voiced and formed at the back of the mouth. The I is a high front vowel, made with spread lips and a high tongue position.',
+        #'gif': '/static/gifs/ga.gif',
+        'difficulty': 3
+    },
+    'go': {
+        'description': 'The G uses the back of the tongue and soft palate with vocal cord vibration. The O is a mid-back rounded vowel — lips form a round shape and tongue shifts back.',
+        #'gif': '/static/gifs/ga.gif',
+        'difficulty': 3
+    },
+    'gu': {
+        'description': 'The G is voiced and formed at the velum (back of the mouth). The U is a high back rounded vowel: lips round tightly, and the tongue rises toward the soft palate.',
+        #'gif': '/static/gifs/ga.gif',
+        'difficulty': 3
+    },
 }
 
 # Sample data for Filipino words
