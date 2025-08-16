@@ -198,20 +198,14 @@ WORDS_DATA = {
     'aso': {
         'description': 'A common Filipino word meaning "dog"',
         'gif': '/static/gifs/words/aso.gif',
-        'difficulty': 1,
-        'translation': 'dog'
     },
     'puso': {
         'description': 'Filipino word meaning "heart"',
         'gif': '/static/gifs/words/puso.gif',
-        'difficulty': 2,
-        'translation': 'heart'
     },
     'mata': {
         'description': 'Filipino word meaning "eye"',
         'gif': '/static/gifs/words/mata.gif',
-        'difficulty': 1,
-        'translation': 'eye'
     },
 }
 @app.before_request
