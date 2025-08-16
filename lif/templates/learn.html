@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Learn Syllables -  Project LIF{% endblock %}
-{% block meta_description %}Interactive Filipino syllable learning with visual guides and pronunciation tips.{% endblock %}
+{% block title %}Learn Syllables - LipLearn{% endblock %}
+{% block meta_description %}Interactive syllable learning with visual guides and pronunciation tips.{% endblock %}
 
 {% block content %}
 <section class="learn-section py-5">
@@ -12,29 +12,57 @@
                     <i class="fas fa-graduation-cap gradient-text me-3"></i>
                     Learn <span class="gradient-text">Syllables</span>
                 </h1>
-                <p class="lead text-light">Master pronunciation with interactive visual guides</p>
+                <p class="lead text-muted"></p>
             </div>
         </div>
         
+        <!-- Search and Filter Section -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="difficulty-filter text-center">
-                    <button class="btn btn-outline-primary me-2 filter-btn active" data-difficulty="all">
-                        <i class="fas fa-globe me-2"></i>All Levels
-                    </button>
-                    <button class="btn btn-outline-success me-2 filter-btn" data-difficulty="1">
-                        <i class="fas fa-seedling me-2"></i>Beginner
-                    </button>
-                    <button class="btn btn-outline-warning me-2 filter-btn" data-difficulty="2">
-                        <i class="fas fa-star me-2"></i>Intermediate
-                    </button>
-                    <button class="btn btn-outline-danger filter-btn" data-difficulty="3">
-                        <i class="fas fa-fire me-2"></i>Advanced
-                    </button>
+                <div class="search-filter-container">
+                    <div class="card bg-dark-card border-0 shadow-lg">
+                        <div class="card-body p-4">
+                            <div class="search-box-container mb-3">
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" 
+                                           id="syllableSearch" 
+                                           class="search-input" 
+                                           placeholder="Search syllables... (e.g., 'ba', 'ka', 'ma')"
+                                           autocomplete="off">
+                                    <button class="search-clear" id="clearSearch" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="search-results-info" id="searchResults">
+                                    <span class="results-count">{{ syllables|length }} syllables found</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div class="row" id="noResultsMessage" style="display: none;">
+            <div class="col-12">
+                <div class="no-results-container text-center py-5">
+                    <div class="card bg-dark-card border-0 shadow-lg">
+                        <div class="card-body p-5">
+                            <i class="fas fa-search fa-3x gradient-text mb-3"></i>
+                            <h4 class="text-light mb-3">No syllables found</h4>
+                            <p class="text-muted mb-4">Try adjusting your search terms or difficulty filter</p>
+                            <button class="btn btn-primary" onclick="clearAllFilters()">
+                                <i class="fas fa-refresh me-2"></i>Clear All Filters
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
+        <!-- Syllables Grid -->
         <div class="row g-4" id="syllablesGrid">
             {% for syllable, data in syllables.items() %}
             <div class="col-md-6 col-lg-4 syllable-card" data-difficulty="{{ data.difficulty }}">
@@ -44,84 +72,23 @@
                             <div class="syllable-display">
                                 <span class="syllable-text">{{ syllable.upper() }}</span>
                             </div>
-                            <div class="difficulty-badge difficulty-{{ data.difficulty }}">
-                                {% if data.difficulty == 1 %}
-                                    <i class="fas fa-seedling me-1"></i>Beginner
-                                {% elif data.difficulty == 2 %}
-                                    <i class="fas fa-star me-1"></i>Intermediate
-                                {% else %}
-                                    <i class="fas fa-fire me-1"></i>Advanced
-                                {% endif %}
-                            </div>
+                
                         </div>
                         
                         <div class="syllable-preview mb-3">
-                            <div class="gif-preview-container" onclick="playPreview('{{ syllable }}')">
+                            <div class="gif-preview-container">
                                 <img src="{{ data.gif }}" alt="Preview of {{ syllable }}" class="gif-preview">
                                 <div class="play-overlay">
-                                    <i class="fas fa-play-circle fa-2x gradient-text"></i>
+                                    <a href="{{ url_for('learn_syllable', syllable=syllable) }}"><i class="fas fa-play-circle fa-2x gradient-text"></i></a>
                                 </div>
                             </div>
                         </div>
                         
-                        <p class="card-text text-light small mb-3">{{ data.description[:80] }}...</p>
-                        
-                        <div class="card-actions">
-                            <a href="{{ url_for('learn_syllable', syllable=syllable) }}" class="btn btn-primary w-100">
-                                <i class="fas fa-play me-2"></i>Learn {{ syllable.upper() }}
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
-
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="card bg-dark-card border-0 shadow-lg">
-                    <div class="card-body p-4">
-                        <h5 class="card-title text-light mb-3">
-                            <i class="fas fa-chart-line gradient-text me-2"></i>
-                            Your Learning Progress
-                        </h5>
-                        <div class="progress-stats text-light">
-                            <div class="row text-center">
-                                <div class="col-md-3">
-                                    <div class="progress-item">
-                                        <div class="progress-value" id="totalSyllables">{{ syllables|length }}</div>
-                                        <div class="progress-label">Total Syllables</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-light">
-                                    <div class="progress-item">
-                                        <div class="progress-value" id="completedSyllables">0</div>
-                                        <div class="progress-label">Completed</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-light">
-                                    <div class="progress-item">
-                                        <div class="progress-value" id="progressPercentage">0%</div>
-                                        <div class="progress-label">Progress</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 text-light">
-                                    <div class="progress-item">
-                                        <div class="progress-value" id="pointsEarned">0</div>
-                                        <div class="progress-label">Points Earned</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="progress mt-3 text-light">
-                                <div class="progress-bar bg-gradient-primary" id="progressBar" role="progressbar" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 {% endblock %}
 
 {% block extra_scripts %}

@@ -33,9 +33,6 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="#troubleshooting">Troubleshooting</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#api-reference">API Reference</a>
-                                    </li>
                                 </ul>
                             </nav>
                         </div>
@@ -60,7 +57,7 @@
                                 
                                 <h4 class="text-light mt-4 mb-3">Quick Start</h4>
                                 <ol class="text-light">
-                                    <li>Navigate to the <a href="{{ url_for('camera') }}" class="text-primary">Camera</a> page</li>
+                                    <li>Navigate to the <a href="{{ url_for('camera') }}" class="text-primary">Subukan gamit ang AI</a> page</li>
                                     <li>Allow camera access when prompted</li>
                                     <li>Click "Start Camera" to begin real-time analysis</li>
                                     <li>Speak naturally and view predictions</li>
@@ -108,7 +105,7 @@
                                 <div class="accordion" id="cameraAccordion">
                                     <div class="accordion-item bg-dark-bg">
                                         <h5 class="accordion-header">
-                                            <button class="accordion-button collapsed bg-dark-card text-muted" 
+                                            <button class="accordion-button collapsed bg-dark-card text-light" 
                                                     type="button" data-bs-toggle="collapse" data-bs-target="#camera1">
                                                 Camera not detected
                                             </button>
@@ -208,26 +205,26 @@
                                     <table class="table table-dark">
                                         <thead>
                                             <tr>
-                                                <th>Action</th>
-                                                <th>Base Points</th>
-                                                <th>Bonus Conditions</th>
+                                                <th class="text-light">Action</th>
+                                                <th class="text-light">Base Points</th>
+                                                <th class="text-light">Bonus Conditions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>Correct Answer</td>
-                                                <td>10 points</td>
-                                                <td>+5 for speed, +5 for streak</td>
+                                                <td class="text-light">Correct Answer</td>
+                                                <td class="text-light">10 points</td>
+                                                <td class="text-light">+5 for speed, +5 for streak</td>
                                             </tr>
                                             <tr>
-                                                <td>Streak Bonus</td>
-                                                <td>-</td>
-                                                <td>+5 at 3 streak, +10 at 5 streak</td>
+                                                <td class="text-light">Streak Bonus</td>
+                                                <td class="text-light">-</td>
+                                                <td class="text-light">+5 at 3 streak, +10 at 5 streak</td>
                                             </tr>
                                             <tr>
-                                                <td>Difficulty Bonus</td>
-                                                <td>-</td>
-                                                <td>+3 medium, +5 hard</td>
+                                                <td class="text-light">Difficulty Bonus</td>
+                                                <td class="text-light">-</td>
+                                                <td class="text-light">+3 medium, +5 hard</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -281,6 +278,7 @@
                         </div>
                     </section>
 
+<!--
     
                     <section id="api-reference" class="docs-section-content mb-5">
                         <div class="card bg-dark-card border-0 shadow-lg">
@@ -339,7 +337,8 @@
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </section>                    
+-->
                 </div>
             </div>
         </div>

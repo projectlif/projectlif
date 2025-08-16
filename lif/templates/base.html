@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="color-scheme" content="dark light">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block meta_description %} Project LIF - Advanced AI-powered lip reading learning platform{% endblock %}">
@@ -25,6 +27,12 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <i class="fas fa-moon" id="themeIcon"></i>
+        <span id="themeText">Dark</span>
+    </button>
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark-custom fixed-top">
         <div class="container">
             <a class="navbar-brand animated-logo" href="{{ url_for('home') }}">
@@ -40,37 +48,37 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('home') }}">
-                            <i class="fas fa-home"></i> Home
+                            <i class="fas fa-home me-2"></i> Home
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('camera') }}">
-                            <i class="fas fa-camera"></i> Camera
+                            <i class="fas fa-camera me-2"></i> Try with AI
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('predict') }}">
-                            <i class="fas fa-camera"></i> Predict
+                            <i class="fas fa-camera me-2"></i> Predict Words
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('learn') }}">
-                            <i class="fas fa-graduation-cap"></i> Learn
+                            <i class="fas fa-graduation-cap me-2"></i> Learn
                         </a>
                     </li>
                     
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="quizDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-gamepad"></i> Quiz
+                        <a class="nav-link dropdown-toggle" id="quizDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-gamepad me-2"></i> Test your skills
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{{ url_for('quiz') }}">Syllable Quiz</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('word_quiz') }}">Word Quiz</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('quiz') }}">Syllable Test</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('word_quiz') }}">Word Test</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('documentation') }}">
-                            <i class="fas fa-book"></i> Docs
+                            <i class="fas fa-book me-2"></i> Docs
                         </a>
                     </li>
                 </ul>
@@ -90,20 +98,19 @@
                     <h5 class="gradient-text">
                         <i class="fas fa-eye"></i>  Project LIF
                     </h5>
-                    <p class="text-light">Empowering communication through AI-powered lip reading technology.</p>
+                    <p class="text-light">Empowering learning through AI-powered lip reading technology.</p>
                     <div class="social-links">
-                        <a href="#" class="text-light me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-light me-3"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-light"><i class="fab fa-linkedin"></i></a>
+                        <a href="mailto:projectlif.lipreading@gmail.com" class="text-light me-3">
+                        <i class="fas fa-envelope"></i>
+                        </a>
                     </div>
                 </div>
                 <div class="col-md-2 mb-4">
                     <h6>Learn</h6>
                     <ul class="list-unstyled">
                         <li><a href="{{ url_for('learn') }}" class="text-light">Syllables</a></li>
-                        <li><a href="{{ url_for('quiz') }}" class="text-light">Practice</a></li>
-                        <li><a href="{{ url_for('camera') }}" class="text-light">Live Test</a></li>
+                        <li><a href="{{ url_for('quiz') }}" class="text-light">Test ang iyong skills</a></li>
+                        <li><a href="{{ url_for('camera') }}" class="text-light">Subukan gamit ang AI</a></li>
                     </ul>
                 </div>
                 <div class="col-md-2 mb-4">
@@ -111,7 +118,7 @@
                     <ul class="list-unstyled">
                         <li><a href="{{ url_for('documentation') }}" class="text-light">Documentation</a></li>
                         <li><a href="{{ url_for('about') }}" class="text-light">About Us</a></li>
-                        <li><a href="#" class="text-light">Contact</a></li>
+                        <li><a href="mailto:projectlif.lipreading@gmail.com" class="text-light">Contact Us</a></li>
                     </ul>
                 </div>
                 <div class="col-md-2 mb-4">
@@ -132,7 +139,7 @@
                     <p class="text-light mb-0">&copy; 2025 Project LIF. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="text-light mb-0">Pioneering Lipreading AI for Filipino Speech</p>
+                    <p class="text-light mb-0">Lipreading AI for Filipino Speech</p>
                 </div>
             </div>
         </div>
@@ -141,6 +148,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/session-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>
