@@ -6,181 +6,138 @@
 {% block content %}
 <section class="syllable-section py-5">
     <div class="container">
+        <!-- Header -->
         <div class="row text-center mb-4">
-            <div class="col-lg-8 mx-auto">
+            <div class="col-lg-10 mx-auto">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb justify-content-center">
-                        <li class="breadcrumb-item"><a href="{{ url_for('learn') }}">Learn</a></li>
-                        <li class="breadcrumb-item active">{{ syllable.upper() }}</li>
+                        <li class="breadcrumb-item">
+                        </li>
                     </ol>
                 </nav>
                 <h1 class="display-4 fw-bold mb-3">
-                    Learning <span class="gradient-text">"{{ syllable.upper() }}"</span>
+                    <span class="gradient-text">"{{ syllable.upper() }}"</span>
                 </h1>
-                <div class="difficulty-badge difficulty-{{ data.difficulty }} d-inline-block">
-                    {% if data.difficulty == 1 %}
-                        <i class="fas fa-seedling me-1"></i>Beginner
-                    {% elif data.difficulty == 2 %}
-                        <i class="fas fa-star me-1"></i>Intermediate
-                    {% else %}
-                        <i class="fas fa-fire me-1"></i>Advanced
-                    {% endif %}
-                </div>
+            
             </div>
         </div>
         
-        <div class="row">
-            <div class="col-lg-8">
+        <!-- Centered Content -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <!-- Pronunciation Guide -->
                 <div class="card bg-dark-card border-0 shadow-lg mb-4">
                     <div class="card-body p-4">
-                        <h4 class="card-title text-light mb-3">
+                        <h4 class="card-title text-light mb-4 text-center">
                             <i class="fas fa-play-circle gradient-text me-2"></i>
-                            Pronunciation Guide
+                            Lip Reading Guide
                         </h4>
                         
-                        <div class="pronunciation-demo text-center mb-4">
+                     <div class="pronunciation-demo text-center mb-4">
                             <div class="gif-container">
-                                <img src="{{ data.gif }}" 
+                                <img id="syllableGif" 
+                                     src="{{ data.gif }}" 
                                      alt="Pronunciation of {{ syllable }}" 
-                                     class="gif-demo"
-                                     onload="this.style.display='block'">
-                            </div>
-                        </div>
-                        
-                        <div class="description-box">
-                            <h5 class="text-light mb-3">How to Pronounce:</h5>
-                            <p class="text-light">{{ data.description }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card bg-dark-card border-0 shadow-lg mb-4">
-                    <div class="card-body p-4">
-                        <h4 class="card-title text-light mb-3">
-                            <i class="fas fa-microphone gradient-text me-2"></i>
-                            Practice Speaking
-                        </h4>
-                        
-                        <div class="practice-area text-center">
-                            <div class="practice-camera-container">
-                                <video id="practiceCamera" class="practice-camera" autoplay muted playsinline></video>
-                                <canvas id="practiceCanvas" style="display: none;"></canvas>
-                                <div id="cameraPlaceholder" class="camera-placeholder">
-                                    <i class="fas fa-camera fa-3x gradient-text mb-3"></i>
-                                    <p class="text-muted">Click "Start Practice" to begin</p>
-                                </div>
-                                <div class="camera-overlay" id="recordingIndicator" style="display: none;">
-                                    <div class="recording-indicator">
-                                        <i class="fas fa-circle text-danger pulse-animation"></i>
-                                        <span>Analyzing</span>
-                                    </div>
-                                </div>
+                                     class="gif-demo">
                             </div>
                             
-                            <div class="practice-controls mt-3">
-                                <button class="btn btn-primary btn-lg me-3" id="startPractice">
-                                    <i class="fas fa-camera me-2"></i>Start Practice
+                            <!-- GIF Controls -->
+                            <div class="gif-controls mt-3">
+                                <button id="playGifBtn" class="btn btn-primary btn-lg me-2">
+                                    <i class="fas fa-play me-2"></i>Play GIF
                                 </button>
-                                <button class="btn btn-danger btn-lg" id="stopPractice" style="display: none;">
-                                    <i class="fas fa-stop me-2"></i>Stop Practice
+                                <button id="loopGifBtn" class="btn btn-outline-primary btn-lg">
+                                    <i class="fas fa-redo me-2"></i>Loop GIF
                                 </button>
                             </div>
-                            <div class="completion-section mt-4"  id="completionSection">
-    <div class="alert alert-success">
-        <h6><i class="fas fa-star me-2"></i>Great Practice Session!</h6>
-        <p class="mb-3">You've practiced well. Mark this syllable as mastered?</p>
-        <button class="btn btn-success" id="markMasteredBtn">
-            <i class="fas fa-crown me-2"></i>Mark as Mastered
-        </button>
-    </div>
-</div>
-
-<div class="testing-section mt-3" style="border: 2px dashed #6c757d; padding: 1rem; border-radius: 10px;">
-    <small class="text-muted">Testing Controls:</small><br>
-    <button class="btn btn-sm btn-outline-secondary me-2" id="simulateGoodPractice">
-        Simulate Good Practice
-    </button>
-    <button class="btn btn-sm btn-outline-secondary" id="simulatePoorPractice">
-        Simulate Poor Practice
-    </button>
-</div>
-                            <div class="practice-feedback mt-4" id="practiceFeedback" style="display: none;">
-                                <div class="feedback-card">
-                                    <h6 class="text-light">Practice Results:</h6>
-                                    <div id="practiceResults"></div>
-                                </div>
+                            
+                            <!-- GIF Status -->
+                            <div class="gif-status mt-2">
+                                <small class="text-muted" id="gifStatus">Click "Play GIF" to start animation</small>
                             </div>
+                        </div>
+                        
+                        <div class="description-box text-center">
+                            <h5 class="text-light mb-3">
+                                <i class="fas fa-info-circle gradient-text me-2"></i>
+                                Paano basahin ang "{{ syllable.upper() }}":
+                            </h5>
+                            <p class="text-light mb-0">{{ data.description }}</p>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="col-lg-4">
+
+                <!-- Progress Indicator -->
                 <div class="card bg-dark-card border-0 shadow-lg mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-light mb-3">
-                            <i class="fas fa-chart-bar gradient-text me-2"></i>
-                            Quick Stats
-                        </h5>
-                        <div class="stats-list">
-                            <div class="stat-row">
-                                <span class="stat-label">Difficulty:</span>
-                                <span class="stat-value">
-                                    {% if data.difficulty == 1 %}Beginner{% elif data.difficulty == 2 %}Intermediate{% else %}Advanced{% endif %}
+                    <div class="card-body p-3">
+                        <div class="syllable-progress text-center">
+                            <div class="progress-info mb-2">
+                                <span class="text-light small">
+                                    Syllable {{ current_index + 1 }} of {{ total_syllables }}
                                 </span>
                             </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Practice Sessions:</span>
-                                <span class="stat-value">0</span>
-                            </div>
-                            <div class="stat-row">
-                                <span class="stat-label">Best Score:</span>
-                                <span class="stat-value">-</span>
+                            <div class="progress">
+                                <div class="progress-bar bg-gradient-primary" 
+                                     role="progressbar" 
+                                     style="width: {{ ((current_index + 1) / total_syllables * 100) | round }}%"
+                                     aria-valuenow="{{ current_index + 1 }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="{{ total_syllables }}">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="card bg-dark-card border-0 shadow-lg mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-light mb-3">
-                            <i class="fas fa-lightbulb gradient-text me-2"></i>
-                            Practice Tips
-                        </h5>
-                        <ul class="tips-list">
-                            <li class="tip-item">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Watch the demo multiple times
-                            </li>
-                            <li class="tip-item">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Practice in front of a mirror
-                            </li>
-                            <li class="tip-item">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Focus on mouth shape
-                            </li>
-                            <li class="tip-item">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Repeat until comfortable
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
+                <!-- Navigation -->
                 <div class="card bg-dark-card border-0 shadow-lg">
-                    <div class="card-body">
-                        <h5 class="card-title text-light mb-3">
+                    <div class="card-body p-4">
+                        <h5 class="card-title text-light mb-3 text-center">
                             <i class="fas fa-compass gradient-text me-2"></i>
                             Continue Learning
                         </h5>
                         <div class="navigation-buttons">
-                            <a href="{{ url_for('learn') }}" class="btn btn-outline-light w-100 mb-2">
-                                <i class="fas fa-arrow-left me-2"></i>Back to All Syllables
-                            </a>
-                            <a href="{{ url_for('quiz') }}" class="btn btn-primary w-100">
-                                <i class="fas fa-gamepad me-2"></i>Test Your Skills
-                            </a>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <a href="{{ url_for('learn') }}" class="btn btn-outline-light w-100">
+                                        <i class="fas fa-arrow-left me-2"></i>
+                                        <span class="d-none d-sm-inline">Bumalik sa lahat ng </span>syllables
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    {% if next_syllable %}
+                                        <a href="{{ url_for('learn_syllable', syllable=next_syllable) }}" 
+                                           class="btn btn-primary w-100">
+                                            <span class="d-none d-sm-inline">Susunod: </span>{{ next_syllable.upper() }}
+                                            <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('quiz') }}" class="btn btn-success w-100">
+                                            <i class="fas fa-trophy me-2"></i>
+                                            <span class="d-none d-sm-inline">Complete! </span>Take Quiz
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Actions 
+                            <div class="quick-actions mt-3 pt-3 border-top border-secondary">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <a href="{{ url_for('quiz') }}" class="btn btn-outline-primary btn-sm w-100">
+                                            <i class="fas fa-gamepad me-1"></i>
+                                            <span class="d-none d-sm-inline">Test </span>Skills
+                                        </a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="{{ url_for('camera') }}" class="btn btn-outline-secondary btn-sm w-100">
+                                            <i class="fas fa-camera me-1"></i>
+                                            <span class="d-none d-sm-inline">Live </span>Practice
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            -->
                         </div>
                     </div>
                 </div>
@@ -196,7 +153,10 @@
         syllable: '{{ syllable }}',
         gif: '{{ data.gif }}',
         description: '{{ data.description }}',
-        difficulty: '{{ data.difficulty }}'
+        difficulty: {{ data.difficulty }},
+        nextSyllable: '{{ next_syllable or "" }}',
+        currentIndex: {{ current_index }},
+        totalSyllables: {{ total_syllables }}
     };
 </script>
 <script src="{{ url_for('static', filename='js/syllable.js') }}"></script>

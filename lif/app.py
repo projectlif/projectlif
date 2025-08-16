@@ -20,177 +20,142 @@ SYLLABLES_DATA = {
     'a': {
         'description': 'Open your mouth wide, drop your jaw, and let the sound flow naturally from your throat.',
         'gif': '/static/gifs/a.gif',
-        'difficulty': 1
     },
     'e': {
         'description': 'Slightly open your mouth, tongue in middle position, corners of mouth slightly pulled.',
         'gif': '/static/gifs/e.gif',
-        'difficulty': 1
     },
     'i': {
         'description': 'Smile slightly, tongue high and forward, mouth almost closed.',
         'gif': '/static/gifs/i.gif',
-        'difficulty': 2
     },
     'o': {
         'description': 'Round your lips into a circle, tongue pulled back, moderate mouth opening.',
         'gif': '/static/gifs/o.gif',
-        'difficulty': 2
     },
     'u': {
         'description': 'Pucker your lips tightly, tongue pulled back and down, small mouth opening.',
         'gif': '/static/gifs/u.gif',
-        'difficulty': 3
     },
     'ba': {
         'description': 'Press lips together, then release with a puff of air while opening to "a" position.',
         'gif': '/static/gifs/ba.gif',
-        'difficulty': 2
     },
     'be': {
         'description': 'The B begins the same as in ba, with the lips pressing together and then releasing. The E is a mid-front vowel with a short “eh” sound. The jaw is slightly open, and the lips gently spread. The feeling for this sound is a soft pop followed by a short, forward vowel.',
         #'gif': '/static/gifs/ba.gif',
-        'difficulty': 2
     },
     'bi': {
         'description': 'The B is produced by closing and releasing the lips, and the I sound is a high front vowel. The tongue is raised toward the roof of the mouth, and the lips are spread like a smile. The feeling for this sound is a gentle pop from the lips and a bright, sharp “ee” sound.',
         #'gif': '/static/gifs/ba.gif',
-        'difficulty': 2
     },
     'bo': {
         'description': 'The B is voiced and made with a lip press and release. The O is a mid-back rounded vowel. The lips round into a small circle, and the tongue pulls back slightly. The feeling for this sound is a soft, voiced beginning with a rounded, “oh” finish.',
         #'gif': '/static/gifs/ba.gif',
-        'difficulty': 2
     },
     'bu': {
         'description': 'The B starts with closed lips and a voiced release. The U is a high back rounded vowel — the lips are tightly rounded and the tongue rises toward the back of the mouth. The feeling for this sound is a closed burst followed by a deep, “oo” vowel.',
         #'gif': '/static/gifs/ba.gif',
-        'difficulty': 2
     },
     'ka': {
         'description': 'Back of tongue touches soft palate, then releases with "a" mouth position.',
         'gif': '/static/gifs/ka.gif',
-        'difficulty': 3
     },
     'ke': {
         'description': 'The K is made by blocking airflow at the back of the mouth with the tongue and then releasing it quickly. The E is a mid-front vowel — the mouth opens slightly, the tongue is forward, and the lips are lightly spread. The feeling is a hard release followed by a short “eh” sound.',
         #'gif': '/static/gifs/ka.gif',
-        'difficulty': 3
     },
     'ki': {
         'description': 'The K is formed by the tongue blocking the back of the mouth (velar area), followed by a clean burst of air. The I is a high front vowel, so the lips stretch slightly and the tongue is raised toward the roof of the mouth. The feeling is a sharp stop followed by a bright “ee” sound.',
         #'gif': '/static/gifs/ka.gif',
-        'difficulty': 3
     },
     'ko': {
         'description': 'The K sound forms at the back of the mouth with no vocal cord vibration. The O is a mid-back rounded vowel. The lips form a round shape, and the tongue is positioned toward the back. The feeling is a back-of-the-throat burst followed by a rounded “oh.”',
         #'gif': '/static/gifs/ka.gif',
-        'difficulty': 3
     },
     'ku': {
         'description': 'The K is voiceless and made at the back of the mouth, while the U is a high back rounded vowel. The lips round tightly, and the tongue moves high and back. The feeling is a clean stop followed by a closed, “oo” sound.',
         #'gif': '/static/gifs/ka.gif',
-        'difficulty': 3
     },
     'da': {
         'description': 'Touch tongue tip to roof of mouth behind teeth, then release to "a" position.',
         'gif': '/static/gifs/da.gif',
-        'difficulty': 3
     },
     'de': {
         'description': 'The D starts with vibration at the teeth, and the E is a short “eh” sound — tongue mid-front, lips slightly spread.',
         #'gif': '/static/gifs/da.gif',
-        'difficulty': 3
     },
     'di': {
         'description': 'The D is voiced at the teeth, while the I is a high front vowel — tongue high and lips spread.',
         #'gif': '/static/gifs/da.gif',
-        'difficulty': 3
     },
     'do': {
         'description': 'The D is made with vibration at the teeth, and the O is a rounded mid-back sound — lips round, tongue shifts back.',
         #'gif': '/static/gifs/da.gif',
-        'difficulty': 3
     },
     'du': {
         'description': 'The D is voiced at the teeth, and the U is a high back vowel — lips round, tongue rises toward the back.',
         #'gif': '/static/gifs/da.gif',
-        'difficulty': 3
     },
     'ga': {
         'description': 'The G is a voiced velar stop — just like K, it is made at the back of the mouth (tongue touches the soft palate), but with vocal cord vibration. The A sound is open: the jaw drops, tongue stays low, and lips are neutral.',
         #'gif': '/static/gifs/ga.gif',
-        'difficulty': 3
     },
     'ge': {
         'description': 'The G starts at the back of the mouth, with vibration, and the E is a short “eh” sound: tongue is mid-front, lips slightly spread.',
         #'gif': '/static/gifs/ga.gif',
-        'difficulty': 3
     },
     'gi': {
         'description': 'The G is voiced and formed at the back of the mouth. The I is a high front vowel, made with spread lips and a high tongue position.',
         #'gif': '/static/gifs/ga.gif',
-        'difficulty': 3
     },
     'go': {
         'description': 'The G uses the back of the tongue and soft palate with vocal cord vibration. The O is a mid-back rounded vowel — lips form a round shape and tongue shifts back.',
         #'gif': '/static/gifs/ga.gif',
-        'difficulty': 3
     },
     'gu': {
         'description': 'The G is voiced and formed at the velum (back of the mouth). The U is a high back rounded vowel: lips round tightly, and the tongue rises toward the soft palate.',
         #'gif': '/static/gifs/ga.gif',
-        'difficulty': 3
     },
     'ha': {
         'description': 'The H is a voiceless glottal fricative — it is made by gently pushing air through the vocal cords without vibration. The A is an open vowel: the jaw drops, the tongue stays low, and the lips are neutral.',
         #'gif': '/static/gifs/ha.gif',
-        'difficulty': 3
     },
     'he': {
         'description': 'The H is airy and soft, and the E is a mid-front vowel: tongue is forward, lips slightly spread. The sound is light and short.',
         #'gif': '/static/gifs/ha.gif',
-        'difficulty': 3
     },
     'hi': {
         'description': 'The H is again breathy and soft, and the I is a high front vowel — lips spread like a smile, and the tongue is high.',
         #'gif': '/static/gifs/ha.gif',
-        'difficulty': 3
     },
     'ho': {
         'description': 'The H sound comes from the throat, soft and airy. The O is a mid-back rounded vowel — the lips form a small circle, and the tongue is pulled back slightly.',
         #'gif': '/static/gifs/ha.gif',
-        'difficulty': 3
     },
     'hu': {
         'description': 'The H sound is gentle and made in the throat. The U is a high back rounded vowel — lips are tightly rounded, and the tongue is high and back.',
         #'gif': '/static/gifs/ha.gif',
-        'difficulty': 3
     },
     'la': {
         'description': 'The L is a voiced alveolar lateral consonant — the tongue tip touches just behind the upper front teeth, and air flows around the sides of the tongue. The A is an open vowel: jaw drops, tongue is low, lips neutral.',
         #'gif': '/static/gifs/la.gif',
-        'difficulty': 3
     },
     'le': {
         'description': 'The L is formed with the tip of the tongue touching the alveolar ridge. The E is a short “eh” sound: tongue moves forward, lips slightly spread.',
         #'gif': '/static/gifs/la.gif',
-        'difficulty': 3
     },
     'li': {
         'description': 'The L starts at the alveolar ridge, and the I is a high front vowel: tongue is raised, lips spread in a smile.',
         #'gif': '/static/gifs/la.gif',
-        'difficulty': 3
     },
     'lo': {
         'description': 'The L is voiced and made at the front with the tongue touching just behind the teeth. The O is a rounded back vowel — lips form a small circle, and the tongue moves slightly back.',
         #'gif': '/static/gifs/la.gif',
-        'difficulty': 3
     },
     'lu': {
         'description': 'The L uses the tongue tip touching the alveolar ridge. The U is a high back vowel — lips are rounded, and the tongue is high and back.',
         #'gif': '/static/gifs/la.gif',
-        'difficulty': 3
     }
 }
 
@@ -241,7 +206,31 @@ def get_session_info():
         'is_new_user': session.get('total_sessions', 1) == 1
     })
 
-# Add route to mark syllable as mastered
+SYLLABLE_ORDER = ["a", "e", "i", "o", "u", "ba", "be", "bi", "bo", "bu", "ka", "ke", "ki", "ko", "ku", "da", "de", "di",
+             "do", "du", "ga", "ge", "gi", "go", "gu", "ha", "he", "hi", "ho", "hu", "la", "le", "li", "lo", "lu", "ma",
+             "me", "mi", "mo", "mu", "na", "ne", "ni", "no", "nu", "nga", "nge", "ngi", "ngo", "ngu", "pa", "pe", "pi",
+             "po", "pu", "ra", "re", "ri", "ro", "ru", "sa", "se", "si", "so", "su", "ta", "te", "ti", "to", "tu", "wa",
+             "we", "wi", "wo", "wu", "ya", "ye", "yi", "yo", "yu"]
+
+def get_next_syllable(current_syllable):
+    """Get the next syllable in the learning sequence"""
+    try:
+        current_index = SYLLABLE_ORDER.index(current_syllable)
+        if current_index < len(SYLLABLE_ORDER) - 1:
+            return SYLLABLE_ORDER[current_index + 1]
+        else:
+            return None  # Last syllable, no next
+    except ValueError:
+        return None  # Syllable not found
+
+def get_syllable_index(syllable):
+    """Get the current index of syllable in the sequence"""
+    try:
+        return SYLLABLE_ORDER.index(syllable)
+    except ValueError:
+        return 0
+
+
 @app.route('/api/syllable/<syllable>/master', methods=['POST'])
 def master_syllable(syllable):
     try:
@@ -377,7 +366,16 @@ def learn():
 @app.route('/learn/<syllable>')
 def learn_syllable(syllable):
     if syllable in SYLLABLES_DATA:
-        return render_template('syllable.html', syllable=syllable, data=SYLLABLES_DATA[syllable])
+        next_syllable = get_next_syllable(syllable)
+        current_index = get_syllable_index(syllable)
+        total_syllables = len(SYLLABLE_ORDER)
+        
+        return render_template('syllable.html', 
+                             syllable=syllable, 
+                             data=SYLLABLES_DATA[syllable],
+                             next_syllable=next_syllable,
+                             current_index=current_index,
+                             total_syllables=total_syllables)
     return render_template('404.html'), 404
 
 @app.route('/quiz')
