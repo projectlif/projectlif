@@ -20,23 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
             <span id="themeText">Light</span>
         `
 
-    // Force styles
-    themeButton.style.cssText = `
-            position: fixed !important;
-            top: 20px !important;
-            right: 20px !important;
-            z-index: 99999 !important;
-            background: red !important;
-            color: white !important;
-            border: 3px solid lime !important;
-            padding: 10px 15px !important;
-            border-radius: 25px !important;
-            cursor: pointer !important;
-            display: block !important;
-            font-size: 14px !important;
-            font-weight: bold !important;
-        `
-
     // Add click handler
     themeButton.addEventListener("click", () => {
       console.log("🔍 Theme button clicked!")
@@ -47,18 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(themeButton)
   } else {
     themeButton.style.cssText = `
-            position: fixed !important;
-            top: 10px !important;
-            right: 10px !important;
             z-index: 99999 !important;
             background: rgb(30, 41, 59); !important;
             color: white !important;
-            border: 3px solid !important;
             padding: 10px 15px !important;
-            border-radius: 25px !important;
             cursor: pointer !important;
             display: block !important;
             font-size: 14px !important;
+            border: none;
             font-weight: bold !important;
         `
   }

@@ -27,13 +27,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-        <i class="fas fa-moon" id="themeIcon"></i>
-        <span id="themeText">Dark</span>
-    </button>
-    
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark-custom fixed-top">
+    <nav class="navbar navbar-expand-xl navbar-dark bg-dark-custom fixed-top">
         <div class="container">
             <a class="navbar-brand animated-logo" href="{{ url_for('home') }}">
                 <i class="fas fa-mouth gradient-text"></i>
@@ -80,6 +74,12 @@
                         <a class="nav-link" href="{{ url_for('documentation') }}">
                             <i class="fas fa-book me-2"></i> Docs
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="theme-toggle nav-theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                            <i class="fas fa-moon" id="themeIcon"></i>
+                            <span id="themeText">Dark</span>
+                        </button>
                     </li>
                 </ul>
             </div>

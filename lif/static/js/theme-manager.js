@@ -28,9 +28,6 @@ class ThemeManager {
           this.toggleTheme()
         })
         this.updateToggleButton(this.currentTheme)
-      } else {
-        // If button doesn't exist, create it
-        this.createThemeButton()
       }
     }
 
@@ -50,32 +47,6 @@ class ThemeManager {
         }
       })
     }
-  }
-
-  createThemeButton() {
-    const button = document.createElement("button")
-    button.id = "themeToggle"
-    button.className = "theme-toggle"
-    button.setAttribute("aria-label", "Toggle theme")
-
-    const icon = document.createElement("i")
-    icon.id = "themeIcon"
-    icon.className = "fas fa-moon"
-
-    const text = document.createElement("span")
-    text.id = "themeText"
-    text.textContent = "Dark"
-
-    button.appendChild(icon)
-    button.appendChild(text)
-
-    document.body.appendChild(button)
-
-    button.addEventListener("click", () => {
-      this.toggleTheme()
-    })
-
-    this.updateToggleButton(this.currentTheme)
   }
 
   setupDynamicUpdates() {
@@ -103,7 +74,6 @@ class ThemeManager {
     this.currentTheme = newTheme
     this.applyTheme(newTheme)
     this.setStoredTheme(newTheme)
-
 
     // Trigger custom event for other components
     window.dispatchEvent(
