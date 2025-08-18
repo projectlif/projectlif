@@ -525,11 +525,11 @@ window.LipLearn = {
   loadFromStorage,
 }
 
-// Add error handling for the entire application
+/* Add error handling for the entire application
 window.addEventListener("error", (event) => {
   console.error("Application error:", event.error)
   showNotification("An error occurred. Please refresh the page if issues persist.", "danger")
-})
+})*/
 
 // Add unhandled promise rejection handling
 window.addEventListener("unhandledrejection", (event) => {
