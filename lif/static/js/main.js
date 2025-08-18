@@ -72,7 +72,7 @@ function initializeNavigation() {
       navbarToggler.classList.toggle("collapsed")
 
       // Add body scroll lock when menu is open on mobile
-      if (window.innerWidth <= 991) {
+      if (window.innerWidth <= 1000) {
         document.body.style.overflow = navbarCollapse.classList.contains("show") ? "hidden" : ""
       }
     })
@@ -113,7 +113,7 @@ function initializeNavigation() {
 
     // Handle window resize
     window.addEventListener("resize", () => {
-      if (window.innerWidth > 991) {
+      if (window.innerWidth > 1000) {
         navbarCollapse.classList.remove("show")
         navbarToggler.setAttribute("aria-expanded", "false")
         navbarToggler.classList.add("collapsed")
