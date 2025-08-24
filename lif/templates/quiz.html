@@ -90,11 +90,12 @@
                             <div class="question-area text-center mb-4">
                                 <h4 class="text-light mb-3">Anong syllable ang iyong nababasa?</h4>
                                 
+                                <!-- Smaller GIF Display -->
                                 <div class="gif-display mb-4">
-                                    <div class="gif-container" id="questionGif">
+                                    <div class="gif-container-small" id="questionGif">
                                         <div class="gif-placeholder">
-                                            <i class="fas fa-play-circle fa-4x gradient-text"></i>
-                                            <p class="mt-3 text-light">Loading...</p>
+                                            <i class="fas fa-play-circle fa-3x gradient-text"></i>
+                                            <p class="mt-2 text-light">Loading...</p>
                                         </div>
                                     </div>
                                     
@@ -108,27 +109,13 @@
                                         </button>
                                     </div>
                                 </div>
-                                
-                                <div class="timer-circle mb-3">
-                                    <div class="timer-display" id="timerDisplay">30</div>
-                                </div>
                             </div>
                             
-                            <div class="answer-options" id="answerOptions">
+                            <!-- Enhanced Answer Options Grid -->
+                            <div class="answer-options-grid" id="answerOptions">
                                 <!-- Options will be populated by JavaScript -->
                             </div>
-                            
-                            <div class="answer-feedback" id="answerFeedback" style="display: none;">
-                                <div class="feedback-content">
-                                    <div class="feedback-icon">
-                                        <i class="fas fa-check-circle text-success"></i>
-                                    </div>
-                                    <div class="feedback-text">
-                                        <h5>Tama!</h5>
-                                        <p>Nakakuha ka ng 10 points.</p>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -142,58 +129,40 @@
                             </div>
                             <h3 class="text-light mb-3">Test Complete!</h3>
                             
-                            <div class="final-stats mb-4">
+                            <div class="final-stats mb-4 text-light">
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="final-stat">
-                                            <div class="final-stat-value" id="finalScore">0</div>
-                                            <div class="final-stat-label">Final Score</div>
+                                            <div class="final-stat-value text-light" id="finalScore">0</div>
+                                            <div class="final-stat-label text-light">Final Score</div>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="final-stat">
-                                            <div class="final-stat-value" id="finalAccuracy">0%</div>
-                                            <div class="final-stat-label">Accuracy</div>
+                                            <div class="final-stat-value text-light" id="finalAccuracy">0%</div>
+                                            <div class="final-stat-label text-light">Accuracy</div>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="final-stat">
-                                            <div class="final-stat-value" id="finalStreak">0</div>
-                                            <div class="final-stat-label">Best Streak</div>
+                                            <div class="final-stat-value text-light" id="finalStreak">0</div>
+                                            <div class="final-stat-label text-light">Best Streak</div>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="final-stat">
-                                            <div class="final-stat-value" id="totalTime">0s</div>
-                                            <div class="final-stat-label">Total Time</div>
+                                            <div class="final-stat-value text-light" id="totalTime">0s</div>
+                                            <div class="final-stat-label text-light">Total Time</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Detailed Results -->
+                            <!-- Detailed Results with GIF Previews -->
                             <div class="detailed-results mb-4">
                                 <h5 class="text-light mb-3">Question Breakdown</h5>
                                 <div id="resultsBreakdown" class="text-start">
                                     <!-- Results will be populated by JavaScript -->
-                                </div>
-                            </div>
-
-                            <!-- Analysis -->
-                            <div class="analysis-section mb-4">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6 class="text-success mb-2">Strengths</h6>
-                                        <div id="strengthsList" class="analysis-list">
-                                            <!-- Populated by JavaScript -->
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6 class="text-warning mb-2">Areas to Improve</h6>
-                                        <div id="weaknessesList" class="analysis-list">
-                                            <!-- Populated by JavaScript -->
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             
@@ -209,33 +178,94 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Tips Sidebar -->
+
             <div class="col-lg-4">
-                <div class="card bg-dark-card border-0 shadow-lg">
-                    <div class="card-body">
-                        <h5 class="card-title text-light mb-3">
-                            <i class="fas fa-lightbulb gradient-text me-2"></i>
-                            Mga Tips:
-                        </h5>
-                        <ul class="tips-list">
-                            <li class="tip-item">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Panoorin muna nang buo ang video bago sumagot.
-                            </li>
-                            <li class="tip-item">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Bigyang-pansin ang hugis at galaw ng bibig.
-                            </li>
-                            <li class="tip-item">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Magtiwala sa iyong sarili.
-                            </li>
-                            <li class="tip-item">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                Mag-practice nang regular para mas mapahusay ang iyong skills.
-                            </li>
-                        </ul>
+                <!-- Timer Card (Hidden initially, shown during quiz) -->
+                <div class="tips-container" id="timerCard" style="display: none;">
+                    <div class="card bg-dark-card border-0 shadow-lg">
+                        <div class="card-body">
+                            <h5 class="card-title text-light mb-3">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                Timer:
+                            </h5>
+                            <!-- Animated Timer Clock -->
+                            <div class="timer-container mb-4">
+                                <div class="animated-clock" id="animatedClock">
+                                    <div class="clock-face">
+                                        <div class="clock-hand" id="clockHand"></div>
+                                        <div class="clock-numbers">
+                                            <span class="clock-number" style="--i: 1;">30</span>
+                                            <span class="clock-number" style="--i: 2;">25</span>
+                                            <span class="clock-number" style="--i: 3;">20</span>
+                                            <span class="clock-number" style="--i: 4;">15</span>
+                                            <span class="clock-number" style="--i: 5;">10</span>
+                                            <span class="clock-number" style="--i: 6;">5</span>
+                                        </div>
+                                        <div class="clock-center"></div>
+                                    </div>
+                                    <div class="timer-text" id="timerText">30</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips Card (Always visible) -->
+                <div class="tips-container" id="tipsCard">
+                    <div class="card bg-dark-card border-0 shadow-lg">
+                        <div class="card-body">
+                            <h5 class="card-title text-light mb-3">
+                                <i class="fas fa-lightbulb gradient-text me-2"></i>
+                                Mga Tips:
+                            </h5>
+                            <ul class="tips-list">
+                                <li class="tip-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Panoorin muna nang buo ang video bago sumagot.
+                                </li>
+                                <li class="tip-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Bigyang-pansin ang hugis at galaw ng bibig.
+                                </li>
+                                <li class="tip-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Magtiwala sa iyong sarili.
+                                </li>
+                                <li class="tip-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Mag-practice nang regular para mas mapahusay ang iyong skills.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Card (Hidden initially, shown after quiz completion) -->
+                <div class="tips-container" id="analysisCard" style="display: none;">
+                    <div class="card bg-dark-card border-0 shadow-lg mt-4">
+                        <div class="card-body">
+                            <h5 class="card-title text-light mb-3">
+                                <i class="fas fa-chart-line text-success me-2"></i>
+                                Analysis
+                            </h5>
+                            <!-- Analysis -->
+                            <div class="analysis-section mb-4">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <h6 class="text-success mb-2">Strengths</h6>
+                                        <div id="strengthsList" class="analysis-list">
+                                            <div class="analysis-item text-muted">Complete a quiz to see your strengths!</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h6 class="text-warning mb-2">Areas to Improve</h6>
+                                        <div id="weaknessesList" class="analysis-list">
+                                            <div class="analysis-item text-muted">Complete a quiz to see areas for improvement!</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

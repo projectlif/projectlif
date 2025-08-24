@@ -17,6 +17,7 @@ class QuizManager {
     this.gifController = null
 
     this.initializeEventListeners()
+    this.initializeSidebarVisibility()
   }
 
   initializeEventListeners() {
@@ -31,6 +32,41 @@ class QuizManager {
     }
   }
 
+  initializeSidebarVisibility() {
+    // Starting state: only tips visible
+    this.showTipsOnly()
+  }
+
+  showTipsOnly() {
+    const timerCard = document.getElementById("timerCard")
+    const tipsCard = document.getElementById("tipsCard")
+    const analysisCard = document.getElementById("analysisCard")
+
+    if (timerCard) timerCard.style.display = "none"
+    if (tipsCard) tipsCard.style.display = "block"
+    if (analysisCard) analysisCard.style.display = "none"
+  }
+
+  showClockAndTips() {
+    const timerCard = document.getElementById("timerCard")
+    const tipsCard = document.getElementById("tipsCard")
+    const analysisCard = document.getElementById("analysisCard")
+
+    if (timerCard) timerCard.style.display = "block"
+    if (tipsCard) tipsCard.style.display = "block"
+    if (analysisCard) analysisCard.style.display = "none"
+  }
+
+  showTipsAndAnalysis() {
+    const timerCard = document.getElementById("timerCard")
+    const tipsCard = document.getElementById("tipsCard")
+    const analysisCard = document.getElementById("analysisCard")
+
+    if (timerCard) timerCard.style.display = "none"
+    if (tipsCard) tipsCard.style.display = "block"
+    if (analysisCard) analysisCard.style.display = "block"
+  }
+
   async startQuiz() {
     try {
       // Show loading
@@ -40,6 +76,9 @@ class QuizManager {
       document.getElementById("startScreen").style.display = "none"
       document.getElementById("gameScreen").style.display = "block"
       document.getElementById("statsBar").style.display = "block"
+
+      // Show clock and tips during quiz
+      this.showClockAndTips()
 
       // Reset quiz state
       this.currentQuestion = 0
@@ -221,16 +260,9 @@ class QuizManager {
 
     optionsContainer.innerHTML = ""
 
-    // Create a grid for options
-    const optionsGrid = document.createElement("div")
-    optionsGrid.className = "row g-3"
-
     question.options.forEach((option, index) => {
-      const optionCol = document.createElement("div")
-      optionCol.className = "col-md-6 col-lg-4"
-
       const optionButton = document.createElement("button")
-      optionButton.className = "btn btn-outline-light w-100 answer-option"
+      optionButton.className = "answer-option"
       optionButton.textContent = option.toUpperCase()
       optionButton.dataset.answer = option
 
@@ -238,11 +270,8 @@ class QuizManager {
         this.selectAnswer(option, question.syllable, question)
       })
 
-      optionCol.appendChild(optionButton)
-      optionsGrid.appendChild(optionCol)
+      optionsContainer.appendChild(optionButton)
     })
-
-    optionsContainer.appendChild(optionsGrid)
   }
 
   selectAnswer(selectedAnswer, correctAnswer, question) {
@@ -259,11 +288,9 @@ class QuizManager {
       btn.disabled = true
 
       if (btn.dataset.answer === correctAnswer) {
-        btn.classList.remove("btn-outline-light")
-        btn.classList.add("btn-success")
+        btn.classList.add("correct")
       } else if (btn.dataset.answer === selectedAnswer && selectedAnswer !== correctAnswer) {
-        btn.classList.remove("btn-outline-light")
-        btn.classList.add("btn-danger")
+        btn.classList.add("incorrect")
       }
     })
 
@@ -275,6 +302,7 @@ class QuizManager {
       correct: selectedAnswer === correctAnswer,
       timeSpent: 30 - this.timeLeft,
       options: question.options,
+      gif: question.gif, // Store GIF URL for results
     }
     this.userAnswers.push(answerRecord)
 
@@ -379,20 +407,28 @@ class QuizManager {
   }
 
   updateTimerDisplay() {
-    const timerDisplay = document.getElementById("timerDisplay")
-    const timerCircle = document.querySelector(".timer-circle")
+    const timerText = document.getElementById("timerText")
+    const clockHand = document.getElementById("clockHand")
+    const animatedClock = document.getElementById("animatedClock")
 
-    if (timerDisplay) {
-      timerDisplay.textContent = this.timeLeft
+    if (timerText) {
+      timerText.textContent = this.timeLeft
     }
 
-    if (timerCircle) {
-      timerCircle.classList.remove("warning", "danger")
+    // Update clock hand rotation (360 degrees over 30 seconds)
+    if (clockHand) {
+      const rotation = ((30 - this.timeLeft) / 30) * 360
+      clockHand.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`
+    }
+
+    // Update clock appearance based on time left
+    if (animatedClock) {
+      animatedClock.classList.remove("warning", "danger")
 
       if (this.timeLeft <= 5) {
-        timerCircle.classList.add("danger")
+        animatedClock.classList.add("danger")
       } else if (this.timeLeft <= 10) {
-        timerCircle.classList.add("warning")
+        animatedClock.classList.add("warning")
       }
     }
 
@@ -434,6 +470,9 @@ class QuizManager {
     document.getElementById("statsBar").style.display = "none"
     document.getElementById("resultsScreen").style.display = "block"
 
+    // Show tips and analysis after quiz completion
+    this.showTipsAndAnalysis()
+
     // Calculate final stats
     const accuracy = (this.correctAnswers / this.totalQuestions) * 100
     const totalTime = Math.round((this.endTime - this.startTime) / 1000)
@@ -467,14 +506,22 @@ class QuizManager {
       const statusClass = answer.correct ? "correct" : "incorrect"
 
       html += `
-        <div class="result-row ${statusClass} mb-2 p-2 rounded">
-          <div class="result-question">
-            <i class="fas ${statusIcon} me-2"></i>
-            Question ${answer.question}: "${answer.syllable.toUpperCase()}"
+        <div class="result-row ${statusClass}">
+          <div class="result-gif-preview">
+            <img src="${answer.gif}" alt="${answer.syllable}" class="gif-infinite" style="animation-iteration-count: infinite;">
           </div>
-          <div class="result-answer">
-            Your answer: "${answer.userAnswer.toUpperCase() || "No answer"}"
-            <small class="text-muted d-block">Time: ${answer.timeSpent}s</small>
+          <div class="result-content">
+            <div class="result-question">
+              <i class="fas ${statusIcon} me-2"></i>
+              Question ${answer.question}: "${answer.syllable.toUpperCase()}"
+            </div>
+            <div class="result-answer">
+              Your answer: "${answer.userAnswer.toUpperCase() || "No answer"}"
+              <small class="text-muted d-block">Time: ${answer.timeSpent}s</small>
+            </div>
+          </div>
+          <div class="result-status">
+            <i class="fas ${statusIcon}"></i>
           </div>
         </div>
       `
@@ -482,6 +529,20 @@ class QuizManager {
 
     html += "</div>"
     container.innerHTML = html
+
+    // Force all result GIFs to loop infinitely
+    setTimeout(() => {
+      const resultGifs = container.querySelectorAll('img[src*=".gif"]')
+      resultGifs.forEach((gif) => {
+        // Add timestamp to force reload and ensure looping
+        const originalSrc = gif.src.split("?")[0]
+        gif.src = `${originalSrc}?loop=${Date.now()}`
+
+        // Ensure infinite looping
+        gif.style.animationIterationCount = "infinite"
+        gif.classList.add("gif-infinite")
+      })
+    }, 100)
   }
 
   showAnalysis() {
@@ -593,6 +654,9 @@ class QuizManager {
     document.getElementById("startScreen").style.display = "block"
     document.getElementById("statsBar").style.display = "none"
 
+    // Reset sidebar to tips only
+    this.showTipsOnly()
+
     // Reset UI
     document.getElementById("currentScore").textContent = "0"
     document.getElementById("currentStreak").textContent = "0"
@@ -603,12 +667,36 @@ class QuizManager {
     if (progressBar) {
       progressBar.style.width = "0%"
     }
+
+    // Reset timer display
+    const timerText = document.getElementById("timerText")
+    const clockHand = document.getElementById("clockHand")
+    const animatedClock = document.getElementById("animatedClock")
+
+    if (timerText) timerText.textContent = "30"
+    if (clockHand) clockHand.style.transform = "translate(-50%, -100%) rotate(0deg)"
+    if (animatedClock) animatedClock.classList.remove("warning", "danger")
+
+    // Reset analysis to default state
+    const strengthsList = document.getElementById("strengthsList")
+    const weaknessesList = document.getElementById("weaknessesList")
+
+    if (strengthsList) {
+      strengthsList.innerHTML = '<div class="analysis-item text-muted">Complete a quiz to see your strengths!</div>'
+    }
+    if (weaknessesList) {
+      weaknessesList.innerHTML =
+        '<div class="analysis-item text-muted">Complete a quiz to see areas for improvement!</div>'
+    }
   }
 
   resetToStart() {
     document.getElementById("gameScreen").style.display = "none"
     document.getElementById("statsBar").style.display = "none"
     document.getElementById("startScreen").style.display = "block"
+
+    // Reset sidebar to tips only
+    this.showTipsOnly()
   }
 
   showLoading(message) {
