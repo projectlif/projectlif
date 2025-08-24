@@ -28,3 +28,6 @@ next-env.d.ts__pycache__/
 
 __pycache__/
 *.pyc
+__pycache__/
+*.pyc
+*.h5
