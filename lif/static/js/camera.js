@@ -1,3 +1,5 @@
+// Camera functionality for LipLearn
+
 class CameraManager {
   constructor() {
     this.video = document.getElementById("cameraFeed")
@@ -5,32 +7,60 @@ class CameraManager {
     this.ctx = this.canvas ? this.canvas.getContext("2d") : null
     this.stream = null
     this.isRecording = false
-    this.predictionInterval = null
+    this.recordingFrames = []
+    this.currentMode = "syllable"
+    this.currentCategory = "vowels"
+    this.targetFrames = 22
+    this.frameInterval = null
+    this.recordingStartTime = null
+
     this.sessionStats = {
       totalPredictions: 0,
-      confidenceSum: 0,
+      accuracySum: 0,
       startTime: null,
-      syllableCounts: {},
+      predictions: [],
     }
 
     this.initializeEventListeners()
+    this.initializeCamera()
   }
 
   initializeEventListeners() {
-    const startBtn = document.getElementById("startCamera")
-    const stopBtn = document.getElementById("stopCamera")
+    const startBtn = document.getElementById("startRecording")
+    const stopBtn = document.getElementById("stopRecording")
+    const syllableModeBtn = document.getElementById("syllableMode")
+    const wordModeBtn = document.getElementById("wordMode")
+    const categorySelect = document.getElementById("categorySelect")
 
     if (startBtn) {
-      startBtn.addEventListener("click", () => this.startCamera())
+      startBtn.addEventListener("click", () => this.startRecording())
     }
 
     if (stopBtn) {
-      stopBtn.addEventListener("click", () => this.stopCamera())
+      stopBtn.addEventListener("click", () => this.stopRecording())
+    }
+
+    if (syllableModeBtn) {
+      syllableModeBtn.addEventListener("change", () => this.switchMode("syllable"))
+    }
+
+    if (wordModeBtn) {
+      wordModeBtn.addEventListener("change", () => this.switchMode("word"))
+    }
+
+    if (categorySelect) {
+      categorySelect.addEventListener("change", (e) => {
+        this.currentCategory = e.target.value
+        this.updateUI()
+      })
     }
   }
 
-  async startCamera() {
+  async initializeCamera() {
     try {
+      this.updateCameraStatus("Requesting camera access...")
+
+      // Request camera permission
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },
@@ -43,184 +73,372 @@ class CameraManager {
       if (this.video) {
         this.video.srcObject = this.stream
         this.video.play()
+
+        this.video.addEventListener("loadedmetadata", () => {
+          this.canvas.width = this.video.videoWidth
+          this.canvas.height = this.video.videoHeight
+          this.updateCameraStatus("Camera ready - Position your face in frame")
+          this.enableRecordingButton()
+          this.startSessionTimer()
+        })
       }
 
-      this.updateCameraControls(true)
-      this.startPredictions()
-      this.startSessionTimer()
-
-      const indicator = document.getElementById("recordingIndicator")
-      if (indicator) {
-        indicator.style.display = "flex"
-      }
-
-      window.LipLearn.showNotification("Camera started successfully!", "success")
+      window.LipLearn.showNotification("Camera initialized successfully!", "success")
     } catch (error) {
       console.error("Error accessing camera:", error)
+      this.updateCameraStatus("Failed to access camera")
       window.LipLearn.showNotification("Failed to access camera. Please check permissions.", "danger")
     }
   }
 
-  stopCamera() {
-    if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop())
-      this.stream = null
+  switchMode(mode) {
+    this.currentMode = mode
+    this.targetFrames = mode === "word" ? 44 : 22
+
+    const syllableCategory = document.getElementById("syllableCategory")
+    const wordCategory = document.getElementById("wordCategory")
+    const frameCount = document.getElementById("frameCount")
+    const estimatedTime = document.getElementById("estimatedTime")
+    const currentModeEl = document.getElementById("currentMode")
+
+    if (mode === "syllable") {
+      syllableCategory.style.display = "block"
+      wordCategory.style.display = "none"
+      frameCount.textContent = "22"
+      estimatedTime.textContent = "~1 second"
+      currentModeEl.textContent = "Syllables"
+    } else {
+      syllableCategory.style.display = "none"
+      wordCategory.style.display = "block"
+      frameCount.textContent = "44"
+      estimatedTime.textContent = "~2 seconds"
+      currentModeEl.textContent = "Words"
     }
 
-    if (this.video) {
-      this.video.srcObject = null
+    this.updateClockNumbers()
+  }
+
+  updateClockNumbers() {
+    const clockNumbers = document.querySelectorAll(".clock-number")
+    if (this.targetFrames === 22) {
+      const numbers = ["22", "18", "14", "10", "6", "2"]
+      clockNumbers.forEach((el, i) => {
+        el.textContent = numbers[i]
+      })
+    } else {
+      const numbers = ["44", "36", "28", "20", "12", "4"]
+      clockNumbers.forEach((el, i) => {
+        el.textContent = numbers[i]
+      })
+    }
+  }
+
+  updateCameraStatus(status) {
+    const statusEl = document.getElementById("cameraStatus")
+    if (statusEl) {
+      statusEl.textContent = status
+    }
+  }
+
+  enableRecordingButton() {
+    const startBtn = document.getElementById("startRecording")
+    if (startBtn) {
+      startBtn.disabled = false
+    }
+  }
+
+  async startRecording() {
+    if (this.isRecording) return
+
+    this.isRecording = true
+    this.recordingFrames = []
+    this.recordingStartTime = Date.now()
+
+    // Update UI
+    this.updateRecordingControls(true)
+    this.showRecordingProgress()
+    this.startRecordingTimer()
+
+    // Show recording indicator
+    const indicator = document.getElementById("recordingIndicator")
+    if (indicator) {
+      indicator.style.display = "flex"
     }
 
-    this.stopPredictions()
-    this.updateCameraControls(false)
+    this.updateCameraStatus("Recording in progress...")
 
+    // Start frame collection
+    this.frameInterval = setInterval(() => {
+      this.captureFrame()
+    }, 33) // ~30 FPS
 
+    window.LipLearn.showNotification("Recording started!", "info")
+  }
+
+  captureFrame() {
+    if (!this.isRecording || !this.video || !this.canvas) return
+
+    // Capture frame from video
+    this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height)
+
+    // Convert to blob and store
+    this.canvas.toBlob(
+      (blob) => {
+        if (blob && this.isRecording) {
+          this.recordingFrames.push(blob)
+          this.updateRecordingProgress()
+
+          // Check if we have enough frames
+          if (this.recordingFrames.length >= this.targetFrames) {
+            this.stopRecording()
+          }
+        }
+      },
+      "image/jpeg",
+      0.8,
+    )
+  }
+
+  stopRecording() {
+    if (!this.isRecording) return
+
+    this.isRecording = false
+
+    if (this.frameInterval) {
+      clearInterval(this.frameInterval)
+      this.frameInterval = null
+    }
+
+    // Update UI
+    this.updateRecordingControls(false)
+    this.hideRecordingProgress()
+    this.stopRecordingTimer()
+
+    // Hide recording indicator
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) {
       indicator.style.display = "none"
     }
 
-    window.LipLearn.showNotification("Camera stopped", "info")
+    this.updateCameraStatus("Processing frames...")
+
+    // Process the recorded frames
+    if (this.recordingFrames.length > 0) {
+      this.processRecording()
+    } else {
+      window.LipLearn.showNotification("No frames captured. Please try again.", "warning")
+      this.updateCameraStatus("Camera ready - Position your face in frame")
+    }
   }
 
-  updateCameraControls(isActive) {
-    const startBtn = document.getElementById("startCamera")
-    const stopBtn = document.getElementById("stopCamera")
+  async processRecording() {
+    try {
+      const formData = new FormData()
+
+      // Add frames to form data
+      this.recordingFrames.forEach((blob, index) => {
+        formData.append("frames", blob, `frame_${index}.jpg`)
+      })
+
+      // Add metadata
+      formData.append("mode", this.currentMode)
+      formData.append("category", this.currentCategory)
+      formData.append("frame_count", this.recordingFrames.length.toString())
+
+      // Determine API endpoint
+      let endpoint = "/api/predict/frames"
+      if (this.currentMode === "syllable") {
+        endpoint = `/api/predict/syllable/${this.currentCategory}`
+      } else {
+        endpoint = "/api/predict/words"
+      }
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        this.displayPredictionResults(data)
+        this.updateSessionStats(data)
+        this.updateCameraStatus("Prediction complete - Ready for next recording")
+      } else {
+        throw new Error(`Server error: ${response.status}`)
+      }
+    } catch (error) {
+      console.error("Error processing recording:", error)
+      window.LipLearn.showNotification("Error processing recording. Please try again.", "danger")
+      this.updateCameraStatus("Error occurred - Ready to try again")
+    }
+  }
+
+  displayPredictionResults(data) {
+    const resultsContainer = document.getElementById("predictionResults")
+    if (!resultsContainer) return
+
+    resultsContainer.innerHTML = ""
+
+    if (this.currentMode === "word") {
+      // Display top 5 word predictions
+      if (data.predictions && data.predictions.length > 0) {
+        data.predictions.forEach((prediction, index) => {
+          const resultElement = document.createElement("div")
+          resultElement.className = "prediction-item"
+          resultElement.style.animationDelay = `${index * 0.1}s`
+          resultElement.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="prediction-word text-light">${prediction.word.toUpperCase()}</span>
+              <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
+            </div>
+            <div class="prediction-rank">Rank ${index + 1}</div>
+          `
+          resultsContainer.appendChild(resultElement)
+        })
+      }
+    } else {
+      // Display single syllable prediction with accuracy
+      if (data.predicted_syllable) {
+        const resultElement = document.createElement("div")
+        resultElement.className = "prediction-item primary-result"
+        resultElement.innerHTML = `
+          <div class="prediction-main">
+            <div class="predicted-syllable text-light">${data.predicted_syllable.toUpperCase()}</div>
+            <div class="prediction-accuracy  text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
+          </div>
+          <div class="prediction-category  text-light">Category: ${this.currentCategory.toUpperCase()}</div>
+        `
+        resultsContainer.appendChild(resultElement)
+      }
+    }
+  }
+
+  updateRecordingControls(isRecording) {
+    const startBtn = document.getElementById("startRecording")
+    const stopBtn = document.getElementById("stopRecording")
 
     if (startBtn && stopBtn) {
-      if (isActive) {
+      if (isRecording) {
         startBtn.style.display = "none"
         stopBtn.style.display = "inline-block"
+        stopBtn.disabled = false
       } else {
         startBtn.style.display = "inline-block"
         stopBtn.style.display = "none"
+        startBtn.disabled = false
       }
     }
-
-    this.isRecording = isActive
   }
 
-  startPredictions() {
-    this.predictionInterval = setInterval(() => {
-      this.makePrediction()
-    }, 2000)
-  }
-
-  stopPredictions() {
-    if (this.predictionInterval) {
-      clearInterval(this.predictionInterval)
-      this.predictionInterval = null
+  showRecordingProgress() {
+    const progressContainer = document.getElementById("recordingProgress")
+    if (progressContainer) {
+      progressContainer.style.display = "block"
     }
   }
 
-  async makePrediction() {
-    if (!this.isRecording) return
-
-    try {
-        if (this.video && this.canvas && this.ctx) {
-            this.canvas.width = this.video.videoWidth
-            this.canvas.height = this.video.videoHeight
-            this.ctx.drawImage(this.video, 0, 0)
-
-            this.canvas.toBlob(
-                async (blob) => {
-                    const formData = new FormData()
-                    formData.append("image", blob, "frame.jpg")
-
-                    const response = await fetch("/api/predict", {
-                        method: "POST",
-                        body: formData,
-                    })
-
-                    if (response.ok) {
-                        const data = await response.json()
-                        if (data.predictions && data.predictions.length > 0) {
-                            this.displayPredictions(data.predictions)
-                            this.updateSessionStats(data.predictions)
-                        } else {
-                            this.displayNoFaceMessage()
-                        }
-                    } else {
-                        console.error('Prediction failed:', response.statusText)
-                    }
-                },
-                "image/jpeg",
-                0.8,
-            )
-        }
-    } catch (error) {
-        console.error("Error making prediction:", error)
+  hideRecordingProgress() {
+    const progressContainer = document.getElementById("recordingProgress")
+    if (progressContainer) {
+      progressContainer.style.display = "none"
     }
-}
-
-displayNoFaceMessage() {
-    const predictionsList = document.getElementById("predictionsList")
-    if (!predictionsList) return
-
-    predictionsList.innerHTML = `
-        <div class="prediction-placeholder text-center text-light py-4">
-            <i class="fas fa-user-slash fa-2x mb-3"></i>
-            <p>No face detected. Please position your face in front of the camera.</p>
-        </div>
-    `
-}
-
-  displayPredictions(predictions) {
-    const predictionsList = document.getElementById("predictionsList")
-    if (!predictionsList) return
-
-    predictionsList.innerHTML = ""
-
-    predictions.forEach((prediction, index) => {
-      const predictionElement = document.createElement("div")
-      predictionElement.className = "prediction-item"
-      predictionElement.style.animationDelay = `${index * 0.1}s`
-      predictionElement.innerHTML = `
-                <span class="syllable">${prediction.syllable.toUpperCase()}</span>
-                <span class="confidence">${Math.round(prediction.confidence * 100)}%</span>
-            `
-      predictionsList.appendChild(predictionElement)
-    })
   }
 
-  updateSessionStats(predictions) {
-    if (predictions.length === 0) return
+  updateRecordingProgress() {
+    const progressBar = document.getElementById("frameProgressBar")
+    const progressText = document.getElementById("frameProgressText")
 
+    if (progressBar && progressText) {
+      const progress = (this.recordingFrames.length / this.targetFrames) * 100
+      progressBar.style.width = `${progress}%`
+      progressText.textContent = `Collecting frames: ${this.recordingFrames.length}/${this.targetFrames}`
+    }
+  }
+
+  startRecordingTimer() {
+    const clockHand = document.getElementById("clockHand")
+    const timerText = document.getElementById("timerText")
+    const timerStatus = document.getElementById("timerStatus")
+
+    if (clockHand) {
+      clockHand.style.animation = `rotate-hand ${this.targetFrames / 30}s linear`
+    }
+
+    if (timerStatus) {
+      timerStatus.textContent = "Recording in progress..."
+    }
+
+    let frameCount = 0
+    this.timerInterval = setInterval(() => {
+      frameCount++
+      if (timerText) {
+        timerText.textContent = `${frameCount}/${this.targetFrames}`
+      }
+
+      if (frameCount >= this.targetFrames) {
+        this.stopRecordingTimer()
+      }
+    }, 33)
+  }
+
+  stopRecordingTimer() {
+    const clockHand = document.getElementById("clockHand")
+    const timerText = document.getElementById("timerText")
+    const timerStatus = document.getElementById("timerStatus")
+
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval)
+      this.timerInterval = null
+    }
+
+    if (clockHand) {
+      clockHand.style.animation = ""
+    }
+
+    if (timerText) {
+      timerText.textContent = "Complete"
+    }
+
+    if (timerStatus) {
+      timerStatus.textContent = "Processing results..."
+    }
+
+    // Reset after a delay
+    setTimeout(() => {
+      if (timerText) timerText.textContent = "Ready"
+      if (timerStatus) timerStatus.textContent = "Click Start Recording to begin"
+    }, 3000)
+  }
+
+  updateSessionStats(data) {
     this.sessionStats.totalPredictions++
 
-    const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length
-    this.sessionStats.confidenceSum += avgConfidence
-
-    const topPrediction = predictions[0]
-    if (this.sessionStats.syllableCounts[topPrediction.syllable]) {
-      this.sessionStats.syllableCounts[topPrediction.syllable]++
-    } else {
-      this.sessionStats.syllableCounts[topPrediction.syllable] = 1
+    if (data.accuracy) {
+      this.sessionStats.accuracySum += data.accuracy
     }
+
+    this.sessionStats.predictions.push({
+      mode: this.currentMode,
+      category: this.currentCategory,
+      result: data.predicted_syllable || data.predictions?.[0]?.word,
+      accuracy: data.accuracy || data.predictions?.[0]?.confidence,
+      timestamp: new Date(),
+    })
 
     this.updateStatsDisplay()
   }
 
   updateStatsDisplay() {
     const totalPredictionsEl = document.getElementById("totalPredictions")
-    const avgConfidenceEl = document.getElementById("avgConfidence")
-    const topSyllableEl = document.getElementById("topSyllable")
+    const avgAccuracyEl = document.getElementById("avgAccuracy")
 
     if (totalPredictionsEl) {
       totalPredictionsEl.textContent = this.sessionStats.totalPredictions
     }
 
-    if (avgConfidenceEl && this.sessionStats.totalPredictions > 0) {
-      const avgConfidence = (this.sessionStats.confidenceSum / this.sessionStats.totalPredictions) * 100
-      avgConfidenceEl.textContent = `${Math.round(avgConfidence)}%`
-    }
-
-    if (topSyllableEl) {
-      const topSyllable = Object.keys(this.sessionStats.syllableCounts).reduce(
-        (a, b) => (this.sessionStats.syllableCounts[a] > this.sessionStats.syllableCounts[b] ? a : b),
-        "-",
-      )
-      topSyllableEl.textContent = topSyllable.toUpperCase()
+    if (avgAccuracyEl && this.sessionStats.totalPredictions > 0) {
+      const avgAccuracy = (this.sessionStats.accuracySum / this.sessionStats.totalPredictions) * 100
+      avgAccuracyEl.textContent = `${Math.round(avgAccuracy)}%`
     }
   }
 
@@ -228,7 +446,7 @@ displayNoFaceMessage() {
     this.sessionStats.startTime = Date.now()
 
     setInterval(() => {
-      if (this.sessionStats.startTime && this.isRecording) {
+      if (this.sessionStats.startTime) {
         const elapsed = Math.floor((Date.now() - this.sessionStats.startTime) / 1000)
         const sessionTimeEl = document.getElementById("sessionTime")
         if (sessionTimeEl) {
@@ -237,8 +455,17 @@ displayNoFaceMessage() {
       }
     }, 1000)
   }
+
+  updateUI() {
+    // Update any UI elements based on current settings
+    const currentModeEl = document.getElementById("currentMode")
+    if (currentModeEl) {
+      currentModeEl.textContent = this.currentMode === "syllable" ? "Syllables" : "Words"
+    }
+  }
 }
 
+// Initialize camera manager when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   new CameraManager()
 })

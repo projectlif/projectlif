@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Live Camera - Project LIF{% endblock %}
+{% block title %}Live Camera - LipLearn{% endblock %}
 {% block meta_description %}Real-time lip reading analysis with AI-powered predictions and confidence scores.{% endblock %}
 
 {% block content %}
@@ -10,47 +10,65 @@
             <div class="col-lg-8 mx-auto">
                 <h1 class="display-5 fw-bold mb-3">
                     <i class="fas fa-camera gradient-text me-3"></i>
-                    Subukan gamit ang <span class="gradient-text">AI</span>
+                    Live <span class="gradient-text">Camera</span> Analysis
                 </h1>
-                <p class="lead text-light">Magsalita ng natural at tingnan ang magiging prediksyon ng AI</p>
+                <p class="lead text-light">Choose your prediction mode and start analyzing</p>
             </div>
         </div>
-
+        
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="camera-container">
                     <div class="card bg-dark-card border-0 shadow-lg">
                         <div class="card-body p-4">
+                            <!-- Camera Feed -->
                             <div class="camera-feed-container mb-4">
                                 <video id="cameraFeed" class="camera-feed" autoplay muted playsinline></video>
                                 <canvas id="cameraCanvas" class="camera-canvas" style="display: none;"></canvas>
                                 <div class="camera-overlay">
-                                    <!--<div class="recording-indicator" id="recordingIndicator">
+                                    <div class="recording-indicator" id="recordingIndicator" style="display: none;">
                                         <i class="fas fa-circle text-danger pulse-animation"></i>
                                         <span>Recording</span>
-                                    </div>-->
+                                    </div>
+                                    <div class="face-detection-overlay" id="faceOverlay">
+                                        <!-- Face detection landmarks will be drawn here -->
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="camera-controls text-center mb-4">
-                                <button id="startCamera" class="btn btn-primary btn-lg me-3">
-                                    <i class="fas fa-play me-2"></i>Start Camera
-                                </button>
-                                <button id="stopCamera" class="btn btn-danger btn-lg" style="display: none;">
-                                    <i class="fas fa-stop me-2"></i>Stop Camera
-                                </button>
+                            
+                            <!-- Recording Progress -->
+                            <div class="recording-progress mb-4" id="recordingProgress" style="display: none;">
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-gradient-primary" id="frameProgressBar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div class="text-center">
+                                    <small class="text-light" id="frameProgressText">Collecting frames: 0/22</small>
+                                </div>
                             </div>
-
-         
+                            
+                            <!-- Controls -->
+                            <div class="camera-controls text-center mb-4">
+                                <button id="startRecording" class="btn btn-success btn-lg me-3" disabled>
+                                    <i class="fas fa-play me-2"></i>Start Recording
+                                </button>
+                                <button id="stopRecording" class="btn btn-danger btn-lg" style="display: none;" disabled>
+                                    <i class="fas fa-stop me-2"></i>Stop Recording
+                                </button>
+                                <div class="mt-2">
+                                    <small class="text-light" id="cameraStatus">Initializing camera...</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Predictions -->
                             <div class="predictions-container">
                                 <h5 class="text-light mb-3">
                                     <i class="fas fa-chart-bar gradient-text me-2"></i>
-                                    Prediction:
+                                    Prediction Results
                                 </h5>
-                                <div id="predictionsList" class="predictions-list">
+                                <div id="predictionResults" class="predictions-list">
                                     <div class="prediction-placeholder text-center text-light py-4">
                                         <i class="fas fa-microphone-slash fa-2x mb-3"></i>
-                                        <p>Start camera to see predictions</p>
+                                        <p class="text-light" >Select mode and start recording to see predictions</p>
                                     </div>
                                 </div>
                             </div>
@@ -58,8 +76,114 @@
                     </div>
                 </div>
             </div>
-
+            
+            <!-- Control Panel Sidebar -->
             <div class="col-lg-4">
+                <!-- Prediction Mode Selection -->
+                <div class="card bg-dark-card border-0 shadow-lg mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title text-light mb-3">
+                            <i class="fas fa-cog gradient-text me-2"></i>
+                            Prediction Mode
+                        </h5>
+                        
+                        <!-- Mode Selection -->
+                        <div class="mode-selection mb-3">
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="predictionMode" id="syllableMode" value="syllable" checked>
+                                <label class="btn btn-outline-primary" for="syllableMode">
+                                    <i class="fas fa-font me-2"></i>Syllables
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="predictionMode" id="wordMode" value="word">
+                                <label class="btn btn-outline-primary" for="wordMode">
+                                    <i class="fas fa-comment me-2"></i>Words
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Syllable Category Dropdown -->
+                        <div class="syllable-category mb-3" id="syllableCategory">
+                            <label class="form-label text-light">Select Category:</label>
+                            <select class="form-select" id="categorySelect">
+                                <option value="vowels">Vowels (a, e, i, o, u)</option>
+                                <option value="b">B Syllables (ba, be, bi, bo, bu)</option>
+                                <option value="k">K Syllables (ka, ke, ki, ko, ku)</option>
+                                <option value="d">D Syllables (da, de, di, do, du)</option>
+                                <option value="g">G Syllables (ga, ge, gi, go, gu)</option>
+                                <option value="h">H Syllables (ha, he, hi, ho, hu)</option>
+                                <option value="l">L Syllables (la, le, li, lo, lu)</option>
+                                <option value="m">M Syllables (ma, me, mi, mo, mu)</option>
+                                <option value="n">N Syllables (na, ne, ni, no, nu)</option>
+                                <option value="ng">NG Syllables (nga, nge, ngi, ngo, ngu)</option>
+                                <option value="p">P Syllables (pa, pe, pi, po, pu)</option>
+                                <option value="r">R Syllables (ra, re, ri, ro, ru)</option>
+                                <option value="s">S Syllables (sa, se, si, so, su)</option>
+                                <option value="t">T Syllables (ta, te, ti, to, tu)</option>
+                                <option value="w">W Syllables (wa, we, wi, wo, wu)</option>
+                                <option value="y">Y Syllables (ya, ye, yi, yo, yu)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Word Category Info -->
+                        <div class="word-category mb-3" id="wordCategory" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Word Mode:</strong> Predicts common Filipino words
+                            </div>
+                        </div>
+                        
+                        <!-- Recording Settings -->
+                        <div class="recording-settings">
+                            <h6 class="text-light mb-2">Recording Settings:</h6>
+                            <div class="settings-info">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-light">Frames to collect:</span>
+                                    <span class="text-light" id="frameCount">22</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-light">Estimated time:</span>
+                                    <span class="text-light" id="estimatedTime">~1 second</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timer Clock -->
+                <div class="card bg-dark-card border-0 shadow-lg mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title text-light mb-3">
+                            <i class="fas fa-clock text-primary me-2"></i>
+                            Recording Timer
+                        </h5>
+                        
+                        <!-- Animated Timer Clock -->
+                        <div class="timer-container mb-3">
+                            <div class="animated-clock" id="animatedClock">
+                                <div class="clock-face">
+                                    <div class="clock-hand" id="clockHand"></div>
+                                    <div class="clock-numbers">
+                                        <span class="clock-number" style="--i: 1;">22</span>
+                                        <span class="clock-number" style="--i: 2;">18</span>
+                                        <span class="clock-number" style="--i: 3;">14</span>
+                                        <span class="clock-number" style="--i: 4;">10</span>
+                                        <span class="clock-number" style="--i: 5;">6</span>
+                                        <span class="clock-number" style="--i: 6;">2</span>
+                                    </div>
+                                    <div class="clock-center"></div>
+                                </div>
+                                <div class="timer-text" id="timerText">Ready</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timer-status text-center">
+                            <small class="text-light" id="timerStatus">Click Start Recording to begin</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tips Container -->
                 <div class="tips-container">
                     <div class="card bg-dark-card border-0 shadow-lg">
                         <div class="card-body">
@@ -86,12 +210,13 @@
                                 </li>
                                 <li class="tip-item">
                                     <i class="fas fa-check-circle text-success me-2"></i>
-                                    Avoid covering your mouth
+                                    Wait for the recording to complete
                                 </li>
                             </ul>
                         </div>
                     </div>
-
+                    
+                    <!-- Session Stats -->
                     <div class="card bg-dark-card border-0 shadow-lg mt-4">
                         <div class="card-body">
                             <h5 class="card-title text-light mb-3">
@@ -104,16 +229,16 @@
                                     <div class="stat-label">Predictions</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value" id="avgConfidence">0%</div>
-                                    <div class="stat-label">Avg Confidence</div>
+                                    <div class="stat-value" id="avgAccuracy">0%</div>
+                                    <div class="stat-label">Avg Accuracy</div>
                                 </div>
                                 <div class="stat-item">
                                     <div class="stat-value" id="sessionTime">00:00</div>
                                     <div class="stat-label">Session Time</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-value" id="topSyllable">-</div>
-                                    <div class="stat-label">Most Common</div>
+                                    <div class="stat-value" id="currentMode">Syllables</div>
+                                    <div class="stat-label">Current Mode</div>
                                 </div>
                             </div>
                         </div>
@@ -123,15 +248,6 @@
         </div>
     </div>
 </section>
-{% endblock %}
-
-{% block styles %}
-<style>
-.camera-feed,
-.camera-canvas {
-    transform: scaleX(-1); /* Mirror effect */
-}
-</style>
 {% endblock %}
 
 {% block extra_scripts %}

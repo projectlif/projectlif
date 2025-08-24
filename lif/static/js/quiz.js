@@ -98,10 +98,8 @@ class QuizManager {
       // Start first question
       this.showQuestion()
 
-      this.showNotification("Quiz started! Good luck!", "success")
     } catch (error) {
       console.error("Error starting quiz:", error)
-      this.showNotification("Failed to start quiz. Please try again.", "danger")
       this.resetToStart()
     }
   }
@@ -125,7 +123,6 @@ class QuizManager {
       console.log(`Loaded ${this.questions.length} questions`)
     } catch (error) {
       console.error("Error loading questions:", error)
-      this.showNotification("Network error loading questions. Please check your connection.", "danger")
       throw error
     }
   }
@@ -375,8 +372,8 @@ class QuizManager {
           <i class="fas ${icon}"></i>
         </div>
         <div class="feedback-text">
-          <h5>${title}</h5>
-          <p>${message}</p>
+          <h5 class="text-light">${title}</h5>
+          <p class="text-light">${message}</p>
         </div>
       </div>
     `
@@ -491,8 +488,6 @@ class QuizManager {
 
     // Save results to session
     this.saveResults()
-
-    this.showNotification("Quiz completed! Check your detailed results below.", "success")
   }
 
   showDetailedResults() {
