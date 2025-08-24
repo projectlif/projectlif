@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeNavigation()
   initializeScrollEffects()
   initializeTooltips()
-  initializeGifLooping()
   initializePerformanceOptimizations()
 })
 
@@ -258,64 +257,6 @@ function initializeTooltips() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     tooltipTriggerList.map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl))
   }
-}
-
-// Enhanced GIF looping functionality
-function initializeGifLooping() {
-  const makeGifInfinite = (img) => {
-    const originalSrc = img.src.split("?")[0]
-
-    const restartGif = () => {
-      if (img.parentNode && !img.dataset.paused) {
-        const timestamp = new Date().getTime()
-        img.src = `${originalSrc}?t=${timestamp}`
-      }
-    }
-
-    // Set up automatic restart
-    img.onload = () => {
-      setTimeout(restartGif, 3000) // Restart every 3 seconds
-    }
-
-    // Add pause/play functionality on click
-    img.addEventListener("click", () => {
-      if (img.dataset.paused === "true") {
-        img.dataset.paused = "false"
-        restartGif()
-        showNotification("GIF resumed", "info")
-      } else {
-        img.dataset.paused = "true"
-        showNotification("GIF paused - click to resume", "info")
-      }
-    })
-
-    // Add hover effects
-    img.style.cursor = "pointer"
-    img.title = "Click to pause/resume"
-  }
-
-  // Initialize existing GIFs and watch for new ones
-  const initializeGifs = () => {
-    document.querySelectorAll('img[src*=".gif"]').forEach((img) => {
-      if (!img.dataset.infiniteSetup) {
-        img.dataset.infiniteSetup = "true"
-        makeGifInfinite(img)
-      }
-    })
-  }
-
-  // Initial setup
-  initializeGifs()
-
-  // Watch for dynamically added GIFs
-  const observer = new MutationObserver(() => {
-    initializeGifs()
-  })
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  })
 }
 
 // Performance optimizations

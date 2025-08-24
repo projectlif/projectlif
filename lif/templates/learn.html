@@ -77,7 +77,7 @@
                         
                         <div class="syllable-preview mb-3">
                             <div class="gif-preview-container">
-                                <img src="{{ data.gif }}" alt="Preview of {{ syllable }}" class="gif-preview">
+                                <a href="{{ url_for('learn_syllable', syllable=syllable) }}"><img src="{{ data.gif }}" alt="Preview of {{ syllable }}" class="gif-preview" ></a>
                                 <div class="play-overlay">
                                     <a href="{{ url_for('learn_syllable', syllable=syllable) }}"><i class="fas fa-play-circle fa-2x gradient-text"></i></a>
                                 </div>

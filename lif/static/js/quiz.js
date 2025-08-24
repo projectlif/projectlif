@@ -9,172 +9,87 @@ class QuizManager {
     this.questions = []
     this.timeLeft = 30
     this.timer = null
-    this.difficulty = "easy"
     this.totalQuestions = 10
     this.correctAnswers = 0
+    this.userAnswers = []
+    this.startTime = null
+    this.endTime = null
+    this.gifController = null
 
     this.initializeEventListeners()
   }
 
   initializeEventListeners() {
-    // Start quiz button
     const startBtn = document.getElementById("startQuiz")
     if (startBtn) {
       startBtn.addEventListener("click", () => this.startQuiz())
     }
 
-    // Play again button
     const playAgainBtn = document.getElementById("playAgain")
     if (playAgainBtn) {
       playAgainBtn.addEventListener("click", () => this.resetQuiz())
     }
-
-    // Difficulty selection
-    document.querySelectorAll('input[name="difficulty"]').forEach((radio) => {
-      radio.addEventListener("change", (e) => {
-        this.difficulty = e.target.value
-      })
-    })
   }
 
   async startQuiz() {
-    // Hide start screen, show game screen
-    document.getElementById("startScreen").style.display = "none"
-    document.getElementById("gameScreen").style.display = "block"
+    try {
+      // Show loading
+      this.showLoading("Loading quiz questions...")
 
-    // Reset quiz state
-    this.currentQuestion = 0
-    this.score = 0
-    this.streak = 0
-    this.correctAnswers = 0
-    this.questions = []
+      // Hide start screen, show game screen and stats
+      document.getElementById("startScreen").style.display = "none"
+      document.getElementById("gameScreen").style.display = "block"
+      document.getElementById("statsBar").style.display = "block"
 
-    // Load questions
-    await this.loadQuestions()
+      // Reset quiz state
+      this.currentQuestion = 0
+      this.score = 0
+      this.streak = 0
+      this.correctAnswers = 0
+      this.userAnswers = []
+      this.startTime = Date.now()
 
-    // Start first question
-    this.showQuestion()
+      // Load questions
+      await this.loadQuestions()
 
-    window.LipLearn.showNotification("Quiz started! Good luck!", "info")
-  }
-  async saveHighScore() {
-    const accuracy = (this.correctAnswers / this.totalQuestions) * 100
-    
-    const scoreData = {
-        score: this.score,
-        accuracy: accuracy,
-        difficulty: this.difficulty
-    }
-    
-    // Save to session via API
-    if (window.SessionManager) {
-        const result = await window.SessionManager.saveQuizScore(scoreData)
-        if (result && result.high_scores) {
-            this.updateLeaderboardWithSessionScores(result.high_scores)
-        }
-    }
-    
-    // Also save to localStorage as backup
-    const highScores = JSON.parse(localStorage.getItem("liplearn_highscores") || "[]")
-    highScores.push(scoreData)
-    highScores.sort((a, b) => b.score - a.score)
-    localStorage.setItem("liplearn_highscores", JSON.stringify(highScores.slice(0, 3)))
-}
-
-updateLeaderboardWithSessionScores(highScores) {
-    const leaderboardList = document.querySelector(".leaderboard-list")
-    if (!leaderboardList) return
-
-    // Clear existing entries
-    leaderboardList.innerHTML = ''
-    
-    // Add session high scores
-    highScores.forEach((score, index) => {
-        const entry = document.createElement('div')
-        entry.className = 'leaderboard-item'
-        entry.innerHTML = `
-            <div class="rank">${index + 1}</div>
-            <div class="player">Your Score #${index + 1}</div>
-            <div class="score">${score.score}</div>
-        `
-        leaderboardList.appendChild(entry)
-    })
-    
-    // Fill remaining slots with placeholders
-    for (let i = highScores.length; i < 3; i++) {
-        const entry = document.createElement('div')
-        entry.className = 'leaderboard-item'
-        entry.innerHTML = `
-            <div class="rank">${i + 1}</div>
-            <div class="player">-</div>
-            <div class="score">0</div>
-        `
-        leaderboardList.appendChild(entry)
-    }
-}
-  async loadQuestions() {
-    // Generate questions based on difficulty
-    for (let i = 0; i < this.totalQuestions; i++) {
-      try {
-        const response = await fetch("/api/quiz/question")
-        if (response.ok) {
-          const questionData = await response.json()
-          this.questions.push(questionData)
-        }
-      } catch (error) {
-        console.error("Error loading question:", error)
+      if (this.questions.length === 0) {
+        throw new Error("No questions loaded")
       }
-    }
 
-    // Fallback if API fails
-    if (this.questions.length === 0) {
-      this.generateMockQuestions()
+      // Start first question
+      this.showQuestion()
+
+      this.showNotification("Quiz started! Good luck!", "success")
+    } catch (error) {
+      console.error("Error starting quiz:", error)
+      this.showNotification("Failed to start quiz. Please try again.", "danger")
+      this.resetToStart()
     }
   }
 
-  generateMockQuestions() {
-    const syllables = ["a", "e", "i", "o", "u", "ba", "da", "ka"]
-
-    for (let i = 0; i < this.totalQuestions; i++) {
-      const correctAnswer = syllables[Math.floor(Math.random() * syllables.length)]
-      const options = this.generateOptions(correctAnswer, syllables)
-
-      this.questions.push({
-        syllable: correctAnswer,
-        gif: `/placeholder.svg?height=200&width=200&query=person pronouncing ${correctAnswer}`,
-        options: options,
+  async loadQuestions() {
+    try {
+      const response = await fetch("/api/quiz/questions", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      this.questions = data.questions || []
+
+      console.log(`Loaded ${this.questions.length} questions`)
+    } catch (error) {
+      console.error("Error loading questions:", error)
+      this.showNotification("Network error loading questions. Please check your connection.", "danger")
+      throw error
     }
   }
-
-generateOptions(correct, allSyllables) {
-    const options = [correct]; // Always include correct answer first
-    const remaining = allSyllables.filter((s) => s !== correct);
-
-    // Add 3 random incorrect options
-    while (options.length < 4 && remaining.length > 0) {
-        const randomIndex = Math.floor(Math.random() * remaining.length);
-        options.push(remaining.splice(randomIndex, 1)[0]);
-    }
-
-    // If we don't have enough syllables, fill with duplicates (shouldn't happen)
-    while (options.length < 4) {
-        options.push(correct);
-    }
-
-    // Shuffle options so correct answer isn't always first
-    return this.shuffleArray(options);
-}
-
-// Add this helper method
-shuffleArray(array) {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
 
   showQuestion() {
     if (this.currentQuestion >= this.questions.length) {
@@ -184,41 +99,121 @@ shuffleArray(array) {
 
     const question = this.questions[this.currentQuestion]
 
+    // Update progress
     this.updateProgress()
+
+    // Update question number
     document.getElementById("questionNumber").textContent = this.currentQuestion + 1
+
+    // Show GIF
     this.displayQuestionGif(question)
+
+    // Show options
     this.displayAnswerOptions(question)
+
+    // Start timer
     this.startTimer()
+
+    // Hide feedback
+    document.getElementById("answerFeedback").style.display = "none"
   }
 
-displayQuestionGif(question) {
-    const gifContainer = document.getElementById("questionGif");
+  displayQuestionGif(question) {
+    const gifContainer = document.getElementById("questionGif")
+    const gifControls = document.getElementById("gifControls")
+
     if (gifContainer) {
-        const img = document.createElement('img');
-        img.src = question.gif;
-        img.alt = `Pronunciation of ${question.syllable}`;
-        img.className = 'img-fluid rounded';
-        img.style.cssText = 'width: 100%; height: 100%; object-fit: contain;';
-        
+      gifContainer.innerHTML = `
+        <img id="quizGif" 
+             src="${question.gif}" 
+             alt="Pronunciation of ${question.syllable}" 
+             class="img-fluid rounded quiz-gif">
+      `
 
+      // Show GIF controls
+      if (gifControls) {
+        gifControls.style.display = "block"
+      }
 
-        const restartGif = () => {
-            const timestamp = new Date().getTime();
-            img.src = `${question.gif}?t=${timestamp}`;
-        };
-        
-        img.onload = () => {
-            setTimeout(restartGif, 2500); 
-        };
-        
-        // Set up continuous restart
-        const intervalId = setInterval(restartGif, 3000);
-        img.dataset.intervalId = intervalId;
-        
-        gifContainer.innerHTML = '';
-        gifContainer.appendChild(img);
+      // Initialize GIF controller for this question
+      setTimeout(() => {
+        this.initializeQuizGifController()
+      }, 100)
     }
-}
+  }
+
+  initializeQuizGifController() {
+    const gif = document.getElementById("quizGif")
+    const playBtn = document.getElementById("playGifBtn")
+    const loopBtn = document.getElementById("loopGifBtn")
+
+    if (!gif) return
+
+    // Create a simple GIF controller for quiz
+    this.gifController = {
+      gif: gif,
+      originalSrc: gif.src.split("?")[0],
+      isLooping: false,
+      loopInterval: null,
+
+      playOnce: function () {
+        const timestamp = new Date().getTime()
+        this.gif.src = `${this.originalSrc}?play=${timestamp}`
+      },
+
+      toggleLoop: function () {
+        if (this.isLooping) {
+          this.stopLoop()
+        } else {
+          this.startLoop()
+        }
+      },
+
+      startLoop: function () {
+        this.isLooping = true
+        this.playOnce()
+
+        this.loopInterval = setInterval(() => {
+          if (this.isLooping) {
+            const timestamp = new Date().getTime()
+            this.gif.src = `${this.originalSrc}?loop=${timestamp}`
+          }
+        }, 3000)
+
+        // Update button
+        if (loopBtn) {
+          loopBtn.innerHTML = '<i class="fas fa-stop me-1"></i>Stop'
+          loopBtn.classList.remove("btn-outline-primary")
+          loopBtn.classList.add("btn-warning")
+        }
+      },
+
+      stopLoop: function () {
+        this.isLooping = false
+
+        if (this.loopInterval) {
+          clearInterval(this.loopInterval)
+          this.loopInterval = null
+        }
+
+        // Update button
+        if (loopBtn) {
+          loopBtn.innerHTML = '<i class="fas fa-redo me-1"></i>Loop'
+          loopBtn.classList.remove("btn-warning")
+          loopBtn.classList.add("btn-outline-primary")
+        }
+      },
+    }
+
+    // Add event listeners
+    if (playBtn) {
+      playBtn.onclick = () => this.gifController.playOnce()
+    }
+
+    if (loopBtn) {
+      loopBtn.onclick = () => this.gifController.toggleLoop()
+    }
+  }
 
   displayAnswerOptions(question) {
     const optionsContainer = document.getElementById("answerOptions")
@@ -226,34 +221,62 @@ displayQuestionGif(question) {
 
     optionsContainer.innerHTML = ""
 
+    // Create a grid for options
+    const optionsGrid = document.createElement("div")
+    optionsGrid.className = "row g-3"
+
     question.options.forEach((option, index) => {
+      const optionCol = document.createElement("div")
+      optionCol.className = "col-md-6 col-lg-4"
+
       const optionButton = document.createElement("button")
-      optionButton.className = "answer-option"
+      optionButton.className = "btn btn-outline-light w-100 answer-option"
       optionButton.textContent = option.toUpperCase()
       optionButton.dataset.answer = option
 
       optionButton.addEventListener("click", () => {
-        this.selectAnswer(option, question.syllable)
+        this.selectAnswer(option, question.syllable, question)
       })
 
-      optionsContainer.appendChild(optionButton)
+      optionCol.appendChild(optionButton)
+      optionsGrid.appendChild(optionCol)
     })
+
+    optionsContainer.appendChild(optionsGrid)
   }
 
-  selectAnswer(selectedAnswer, correctAnswer) {
+  selectAnswer(selectedAnswer, correctAnswer, question) {
     // Stop timer
     this.stopTimer()
+
+    // Stop GIF loop if active
+    if (this.gifController && this.gifController.isLooping) {
+      this.gifController.stopLoop()
+    }
 
     // Disable all options
     document.querySelectorAll(".answer-option").forEach((btn) => {
       btn.disabled = true
 
       if (btn.dataset.answer === correctAnswer) {
-        btn.classList.add("correct")
+        btn.classList.remove("btn-outline-light")
+        btn.classList.add("btn-success")
       } else if (btn.dataset.answer === selectedAnswer && selectedAnswer !== correctAnswer) {
-        btn.classList.add("incorrect")
+        btn.classList.remove("btn-outline-light")
+        btn.classList.add("btn-danger")
       }
     })
+
+    // Record answer
+    const answerRecord = {
+      question: this.currentQuestion + 1,
+      syllable: correctAnswer,
+      userAnswer: selectedAnswer,
+      correct: selectedAnswer === correctAnswer,
+      timeSpent: 30 - this.timeLeft,
+      options: question.options,
+    }
+    this.userAnswers.push(answerRecord)
 
     // Check if answer is correct
     const isCorrect = selectedAnswer === correctAnswer
@@ -265,13 +288,13 @@ displayQuestionGif(question) {
     }
 
     // Show feedback
-    this.showAnswerFeedback(isCorrect, correctAnswer)
+    this.showAnswerFeedback(isCorrect, correctAnswer, selectedAnswer)
 
     // Move to next question after delay
     setTimeout(() => {
       this.currentQuestion++
       this.showQuestion()
-    }, 2000)
+    }, 2500)
   }
 
   handleCorrectAnswer() {
@@ -295,7 +318,7 @@ displayQuestionGif(question) {
   calculatePoints() {
     let basePoints = 10
 
-    // Bonus for speed
+    // Speed bonus
     if (this.timeLeft > 20) basePoints += 5
     else if (this.timeLeft > 10) basePoints += 3
 
@@ -303,43 +326,34 @@ displayQuestionGif(question) {
     if (this.streak >= 5) basePoints += 10
     else if (this.streak >= 3) basePoints += 5
 
-    // Difficulty bonus
-    if (this.difficulty === "hard") basePoints += 5
-    else if (this.difficulty === "medium") basePoints += 3
-
     return basePoints
   }
 
-  showAnswerFeedback(isCorrect, correctAnswer) {
+  showAnswerFeedback(isCorrect, correctAnswer, selectedAnswer) {
     const feedbackContainer = document.getElementById("answerFeedback")
     if (!feedbackContainer) return
 
     const feedbackClass = isCorrect ? "correct" : "incorrect"
     const icon = isCorrect ? "fa-check-circle text-success" : "fa-times-circle text-danger"
-    const title = isCorrect ? "Correct!" : "Incorrect!"
+    const title = isCorrect ? "Tama!" : "Mali!"
     const message = isCorrect
-      ? `Great job! You earned ${this.calculatePoints()} points.`
-      : `The correct answer was "${correctAnswer.toUpperCase()}".`
+      ? `Magaling! Nakakuha ka ng ${this.calculatePoints()} points.`
+      : `Ang tamang sagot ay "${correctAnswer.toUpperCase()}".`
 
     feedbackContainer.className = `answer-feedback ${feedbackClass}`
     feedbackContainer.innerHTML = `
-            <div class="feedback-content">
-                <div class="feedback-icon">
-                    <i class="fas ${icon}"></i>
-                </div>
-                <div class="feedback-text">
-                    <h5>${title}</h5>
-                    <p>${message}</p>
-                </div>
-            </div>
-        `
+      <div class="feedback-content">
+        <div class="feedback-icon">
+          <i class="fas ${icon}"></i>
+        </div>
+        <div class="feedback-text">
+          <h5>${title}</h5>
+          <p>${message}</p>
+        </div>
+      </div>
+    `
 
     feedbackContainer.style.display = "block"
-
-    // Hide feedback before next question
-    setTimeout(() => {
-      feedbackContainer.style.display = "none"
-    }, 1800)
   }
 
   startTimer() {
@@ -351,7 +365,8 @@ displayQuestionGif(question) {
       this.updateTimerDisplay()
 
       if (this.timeLeft <= 0) {
-        this.selectAnswer("", this.questions[this.currentQuestion].syllable)
+        // Time's up - select no answer
+        this.selectAnswer("", this.questions[this.currentQuestion].syllable, this.questions[this.currentQuestion])
       }
     }, 1000)
   }
@@ -382,184 +397,184 @@ displayQuestionGif(question) {
     }
 
     // Update time left in stats
-    document.getElementById("timeLeft").textContent = this.timeLeft
+    const timeLeftEl = document.getElementById("timeLeft")
+    if (timeLeftEl) {
+      timeLeftEl.textContent = this.timeLeft
+    }
   }
 
   updateProgress() {
     const progressBar = document.getElementById("progressBar")
+    const progressText = document.getElementById("progressText")
+
     if (progressBar) {
       const progress = (this.currentQuestion / this.totalQuestions) * 100
       progressBar.style.width = `${progress}%`
     }
+
+    if (progressText) {
+      progressText.textContent = `Question ${this.currentQuestion + 1} of ${this.totalQuestions}`
+    }
   }
 
   updateScoreDisplay() {
-    document.getElementById("currentScore").textContent = this.score
-    document.getElementById("currentStreak").textContent = this.streak
-  }
-async endQuiz() {
-    console.log('🏁 Quiz ending...')
-    
-    this.stopTimer()
+    const scoreEl = document.getElementById("currentScore")
+    const streakEl = document.getElementById("currentStreak")
 
-    // Hide game screen, show results
+    if (scoreEl) scoreEl.textContent = this.score
+    if (streakEl) streakEl.textContent = this.streak
+  }
+
+  endQuiz() {
+    this.stopTimer()
+    this.endTime = Date.now()
+
+    // Hide game screen and stats, show results
     document.getElementById("gameScreen").style.display = "none"
+    document.getElementById("statsBar").style.display = "none"
     document.getElementById("resultsScreen").style.display = "block"
 
     // Calculate final stats
     const accuracy = (this.correctAnswers / this.totalQuestions) * 100
-
-    console.log('📊 Final quiz stats:', {
-        score: this.score,
-        accuracy: accuracy,
-        bestStreak: this.bestStreak,
-        difficulty: this.difficulty
-    })
+    const totalTime = Math.round((this.endTime - this.startTime) / 1000)
 
     // Update results display
     document.getElementById("finalScore").textContent = this.score
     document.getElementById("finalAccuracy").textContent = `${Math.round(accuracy)}%`
     document.getElementById("finalStreak").textContent = this.bestStreak
+    document.getElementById("totalTime").textContent = `${totalTime}s`
 
-    // Save high score
-    await this.saveHighScore()
+    // Show detailed results
+    this.showDetailedResults()
 
-    // Update leaderboard
-    this.updateLeaderboard()
+    // Show analysis
+    this.showAnalysis()
 
-    // Check for achievements
-    this.checkAchievements(accuracy)
+    // Save results to session
+    this.saveResults()
 
-    window.LipLearn.showNotification("Quiz completed! Check your results.", "success")
-}
+    this.showNotification("Quiz completed! Check your detailed results below.", "success")
+  }
 
-async saveHighScore() {
-    console.log('💾 Saving high score...')
-    
+  showDetailedResults() {
+    const container = document.getElementById("resultsBreakdown")
+    if (!container) return
+
+    let html = '<div class="results-table">'
+
+    this.userAnswers.forEach((answer, index) => {
+      const statusIcon = answer.correct ? "fa-check text-success" : "fa-times text-danger"
+      const statusClass = answer.correct ? "correct" : "incorrect"
+
+      html += `
+        <div class="result-row ${statusClass} mb-2 p-2 rounded">
+          <div class="result-question">
+            <i class="fas ${statusIcon} me-2"></i>
+            Question ${answer.question}: "${answer.syllable.toUpperCase()}"
+          </div>
+          <div class="result-answer">
+            Your answer: "${answer.userAnswer.toUpperCase() || "No answer"}"
+            <small class="text-muted d-block">Time: ${answer.timeSpent}s</small>
+          </div>
+        </div>
+      `
+    })
+
+    html += "</div>"
+    container.innerHTML = html
+  }
+
+  showAnalysis() {
+    const strengthsList = document.getElementById("strengthsList")
+    const weaknessesList = document.getElementById("weaknessesList")
+
+    if (!strengthsList || !weaknessesList) return
+
+    // Analyze performance by syllable type
+    const syllablePerformance = {}
+    this.userAnswers.forEach((answer) => {
+      const syllable = answer.syllable
+      if (!syllablePerformance[syllable]) {
+        syllablePerformance[syllable] = { correct: 0, total: 0 }
+      }
+      syllablePerformance[syllable].total++
+      if (answer.correct) {
+        syllablePerformance[syllable].correct++
+      }
+    })
+
+    // Find strengths (>75% accuracy)
+    const strengths = []
+    const weaknesses = []
+
+    Object.entries(syllablePerformance).forEach(([syllable, performance]) => {
+      const accuracy = (performance.correct / performance.total) * 100
+      if (accuracy >= 75) {
+        strengths.push(`${syllable.toUpperCase()} (${Math.round(accuracy)}%)`)
+      } else if (accuracy < 50) {
+        weaknesses.push(`${syllable.toUpperCase()} (${Math.round(accuracy)}%)`)
+      }
+    })
+
+    // General analysis
     const accuracy = (this.correctAnswers / this.totalQuestions) * 100
-    
-    const scoreData = {
+    const avgTime = this.userAnswers.reduce((sum, a) => sum + a.timeSpent, 0) / this.userAnswers.length
+
+    if (accuracy >= 80) {
+      strengths.push("Overall excellent performance")
+    }
+    if (this.bestStreak >= 5) {
+      strengths.push("Great consistency")
+    }
+    if (avgTime < 15) {
+      strengths.push("Quick decision making")
+    }
+
+    if (accuracy < 60) {
+      weaknesses.push("Overall accuracy needs improvement")
+    }
+    if (this.bestStreak < 3) {
+      weaknesses.push("Focus on consistency")
+    }
+    if (avgTime > 25) {
+      weaknesses.push("Take more time to observe")
+    }
+
+    // Display results
+    strengthsList.innerHTML = strengths.length
+      ? strengths.map((s) => `<div class="analysis-item text-success">• ${s}</div>`).join("")
+      : '<div class="analysis-item text-muted">Keep practicing to build strengths!</div>'
+
+    weaknessesList.innerHTML = weaknesses.length
+      ? weaknesses.map((w) => `<div class="analysis-item text-warning">• ${w}</div>`).join("")
+      : '<div class="analysis-item text-success">Great job! No major weaknesses found.</div>'
+  }
+
+  async saveResults() {
+    try {
+      const results = {
         score: this.score,
-        accuracy: accuracy,
-        difficulty: this.difficulty
-    }
-    
-    console.log('📊 Score data to save:', scoreData)
-    
-    // Save to session via API
-    if (window.SessionManager) {
-        const result = await window.SessionManager.saveQuizScore(scoreData)
-        console.log('📊 Quiz save result:', result)
-        
-        if (result && result.high_scores) {
-            this.updateLeaderboardWithSessionScores(result.high_scores)
-        }
-    }
-    
-    // Also save to localStorage as backup
-    const highScores = JSON.parse(localStorage.getItem("liplearn_highscores") || "[]")
-    highScores.push(scoreData)
-    highScores.sort((a, b) => b.score - a.score)
-    localStorage.setItem("liplearn_highscores", JSON.stringify(highScores.slice(0, 3)))
-}
+        accuracy: (this.correctAnswers / this.totalQuestions) * 100,
+        correct_answers: this.correctAnswers,
+        total_questions: this.totalQuestions,
+        best_streak: this.bestStreak,
+        total_time: Math.round((this.endTime - this.startTime) / 1000),
+        answers: this.userAnswers,
+      }
 
-updateLeaderboardWithSessionScores(highScores) {
-    console.log('🏆 Updating leaderboard with session scores:', highScores)
-    
-    const leaderboardList = document.querySelector(".leaderboard-list")
-    if (!leaderboardList) return
+      const response = await fetch("/api/quiz/save-results", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(results),
+      })
 
-    // Clear existing entries
-    leaderboardList.innerHTML = ''
-    
-    // Add session high scores
-    highScores.forEach((score, index) => {
-        const entry = document.createElement('div')
-        entry.className = 'leaderboard-item'
-        entry.innerHTML = `
-            <div class="rank">${index + 1}</div>
-            <div class="player">Your Score #${index + 1}</div>
-            <div class="score">${score.score}</div>
-        `
-        leaderboardList.appendChild(entry)
-    })
-    
-    // Fill remaining slots with placeholders
-    for (let i = highScores.length; i < 3; i++) {
-        const entry = document.createElement('div')
-        entry.className = 'leaderboard-item'
-        entry.innerHTML = `
-            <div class="rank">${i + 1}</div>
-            <div class="player">-</div>
-            <div class="score">0</div>
-        `
-        leaderboardList.appendChild(entry)
-    }
-    
-    console.log('✅ Leaderboard updated successfully')
-}
-
-// Update the updateLeaderboard method to use session scores
-updateLeaderboard() {
-    // This method will be called but the real update happens in updateLeaderboardWithSessionScores
-    console.log('📊 Leaderboard update requested (handled by session scores)')
-}
-
-
-
-  updateLeaderboard() {
-    const leaderboardList = document.querySelector(".leaderboard-list")
-    if (!leaderboardList) return
-
-    const highScores = JSON.parse(localStorage.getItem("liplearn_highscores") || "[]")
-
-    // Update the "You" entry with current score
-    const yourEntry = leaderboardList.querySelector(".leaderboard-item:first-child .score")
-    if (yourEntry) {
-      yourEntry.textContent = this.score
-    }
-  }
-
-  checkAchievements(accuracy) {
-    const achievements = JSON.parse(localStorage.getItem("liplearn_achievements") || "[]")
-    const newAchievements = []
-
-    // Hot Streak achievement
-    if (this.bestStreak >= 5 && !achievements.includes("hot_streak")) {
-      achievements.push("hot_streak")
-      newAchievements.push("Hot Streak - Get 5 correct in a row!")
-      this.unlockAchievement("hot_streak")
-    }
-
-    // Perfect Score achievement
-    if (accuracy === 100 && !achievements.includes("perfect_score")) {
-      achievements.push("perfect_score")
-      newAchievements.push("Perfect Score - 100% accuracy in a quiz!")
-      this.unlockAchievement("perfect_score")
-    }
-
-    // Speed Demon achievement (if answered quickly)
-    if (this.timeLeft > 25 && !achievements.includes("speed_demon")) {
-      achievements.push("speed_demon")
-      newAchievements.push("Speed Demon - Answer in under 5 seconds!")
-      this.unlockAchievement("speed_demon")
-    }
-
-    localStorage.setItem("liplearn_achievements", JSON.stringify(achievements))
-
-    // Show achievement notifications
-    newAchievements.forEach((achievement, index) => {
-      setTimeout(() => {
-        window.LipLearn.showNotification(`🏆 Achievement Unlocked: ${achievement}`, "success")
-      }, index * 1000)
-    })
-  }
-
-  unlockAchievement(achievementId) {
-    const achievementElement = document.querySelector(`[data-achievement="${achievementId}"]`)
-    if (achievementElement) {
-      achievementElement.classList.remove("locked")
-      achievementElement.classList.add("unlocked")
+      if (response.ok) {
+        console.log("Results saved successfully")
+      }
+    } catch (error) {
+      console.error("Error saving results:", error)
     }
   }
 
@@ -570,11 +585,13 @@ updateLeaderboard() {
     this.streak = 0
     this.bestStreak = 0
     this.correctAnswers = 0
+    this.userAnswers = []
     this.questions = []
 
     // Show start screen
     document.getElementById("resultsScreen").style.display = "none"
     document.getElementById("startScreen").style.display = "block"
+    document.getElementById("statsBar").style.display = "none"
 
     // Reset UI
     document.getElementById("currentScore").textContent = "0"
@@ -587,9 +604,29 @@ updateLeaderboard() {
       progressBar.style.width = "0%"
     }
   }
+
+  resetToStart() {
+    document.getElementById("gameScreen").style.display = "none"
+    document.getElementById("statsBar").style.display = "none"
+    document.getElementById("startScreen").style.display = "block"
+  }
+
+  showLoading(message) {
+    // You can implement a loading overlay here
+    console.log("Loading:", message)
+  }
+
+  showNotification(message, type = "info") {
+    if (window.LipLearn && window.LipLearn.showNotification) {
+      window.LipLearn.showNotification(message, type)
+    } else {
+      console.log(`${type.toUpperCase()}: ${message}`)
+    }
+  }
 }
 
 // Initialize quiz manager when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  new QuizManager()
+  window.quizManager = new QuizManager()
+  console.log("Quiz manager initialized")
 })

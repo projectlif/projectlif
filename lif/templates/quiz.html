@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Quiz Challenge -  Project LIF{% endblock %}
+{% block title %}Quiz Challenge - Project LIF{% endblock %}
 {% block meta_description %}Test your lip reading skills with interactive quizzes and earn points.{% endblock %}
 
 {% block content %}
@@ -15,8 +15,9 @@
                 <p class="lead text-light"></p>
             </div>
         </div>
-   <!--
-        <div class="row mb-4">
+
+        <!-- Quiz Stats Bar (Hidden initially) -->
+        <div class="row mb-4" id="statsBar" style="display: none;">
             <div class="col-12">
                 <div class="quiz-stats-bar">
                     <div class="card bg-dark-card border-0 shadow-lg">
@@ -52,9 +53,10 @@
                 </div>
             </div>
         </div>
-    -->
+
         <div class="row justify-content-center">
             <div class="col-lg-8">
+                <!-- Start Screen -->
                 <div class="quiz-start-screen" id="startScreen">
                     <div class="card bg-dark-card border-0 shadow-lg text-center">
                         <div class="card-body p-5">
@@ -65,9 +67,6 @@
                             <p class="text-light mb-4">
                                 Tingnan ng mabuti ang video at basahin kung ano ang binibigkas, piliin ang sa tingin mong tamang sagot.
                             </p>
-                            
-
-                            
                             <button class="btn btn-primary btn-lg" id="startQuiz">
                                 <i class="fas fa-play me-2"></i>Start Quiz
                             </button>
@@ -75,6 +74,7 @@
                     </div>
                 </div>
                 
+                <!-- Game Screen -->
                 <div class="quiz-game-screen" id="gameScreen" style="display: none;">
                     <div class="card bg-dark-card border-0 shadow-lg">
                         <div class="card-body p-4">
@@ -82,8 +82,10 @@
                                 <div class="progress">
                                     <div class="progress-bar bg-gradient-primary" id="progressBar" role="progressbar" style="width: 0%"></div>
                                 </div>
+                                <div class="text-center mt-2">
+                                    <small class="text-light" id="progressText">Question 1 of 10</small>
+                                </div>
                             </div>
-                            
 
                             <div class="question-area text-center mb-4">
                                 <h4 class="text-light mb-3">Anong syllable ang iyong nababasa?</h4>
@@ -95,6 +97,16 @@
                                             <p class="mt-3 text-light">Loading...</p>
                                         </div>
                                     </div>
+                                    
+                                    <!-- GIF Controls -->
+                                    <div class="gif-controls mt-3" id="gifControls" style="display: none;">
+                                        <button class="btn btn-outline-primary btn-sm me-2" id="playGifBtn">
+                                            <i class="fas fa-play me-1"></i>Play
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" id="loopGifBtn">
+                                            <i class="fas fa-redo me-1"></i>Loop
+                                        </button>
+                                    </div>
                                 </div>
                                 
                                 <div class="timer-circle mb-3">
@@ -103,7 +115,7 @@
                             </div>
                             
                             <div class="answer-options" id="answerOptions">
-                         
+                                <!-- Options will be populated by JavaScript -->
                             </div>
                             
                             <div class="answer-feedback" id="answerFeedback" style="display: none;">
@@ -113,7 +125,7 @@
                                     </div>
                                     <div class="feedback-text">
                                         <h5>Tama!</h5>
-                                        <p>Nakakuha ka 10 points.</p>
+                                        <p>Nakakuha ka ng 10 points.</p>
                                     </div>
                                 </div>
                             </div>
@@ -121,7 +133,7 @@
                     </div>
                 </div>
                 
-       
+                <!-- Results Screen -->
                 <div class="quiz-results-screen" id="resultsScreen" style="display: none;">
                     <div class="card bg-dark-card border-0 shadow-lg text-center">
                         <div class="card-body p-5">
@@ -132,22 +144,54 @@
                             
                             <div class="final-stats mb-4">
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="final-stat">
                                             <div class="final-stat-value" id="finalScore">0</div>
                                             <div class="final-stat-label">Final Score</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="final-stat">
                                             <div class="final-stat-value" id="finalAccuracy">0%</div>
                                             <div class="final-stat-label">Accuracy</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="final-stat">
                                             <div class="final-stat-value" id="finalStreak">0</div>
                                             <div class="final-stat-label">Best Streak</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="final-stat">
+                                            <div class="final-stat-value" id="totalTime">0s</div>
+                                            <div class="final-stat-label">Total Time</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Results -->
+                            <div class="detailed-results mb-4">
+                                <h5 class="text-light mb-3">Question Breakdown</h5>
+                                <div id="resultsBreakdown" class="text-start">
+                                    <!-- Results will be populated by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Analysis -->
+                            <div class="analysis-section mb-4">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-success mb-2">Strengths</h6>
+                                        <div id="strengthsList" class="analysis-list">
+                                            <!-- Populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-warning mb-2">Areas to Improve</h6>
+                                        <div id="weaknessesList" class="analysis-list">
+                                            <!-- Populated by JavaScript -->
                                         </div>
                                     </div>
                                 </div>
@@ -166,30 +210,30 @@
                 </div>
             </div>
             
-        
+            <!-- Tips Sidebar -->
             <div class="col-lg-4">
                 <div class="card bg-dark-card border-0 shadow-lg">
                     <div class="card-body">
                         <h5 class="card-title text-light mb-3">
                             <i class="fas fa-lightbulb gradient-text me-2"></i>
-                            Quiz Tips
+                            Mga Tips:
                         </h5>
                         <ul class="tips-list">
                             <li class="tip-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                Watch the full GIF before answering
+                                Panoorin muna nang buo ang video bago sumagot.
                             </li>
                             <li class="tip-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                Focus on mouth shape and movement
+                                Bigyang-pansin ang hugis at galaw ng bibig.
                             </li>
                             <li class="tip-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                Trust your first instinct
+                                Magtiwala sa iyong sarili.
                             </li>
                             <li class="tip-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                Practice regularly to improve
+                                Mag-practice nang regular para mas mapahusay ang iyong skills.
                             </li>
                         </ul>
                     </div>
