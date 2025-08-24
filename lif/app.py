@@ -18,147 +18,406 @@ app.permanent_session_lifetime = timedelta(days=30)
 
 SYLLABLES_DATA = {
     'a': {
-        'description': 'Open your mouth wide, drop your jaw, and let the sound flow naturally from your throat.',
+        'description': 'Kapag binibigkas ang "A" sound, bumubuka nang malaki ang bibig habang bumababa ang panga, nananatiling mababa at relaxed ang dila, at neutral ang mga labi. Ito ay nagpo-produce ng malinaw na "ah" sound.',
         'gif': '/static/gifs/a.gif',
+        'group': 'a_endings'
     },
     'e': {
-        'description': 'Slightly open your mouth, tongue in middle position, corners of mouth slightly pulled.',
+        'description': 'Kapag binibigkas ang "E" sound, bahagyang bumubuka ang bibig, ang panga ay medyo nakababa, at ang dila ay nasa gitnang posisyon pero nakaangat ng kaunti. Ang mga labi ay bahagyang naka-smile. Ito ay lumilikha ng tunog na "eh," tulad ng sa mesa.',
         'gif': '/static/gifs/e.gif',
+        'group': 'e_endings'
     },
     'i': {
-        'description': 'Smile slightly, tongue high and forward, mouth almost closed.',
+        'description': 'Kapag binibigkas ang "I" sound, ang bibig ay medyo nakabukas, ang panga ay hindi masyadong bumababa, at ang dila ay nakaangat patungo sa unahan ng bibig. Ang mga labi ay nakangiti o naka-stretch nang bahagya. Ito ay lumilikha ng malinaw na "ee" sound, tulad ng sa ilaw.',
         'gif': '/static/gifs/i.gif',
+        'group': 'i_endings'
     },
     'o': {
-        'description': 'Round your lips into a circle, tongue pulled back, moderate mouth opening.',
+        'description': 'Kapag binibigkas ang "O" sound, bumubuka nang bilog ang bibig habang ang panga ay bahagyang bumababa. Ang dila ay nasa gitna at relaxed, at ang mga labi ay malinaw na naka-round. Ito ay nagpo-produce ng "oh" sound, tulad ng sa oso.',
         'gif': '/static/gifs/o.gif',
+        'group': 'o_endings'
     },
     'u': {
-        'description': 'Pucker your lips tightly, tongue pulled back and down, small mouth opening.',
+        'description': 'Kapag binibigkas ang "U" sound, ang bibig ay bumubuka nang maliit at bilog, ang panga ay bahagyang bumababa, at ang dila ay bahagyang nakaangat. Ang mga labi ay naka-pout o naka-round. Ito ay lumilikha ng tunog na "oo," tulad ng sa ubo.',
         'gif': '/static/gifs/u.gif',
+        'group': 'u_endings'
     },
     'ba': {
-        'description': 'Press lips together, then release with a puff of air while opening to "a" position.',
+        'description': 'Kapag binibigkas ang "BA," ang bibig ay nagsasara muna dahil sa tunog na "B," at pagkatapos ay bumubuka nang malaki habang bumababa ang panga para sa malinaw na "ah" sound, tulad ng sa bata.',
         'gif': '/static/gifs/ba.gif',
+        'group': 'a_endings'
     },
     'be': {
-        'description': 'The B begins the same as in ba, with the lips pressing together and then releasing. The E is a mid-front vowel with a short “eh” sound. The jaw is slightly open, and the lips gently spread. The feeling for this sound is a soft pop followed by a short, forward vowel.',
-        #'gif': '/static/gifs/ba.gif',
+        'description': 'Kapag binibigkas ang "BE," ang bibig ay nagsasara muna para sa tunog na "B," tapos ay bahagyang bumubuka at ang mga labi ay medyo naka-smile habang lumalabas ang "eh" sound, tulad ng sa bebe.',
+        'gif': '/static/gifs/be.gif',
+        'group': 'e_endings'
     },
     'bi': {
-        'description': 'The B is produced by closing and releasing the lips, and the I sound is a high front vowel. The tongue is raised toward the roof of the mouth, and the lips are spread like a smile. The feeling for this sound is a gentle pop from the lips and a bright, sharp “ee” sound.',
-        #'gif': '/static/gifs/ba.gif',
+        'description': 'Kapag binibigkas ang "BI," ang bibig ay nagsasara muna para sa tunog na "B," tapos ay bumubuka nang kaunti habang ang dila ay nakaangat at ang mga labi ay naka-stretch, lumilikha ng malinaw na "ee" sound, tulad ng sa biso.',
+        'gif': '/static/gifs/bi.gif',
+        'group': 'i_endings'
     },
     'bo': {
-        'description': 'The B is voiced and made with a lip press and release. The O is a mid-back rounded vowel. The lips round into a small circle, and the tongue pulls back slightly. The feeling for this sound is a soft, voiced beginning with a rounded, “oh” finish.',
-        #'gif': '/static/gifs/ba.gif',
+        'description': 'Kapag binibigkas ang "BO," ang bibig ay nagsasara muna para sa tunog na "B," tapos ay bumubuka at nagiging bilog ang mga labi habang lumalabas ang "oh" sound, tulad ng sa bola.',
+        'gif': '/static/gifs/bo.gif',
+        'group': 'o_endings'
     },
     'bu': {
-        'description': 'The B starts with closed lips and a voiced release. The U is a high back rounded vowel — the lips are tightly rounded and the tongue rises toward the back of the mouth. The feeling for this sound is a closed burst followed by a deep, “oo” vowel.',
-        #'gif': '/static/gifs/ba.gif',
+        'description': 'Kapag binibigkas ang "BU," ang bibig ay nagsasara muna para sa tunog na "B," tapos ay bumubukas nang kaunti at ang mga labi ay malinaw na naka-round habang lumalabas ang "oo" sound, tulad ng sa buhay.',
+        'gif': '/static/gifs/bu.gif',
+        'group': 'u_endings'
     },
     'ka': {
-        'description': 'Back of tongue touches soft palate, then releases with "a" mouth position.',
+        'description': 'Kapag binibigkas ang "KA," ang dila ay nakatukod sa likod na bahagi ng ngalangala (soft palate) para mabuo ang tunog na "K," tapos ay bumubuka nang malaki ang bibig at bumababa ang panga para sa malinaw na "ah" sound, tulad ng sa kaso.',
         'gif': '/static/gifs/ka.gif',
+        'group': 'a_endings'
     },
     'ke': {
-        'description': 'The K is made by blocking airflow at the back of the mouth with the tongue and then releasing it quickly. The E is a mid-front vowel — the mouth opens slightly, the tongue is forward, and the lips are lightly spread. The feeling is a hard release followed by a short “eh” sound.',
-        #'gif': '/static/gifs/ka.gif',
+        'description': 'Kapag binibigkas ang "KE," ang dila ay nakalapat muna sa likod na ngalangala para sa tunog na "K," tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para lumabas ang "eh" sound, tulad ng sa keso.',
+        'gif': '/static/gifs/ke.gif',
+        'group': 'e_endings'
     },
     'ki': {
-        'description': 'The K is formed by the tongue blocking the back of the mouth (velar area), followed by a clean burst of air. The I is a high front vowel, so the lips stretch slightly and the tongue is raised toward the roof of the mouth. The feeling is a sharp stop followed by a bright “ee” sound.',
-        #'gif': '/static/gifs/ka.gif',
+        'description': 'Kapag binibigkas ang "KI," ang dila ay nakalapat muna sa likod ng ngalangala para sa tunog na "K," tapos ay bumubuka nang kaunti ang bibig, ang dila ay umaangat, at ang mga labi ay naka-stretch para makabuo ng malinaw na "ee" sound, tulad ng sa kilo.',
+        'gif': '/static/gifs/ki.gif',
+        'group': 'i_endings'
     },
     'ko': {
-        'description': 'The K sound forms at the back of the mouth with no vocal cord vibration. The O is a mid-back rounded vowel. The lips form a round shape, and the tongue is positioned toward the back. The feeling is a back-of-the-throat burst followed by a rounded “oh.”',
-        #'gif': '/static/gifs/ka.gif',
+        'description': 'Kapag binibigkas ang "KO," ang dila ay nasa likod ng ngalangala para sa tunog na "K," tapos ay bumubuka ang bibig at nagiging bilog ang mga labi habang lumalabas ang "oh" sound, tulad ng sa koto o kosa.',
+        'gif': '/static/gifs/ko.gif',
+        'group': 'o_endings'
     },
     'ku': {
-        'description': 'The K is voiceless and made at the back of the mouth, while the U is a high back rounded vowel. The lips round tightly, and the tongue moves high and back. The feeling is a clean stop followed by a closed, “oo” sound.',
-        #'gif': '/static/gifs/ka.gif',
+        'description': 'Kapag binibigkas ang "KU," ang dila ay nakalapat muna sa likod ng ngalangala para sa tunog na "K," tapos ay bumubuka nang kaunti ang bibig at ang mga labi ay malinaw na naka-round para makabuo ng "oo" sound, tulad ng sa kubo.',
+        'gif': '/static/gifs/ku.gif',
+        'group': 'u_endings'
     },
     'da': {
-        'description': 'Touch tongue tip to roof of mouth behind teeth, then release to "a" position.',
+        'description': 'Kapag binibigkas ang "DA," ang dila ay dumikit muna sa likod ng ngipin sa itaas para mabuo ang tunog na "D," tapos ay bumubuka nang malaki ang bibig at bumababa ang panga para sa malinaw na "ah" sound, tulad ng sa daga.',
         'gif': '/static/gifs/da.gif',
+        'group': 'a_endings'
     },
     'de': {
-        'description': 'The D starts with vibration at the teeth, and the E is a short “eh” sound — tongue mid-front, lips slightly spread.',
-        #'gif': '/static/gifs/da.gif',
+        'description': 'Kapag binibigkas ang "DE," ang dila ay nakalapat sa likod ng ngipin sa itaas para sa tunog na "D," tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi habang lumalabas ang "eh" sound, tulad ng sa dede.',
+        'gif': '/static/gifs/de.gif',
+        'group': 'e_endings'
     },
     'di': {
-        'description': 'The D is voiced at the teeth, while the I is a high front vowel — tongue high and lips spread.',
-        #'gif': '/static/gifs/da.gif',
+        'description': 'Kapag binibigkas ang "DI," ang dila ay nasa likod ng ngipin sa itaas para mabuo ang tunog na "D," tapos ay bumubuka nang kaunti ang bibig, ang dila ay bahagyang nakaangat, at ang mga labi ay naka-stretch para makabuo ng malinaw na "ee" sound, tulad ng sa dila.',
+        'gif': '/static/gifs/di.gif',
+        'group': 'i_endings'
     },
     'do': {
-        'description': 'The D is made with vibration at the teeth, and the O is a rounded mid-back sound — lips round, tongue shifts back.',
-        #'gif': '/static/gifs/da.gif',
+        'description': 'Kapag binibigkas ang "DO," ang dila ay nakalapat muna sa likod ng ngipin sa itaas para sa tunog na "D," tapos ay bumubuka ang bibig at nagiging bilog ang mga labi habang lumalabas ang "oh" sound, tulad ng sa dogo o dote.',
+        'gif': '/static/gifs/do.gif',
+        'group': 'o_endings'
     },
     'du': {
-        'description': 'The D is voiced at the teeth, and the U is a high back vowel — lips round, tongue rises toward the back.',
-        #'gif': '/static/gifs/da.gif',
+        'description': 'Kapag binibigkas ang "DU," ang dila ay nakalapat muna sa likod ng ngipin sa itaas para sa tunog na "D," tapos ay bumubuka nang kaunti ang bibig at ang mga labi ay malinaw na naka-round para makabuo ng "oo" sound, tulad ng sa dulo.',
+        'gif': '/static/gifs/du.gif',
+        'group': 'u_endings'
     },
     'ga': {
-        'description': 'The G is a voiced velar stop — just like K, it is made at the back of the mouth (tongue touches the soft palate), but with vocal cord vibration. The A sound is open: the jaw drops, tongue stays low, and lips are neutral.',
-        #'gif': '/static/gifs/ga.gif',
+        'description': 'Kapag binibigkas ang "GA," ang dila ay nakalapat muna sa likod na bahagi ng ngalangala (soft palate) para mabuo ang tunog na "G," tapos ay bumubuka nang malaki ang bibig at bumababa ang panga para sa malinaw na "ah" sound, tulad ng sa gabi.',
+        'gif': '/static/gifs/ga.gif',
+        'group': 'a_endings'
     },
     'ge': {
-        'description': 'The G starts at the back of the mouth, with vibration, and the E is a short “eh” sound: tongue is mid-front, lips slightly spread.',
-        #'gif': '/static/gifs/ga.gif',
+        'description': 'Kapag binibigkas ang "GE," ang dila ay nasa likod na ngalangala para sa tunog na "G," tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi habang lumalabas ang "eh" sound, tulad ng sa geysir o gel.',
+        'gif': '/static/gifs/ge.gif',
+        'group': 'e_endings'
     },
     'gi': {
-        'description': 'The G is voiced and formed at the back of the mouth. The I is a high front vowel, made with spread lips and a high tongue position.',
-        #'gif': '/static/gifs/ga.gif',
+        'description': 'Kapag binibigkas ang "GI," ang dila ay nakalapat muna sa likod na ngalangala para sa tunog na "G," tapos ay bumubuka nang kaunti ang bibig, ang dila ay bahagyang umaangat, at ang mga labi ay naka-stretch para makabuo ng malinaw na "ee" sound, tulad ng sa gitara.',
+        'gif': '/static/gifs/gi.gif',
+        'group': 'i_endings'
     },
     'go': {
-        'description': 'The G uses the back of the tongue and soft palate with vocal cord vibration. The O is a mid-back rounded vowel — lips form a round shape and tongue shifts back.',
-        #'gif': '/static/gifs/ga.gif',
+        'description': 'Kapag binibigkas ang "GO," ang dila ay nasa likod na ngalangala para sa tunog na "G," tapos ay bumubuka ang bibig at nagiging bilog ang labi habang lumalabas ang "oh" sound, tulad ng sa goma.',
+        'gif': '/static/gifs/go.gif',
+        'group': 'o_endings'
     },
     'gu': {
-        'description': 'The G is voiced and formed at the velum (back of the mouth). The U is a high back rounded vowel: lips round tightly, and the tongue rises toward the soft palate.',
-        #'gif': '/static/gifs/ga.gif',
+        'description': 'Kapag binibigkas ang "GU," ang dila ay nasa likod na ngalangala para mabuo ang tunog na "G," tapos ay bumubuka nang kaunti ang bibig at ang mga labi ay malinaw na naka-round para makabuo ng "oo" sound, tulad ng sa gubat.',
+        'gif': '/static/gifs/gu.gif',
+        'group': 'u_endings'
     },
     'ha': {
-        'description': 'The H is a voiceless glottal fricative — it is made by gently pushing air through the vocal cords without vibration. The A is an open vowel: the jaw drops, the tongue stays low, and the lips are neutral.',
-        #'gif': '/static/gifs/ha.gif',
+        'description': 'Kapag binibigkas ang "HA," ang tunog ay lumalabas dahil sa paghinga palabas, tapos ay bumubuka nang malaki ang bibig at bumababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa haba.',
+        'gif': '/static/gifs/ha.gif',
+        'group': 'a_endings'
     },
     'he': {
-        'description': 'The H is airy and soft, and the E is a mid-front vowel: tongue is forward, lips slightly spread. The sound is light and short.',
-        #'gif': '/static/gifs/ha.gif',
+        'description': 'Kapag binibigkas ang "HE," nagsisimula sa pagbuga ng hininga, tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi habang lumalabas ang "eh" sound, tulad ng sa helikopter.',
+        'gif': '/static/gifs/he.gif',
+        'group': 'e_endings'
     },
     'hi': {
-        'description': 'The H is again breathy and soft, and the I is a high front vowel — lips spread like a smile, and the tongue is high.',
-        #'gif': '/static/gifs/ha.gif',
+        'description': 'Kapag binibigkas ang "HI," nagsisimula rin sa banayad na paghinga palabas, tapos ay bumubuka nang kaunti ang bibig, umaangat ang dila, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa hilo.',
+        'gif': '/static/gifs/hi.gif',
+        'group': 'i_endings'
     },
     'ho': {
-        'description': 'The H sound comes from the throat, soft and airy. The O is a mid-back rounded vowel — the lips form a small circle, and the tongue is pulled back slightly.',
-        #'gif': '/static/gifs/ha.gif',
+        'description': 'Kapag binibigkas ang "HO," may banayad na paghinga palabas, tapos ay bumubuka ang bibig at malinaw na nagiging bilog ang labi habang lumalabas ang "oh" sound, tulad ng sa honey o hora.',
+        'gif': '/static/gifs/ho.gif',
+        'group': 'o_endings'
     },
     'hu': {
-        'description': 'The H sound is gentle and made in the throat. The U is a high back rounded vowel — lips are tightly rounded, and the tongue is high and back.',
-        #'gif': '/static/gifs/ha.gif',
+        'description': 'Kapag binibigkas ang "HU," nagsisimula sa pagbuga ng hininga, tapos ay bahagyang bumubuka ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa huli.',
+        'gif': '/static/gifs/hu.gif',
+        'group': 'u_endings'
     },
     'la': {
-        'description': 'The L is a voiced alveolar lateral consonant — the tongue tip touches just behind the upper front teeth, and air flows around the sides of the tongue. The A is an open vowel: jaw drops, tongue is low, lips neutral.',
-        #'gif': '/static/gifs/la.gif',
+        'description': 'Kapag binibigkas ang "LA," ang dila ay unang dumikit sa likod ng ngipin sa itaas, tapos ay mabilis na bumababa habang bumubuka nang malaki ang bibig at bumababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa lawa.',
+        'gif': '/static/gifs/la.gif',
+        'group': 'a_endings'
     },
     'le': {
-        'description': 'The L is formed with the tip of the tongue touching the alveolar ridge. The E is a short “eh” sound: tongue moves forward, lips slightly spread.',
-        #'gif': '/static/gifs/la.gif',
+        'description': 'Kapag binibigkas ang "LE," ang dila ay dumikit muna sa likod ng ngipin sa itaas, tapos ay babababa habang bahagyang nakabukas ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound, tulad ng sa lemon.',
+        'gif': '/static/gifs/le.gif',
+        'group': 'e_endings'
     },
     'li': {
-        'description': 'The L starts at the alveolar ridge, and the I is a high front vowel: tongue is raised, lips spread in a smile.',
-        #'gif': '/static/gifs/la.gif',
+        'description': 'Kapag binibigkas ang "LI," ang dila ay dumikit muna sa likod ng ngipin sa itaas, tapos ay babababa habang bahagyang nakaangat ang dila sa unahan, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa lima.',
+        'gif': '/static/gifs/li.gif',
+        'group': 'i_endings'
     },
     'lo': {
-        'description': 'The L is voiced and made at the front with the tongue touching just behind the teeth. The O is a rounded back vowel — lips form a small circle, and the tongue moves slightly back.',
-        #'gif': '/static/gifs/la.gif',
+        'description': 'Kapag binibigkas ang "LO," ang dila ay dumikit muna sa likod ng ngipin sa itaas, tapos ay babababa habang bumubuka ang bibig at nagiging bilog ang labi para makabuo ng "oh" sound, tulad ng sa lobo.',
+        'gif': '/static/gifs/lo.gif',
+        'group': 'o_endings'
     },
     'lu': {
-        'description': 'The L uses the tongue tip touching the alveolar ridge. The U is a high back vowel — lips are rounded, and the tongue is high and back.',
-        #'gif': '/static/gifs/la.gif',
-    }
+        'description': 'Kapag binibigkas ang "LU," ang dila ay dumikit muna sa likod ng ngipin sa itaas, tapos ay babababa habang bahagyang nakabukas ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa lupa.',
+        'gif': '/static/gifs/lu.gif',
+        'group': 'u_endings'
+    },
+    'ma': {
+        'description': 'Kapag binibigkas ang "MA," nagsasara muna ang dalawang labi para mabuo ang tunog na "M," tapos ay bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa mata.',
+        'gif': '/static/gifs/ma.gif',
+        'group': 'a_endings'
+    },
+    'me': {
+        'description': 'Kapag binibigkas ang "ME," nagsasara muna ang dalawang labi para sa tunog na "M," tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound, tulad ng sa mesa.',
+        'gif': '/static/gifs/me.gif',
+        'group': 'e_endings'
+    },
+    'mi': {
+        'description': 'Kapag binibigkas ang "MI," nagsasara muna ang dalawang labi para sa tunog na "M," tapos ay bumubuka nang kaunti ang bibig, umaangat ang dila, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa mismo.',
+        'gif': '/static/gifs/mi.gif',
+        'group': 'i_endings'
+    },
+    'mo': {
+        'description': 'Kapag binibigkas ang "MO," nagsasara muna ang dalawang labi para sa tunog na "M," tapos ay bumubuka ang bibig at malinaw na nagiging bilog ang labi para makabuo ng "oh" sound, tulad ng sa moto o modelo.',
+        'gif': '/static/gifs/mo.gif',
+        'group': 'o_endings'
+    },
+    'mu': {
+        'description': 'Kapag binibigkas ang "MU," nagsasara muna ang dalawang labi para sa tunog na "M," tapos ay bumubuka nang kaunti ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa mundo.',
+        'gif': '/static/gifs/mu.gif',
+        'group': 'u_endings'
+    },
+    'na': {
+        'description': 'Kapag binibigkas ang "NA," ang dila ay dumikit muna sa likod ng ngipin sa itaas para mabuo ang tunog na "N," tapos ay babababa habang bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa nasa.',
+        'gif': '/static/gifs/na.gif',
+        'group': 'a_endings'
+    },
+    'ne': {
+        'description': 'Kapag binibigkas ang "NE," ang dila ay nakalapat muna sa likod ng ngipin sa itaas, tapos ay babababa habang bahagyang nakabukas ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound, tulad ng sa nene.',
+        'gif': '/static/gifs/ne.gif',
+        'group': 'e_endings'
+    },
+    'ni': {
+        'description': 'Kapag binibigkas ang "NI," ang dila ay nakalapat muna sa likod ng ngipin sa itaas, tapos ay babababa habang bahagyang nakaangat ang dila at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa nilo.',
+        'gif': '/static/gifs/ni.gif',
+        'group': 'i_endings'
+    },
+    'no': {
+        'description': 'Kapag binibigkas ang "NO," ang dila ay nasa likod ng ngipin sa itaas, tapos ay babababa habang bumubuka ang bibig at malinaw na nagiging bilog ang labi para makabuo ng "oh" sound, tulad ng sa nono.',
+        'gif': '/static/gifs/no.gif',
+        'group': 'o_endings'
+    },
+    'nu': {
+        'description': 'Kapag binibigkas ang "NU," ang dila ay nasa likod ng ngipin sa itaas, tapos ay babababa habang bahagyang nakabukas ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa nuno.',
+        'gif': '/static/gifs/nu.gif',
+        'group': 'u_endings'
+    },
+    'nga': {
+        'description': 'Kapag binibigkas ang "NGA," ang tunog ay nagsisimula sa likod ng lalamunan habang nakarelax ang dila sa likod, tapos ay bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa nganga.',
+        'gif': '/static/gifs/nga.gif',
+        'group': 'a_endings'
+    },
+    'nge': {
+        'description': 'Kapag binibigkas ang "NGE," nagsisimula ang tunog sa likod ng lalamunan habang nakaposisyon ang dila sa likod, tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound, tulad ng sa ngeso.',
+        'gif': '/static/gifs/nge.gif',
+        'group': 'e_endings'
+    },
+    'ngi': {
+        'description': 'Kapag binibigkas ang "NGI," nagsisimula ang tunog sa likod ng lalamunan, tapos ay bumubuka nang kaunti ang bibig, umaangat ang dila, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa ngipin.',
+        'gif': '/static/gifs/ngi.gif',
+        'group': 'i_endings'
+    },
+    'ngo': {
+        'description': 'Kapag binibigkas ang "NGO," nagsisimula ang tunog sa likod ng lalamunan, tapos ay bumubuka ang bibig at malinaw na nagiging bilog ang labi para makabuo ng "oh" sound, tulad ng sa ngongo.',
+        'gif': '/static/gifs/ngo.gif',
+        'group': 'o_endings'
+    },
+    'ngu': {
+        'description': 'Kapag binibigkas ang "NGU," nagsisimula rin sa likod ng lalamunan, tapos ay bahagyang bumubuka ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa nguso.',
+        'gif': '/static/gifs/ngu.gif',
+        'group': 'u_endings'
+    },
+    'pa': {
+        'description': 'Kapag binibigkas ang "PA," ang dalawang labi ay nagsasara muna para sa tunog na "P," tapos ay bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa pasa.',
+        'gif': '/static/gifs/pa.gif',
+        'group': 'a_endings'
+    },
+    'pe': {
+        'description': 'Kapag binibigkas ang "PE," ang dalawang labi ay nagsasara muna para sa tunog na "P," tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound, tulad ng sa pera.',
+        'gif': '/static/gifs/pe.gif',
+        'group': 'e_endings'
+    },
+    'pi': {
+        'description': 'Kapag binibigkas ang "PI," ang dalawang labi ay nagsasara muna para sa tunog na "P," tapos ay bumubuka nang kaunti ang bibig, umaangat ang dila, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa piso.',
+        'gif': '/static/gifs/pi.gif',
+        'group': 'i_endings'
+    },
+    'po': {
+        'description': 'Kapag binibigkas ang "PO," ang dalawang labi ay nagsasara muna para sa tunog na "P," tapos ay bumubuka ang bibig at malinaw na nagiging bilog ang labi para makabuo ng "oh" sound, tulad ng sa pogi.',
+        'gif': '/static/gifs/po.gif',
+        'group': 'o_endings'
+    },
+    'pu': {
+        'description': 'Kapag binibigkas ang "PU," ang dalawang labi ay nagsasara muna para sa tunog na "P," tapos ay bahagyang bumubuka ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa puno.',
+        'gif': '/static/gifs/pu.gif',
+        'group': 'u_endings'
+    },
+    'ra': {
+        'description': 'Kapag binibigkas ang "RA," ang dila ay bahagyang tumatama o nagvi-vibrate malapit sa itaas na ngipin o sa gitna ng ngalangala para mabuo ang tunog na "R," tapos ay bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa rama.',
+        'gif': '/static/gifs/ra.gif',
+        'group': 'a_endings'
+    },
+    're': {
+        'description': 'Kapag binibigkas ang "RE," ang dila ay bahagyang tumatama sa itaas na ngipin o ngalangala para sa tunog na "R," tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound, tulad ng sa rehistro.',
+        'gif': '/static/gifs/re.gif',
+        'group': 'e_endings'
+    },
+    'ri': {
+        'description': 'Kapag binibigkas ang "RI," ang dila ay dumidikit o nagvi-vibrate nang bahagya malapit sa itaas na ngipin o ngalangala, tapos ay bumubuka nang kaunti ang bibig, umaangat ang dila, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa rima.',
+        'gif': '/static/gifs/ri.gif',
+        'group': 'i_endings'
+    },
+    'ro': {
+        'description': 'Kapag binibigkas ang "RO," ang dila ay nasa posisyon ng "R" sa itaas na bahagi ng bibig, tapos ay bumubuka ang bibig at malinaw na nagiging bilog ang labi para makabuo ng "oh" sound, tulad ng sa ropa.',
+        'gif': '/static/gifs/ro.gif',
+        'group': 'o_endings'
+    },
+    'ru': {
+        'description': 'Kapag binibigkas ang "RU," ang dila ay nasa posisyon ng "R" malapit sa itaas na ngipin o ngalangala, tapos ay bahagyang bumubuka ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa ruso.',
+        'gif': '/static/gifs/ru.gif',
+        'group': 'u_endings'
+    },
+    'sa': {
+        'description': 'Kapag binibigkas ang "SA," ang dila ay nakaposisyon malapit sa ngipin sa itaas para makalikha ng tunog na parang hangin na lumalabas ("S"), tapos ay bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa sama.',
+        'gif': '/static/gifs/sa.gif',
+        'group': 'a_endings'
+    },
+    'se': {
+        'description': 'Kapag binibigkas ang "SE," nagsisimula sa tunog na "S" kung saan ang dila ay malapit sa ngipin sa itaas, tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound, tulad ng sa sebo.',
+        'gif': '/static/gifs/se.gif',
+        'group': 'e_endings'
+    },
+    'si': {
+        'description': 'Kapag binibigkas ang "SI," ang tunog na "S" ay nagmumula sa hangin na lumalabas sa pagitan ng dila at ngipin, tapos ay bumubuka nang kaunti ang bibig, umaangat ang dila, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa sisiw.',
+        'gif': '/static/gifs/si.gif',
+        'group': 'i_endings'
+    },
+    'so': {
+        'description': 'Kapag binibigkas ang "SO," nagsisimula sa tunog na "S," tapos ay bumubuka ang bibig at malinaw na nagiging bilog ang labi para makabuo ng "oh" sound, tulad ng sa sopa.',
+        'gif': '/static/gifs/so.gif',
+        'group': 'o_endings'
+    },
+    'su': {
+        'description': 'Kapag binibigkas ang "SU," nagsisimula sa tunog na "S," tapos ay bahagyang bumubuka ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa suso.',
+        'gif': '/static/gifs/su.gif',
+        'group': 'u_endings'
+    },
+    'ta': {
+        'description': 'Kapag binibigkas ang "TA," ang dila ay dumikit muna sa likod ng ngipin sa itaas para makabuo ng tunog na "T," tapos ay bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound, tulad ng sa tata.',
+        'gif': '/static/gifs/ta.gif',
+        'group': 'a_endings'
+    },
+    'te': {
+        'description': 'Kapag binibigkas ang "TE," nagsisimula sa tunog na "T" kung saan ang dila ay nasa likod ng ngipin sa itaas, tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound, tulad ng sa tema.',
+        'gif': '/static/gifs/te.gif',
+        'group': 'e_endings'
+    },
+    'ti': {
+        'description': 'Kapag binibigkas ang "TI," ang dila ay nakalapat sa likod ng ngipin sa itaas para sa tunog na "T," tapos ay bumubuka nang kaunti ang bibig, umaangat ang dila, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound, tulad ng sa tila.',
+        'gif': '/static/gifs/ti.gif',
+        'group': 'i_endings'
+    },
+    'to': {
+        'description': 'Kapag binibigkas ang "TO," nagsisimula sa tunog na "T" mula sa dila na nakadikit sa likod ng ngipin sa itaas, tapos ay bumubuka ang bibig at malinaw na nagiging bilog ang labi para makabuo ng "oh" sound, tulad ng sa totoo.',
+        'gif': '/static/gifs/to.gif',
+        'group': 'o_endings'
+    },
+    'tu': {
+        'description': 'Kapag binibigkas ang "TU," ang dila ay nasa likod ng ngipin sa itaas para sa tunog na "T," tapos ay bahagyang bumubuka ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound, tulad ng sa tubo.',
+        'gif': '/static/gifs/tu.gif',
+        'group': 'u_endings'
+    },
+    'wa': {
+        'description': 'Kapag binibigkas ang "WA," ang mga labi ay unang nagro-round para sa tunog na "W," tapos ay bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound.',
+        'gif': '/static/gifs/wa.gif',
+        'group': 'a_endings'
+    },
+    'we': {
+        'description': 'Kapag binibigkas ang "WE," ang mga labi ay nagsisimula sa rounded position para sa tunog na "W," tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound.',
+        'gif': '/static/gifs/we.gif',
+        'group': 'e_endings'
+    },
+    'wi': {
+        'description': 'Kapag binibigkas ang "WI," ang mga labi ay nagiging bilog muna para sa tunog na "W," tapos ay bumubuka nang kaunti ang bibig, umaangat ang dila, at naka-stretch ang labi para makabuo ng malinaw na "ee" sound.',
+        'gif': '/static/gifs/wi.gif',
+        'group': 'i_endings'
+    },
+    'wo': {
+        'description': 'Kapag binibigkas ang "WO," nagsisimula ang labi sa bilog na posisyon para sa "W," tapos ay bumubuka pa nang mas malaki at nananatiling bilog ang labi para makabuo ng "oh" sound.',
+        'gif': '/static/gifs/wo.gif',
+        'group': 'o_endings'
+    },
+    'wu': {
+        'description': 'Kapag binibigkas ang "WU," ang labi ay malinaw na naka-round para sa tunog na "W," tapos ay bahagyang bumubuka at nananatiling bilog para makabuo ng "oo" sound.',
+        'gif': '/static/gifs/wu.gif',
+        'group': 'u_endings'
+    },
+    'ya': {
+        'description': 'Kapag binibigkas ang "YA," ang dila ay bahagyang nakaangat sa unahan ng bibig at ang labi ay medyo naka-stretch para sa tunog na "Y," tapos ay bumubuka nang malaki ang bibig at babababa ang panga para makabuo ng malinaw na "ah" sound.',
+        'gif': '/static/gifs/ya.gif',
+        'group': 'a_endings'
+    },
+    'ye': {
+        'description': 'Kapag binibigkas ang "YE," ang dila ay nasa unahan ng bibig para sa tunog na "Y," tapos ay bahagyang bumubuka ang bibig at medyo naka-smile ang labi para makabuo ng "eh" sound.',
+        'gif': '/static/gifs/ye.gif',
+        'group': 'e_endings'
+    },
+    'yi': {
+        'description': 'Kapag binibigkas ang "YI," nagsisimula sa tunog na "Y" kung saan nakaangat ang dila sa unahan, tapos ay bumubuka nang kaunti ang bibig at naka-stretch ang labi para makabuo ng malinaw na "ee" sound.',
+        'gif': '/static/gifs/yi.gif',
+        'group': 'i_endings'
+    },
+    'yo': {
+        'description': 'Kapag binibigkas ang "YO," ang dila ay nasa unahan ng bibig para sa tunog na "Y," tapos ay bumubuka ang bibig at nagiging bilog ang labi para makabuo ng "oh" sound.',
+        'gif': '/static/gifs/yo.gif',
+        'group': 'o_endings'
+    },
+    'yu': {
+        'description': 'Kapag binibigkas ang "YU," nagsisimula sa tunog na "Y" habang nakaangat ang dila sa unahan, tapos ay bahagyang bumubuka ang bibig at malinaw na naka-round ang labi para makabuo ng "oo" sound.',
+        'gif': '/static/gifs/yu.gif',
+        'group': 'u_endings'
+    },
 }
-
 WORDS_DATA = {
     'aso': {
         'description': 'A common Filipino word meaning "dog"',
@@ -173,6 +432,16 @@ WORDS_DATA = {
         'gif': '/static/gifs/words/mata.gif',
     },
 }
+
+
+CHALLENGE_GROUPS = {
+    'a_endings': ['a', 'ba', 'da', 'ka', 'ga', 'ha', 'la', 'ma', 'na', 'nga', 'pa', 'ra', 'sa', 'ta', 'wa', 'ya'],
+    'e_endings': ['e', 'be', 'de', 'ke', 'ge', 'he', 'le', 'me', 'ne', 'nge', 'pe', 're', 'se', 'te', 'we', 'ye'],
+    'i_endings': ['i', 'bi', 'di', 'ki', 'gi', 'hi', 'li', 'mi', 'ni', 'ngi', 'pi', 'ri', 'si', 'ti', 'wi', 'yi'],
+    'o_endings': ['o', 'bo', 'do', 'ko', 'go', 'ho', 'lo', 'mo', 'no', 'ngo', 'po', 'ro', 'so', 'to', 'wo', 'yo'],
+    'u_endings': ['u', 'bu', 'du', 'ku', 'gu', 'hu', 'lu', 'mu', 'nu', 'ngu', 'pu', 'ru', 'su', 'tu', 'wu', 'yu'],
+}
+
 @app.before_request
 def before_request():
     session.permanent = True
@@ -222,6 +491,21 @@ def get_next_syllable(current_syllable):
             return None  # Last syllable, no next
     except ValueError:
         return None  # Syllable not found
+
+
+
+def get_previous_syllable(current_syllable):
+    """Get the previous syllable in the learning sequence"""
+    try:
+        current_index = SYLLABLE_ORDER.index(current_syllable)
+        if current_index > 0:
+            return SYLLABLE_ORDER[current_index - 1]
+        else:
+            return None  # First syllable, no previous
+    except ValueError:
+        return None  # Syllable not found
+
+
 
 def get_syllable_index(syllable):
     """Get the current index of syllable in the sequence"""
@@ -282,7 +566,6 @@ def save_quiz_score():
             'score': data.get('score', 0),
             'accuracy': data.get('accuracy', 0),
             'date': datetime.now().isoformat(),
-            'difficulty': data.get('difficulty', 'easy')
         }
         
         high_scores.append(new_score)
@@ -349,10 +632,6 @@ def sync_progress():
 def home():
     return render_template('index.html')
 
-@app.route('/predict')
-def predict():
-    return render_template('predict_words.html')
-
 
 @app.route('/camera')
 def camera():
@@ -365,6 +644,21 @@ def learn():
 
 @app.route('/learn/<syllable>')
 def learn_syllable(syllable):
+    if syllable in SYLLABLES_DATA:
+        next_syllable = get_next_syllable(syllable)
+        previous_syllable = get_previous_syllable(syllable)
+        current_index = get_syllable_index(syllable)
+        total_syllables = len(SYLLABLE_ORDER)
+        
+        return render_template('syllable.html', 
+                             syllable=syllable, 
+                             data=SYLLABLES_DATA[syllable],
+                             next_syllable=next_syllable,
+                             previous_syllable=previous_syllable,
+                             current_index=current_index,
+                             total_syllables=total_syllables)
+    return render_template('404.html'), 404
+
     if syllable in SYLLABLES_DATA:
         next_syllable = get_next_syllable(syllable)
         current_index = get_syllable_index(syllable)
@@ -382,30 +676,177 @@ def learn_syllable(syllable):
 def quiz():
     return render_template('quiz.html')
 
+
+def generate_challenging_options(correct_syllable, num_options=5):
+    """Generate challenging options for a given syllable based on ending groups"""
+    if correct_syllable not in SYLLABLES_DATA:
+        return random.sample(list(SYLLABLES_DATA.keys()), min(num_options, len(SYLLABLES_DATA)))
+    
+    options = [correct_syllable]
+    syllable_group = SYLLABLES_DATA[correct_syllable]['group']
+    
+    # Strategy 1: Same group (most challenging) - get syllables from same ending/lip shape group
+    if syllable_group in CHALLENGE_GROUPS:
+        same_group = [s for s in CHALLENGE_GROUPS[syllable_group] if s != correct_syllable and s in SYLLABLES_DATA]
+        # Add up to 3 from same group for maximum challenge
+        options.extend(random.sample(same_group, min(3, len(same_group))))
+    
+    # Strategy 2: Fill remaining slots with random syllables from other groups
+    remaining_syllables = [s for s in SYLLABLES_DATA.keys() if s not in options]
+    
+    if len(options) < num_options and remaining_syllables:
+        needed = num_options - len(options)
+        options.extend(random.sample(remaining_syllables, min(needed, len(remaining_syllables))))
+    
+    # Ensure we have exactly num_options
+    options = options[:num_options]
+    if len(options) < num_options:
+        # Fallback: add any remaining syllables
+        all_syllables = list(SYLLABLES_DATA.keys())
+        while len(options) < num_options:
+            random_syllable = random.choice(all_syllables)
+            if random_syllable not in options:
+                options.append(random_syllable)
+    
+    # Shuffle options so correct answer isn't always first
+    random.shuffle(options)
+    return options
+
+@app.route('/api/quiz/questions')
+def get_quiz_questions():
+    """Generate a set of challenging quiz questions"""
+    try:
+        num_questions = 10
+        questions = []
+        
+        # Select random syllables for questions
+        available_syllables = list(SYLLABLES_DATA.keys())
+        selected_syllables = random.sample(available_syllables, min(num_questions, len(available_syllables)))
+        
+        for syllable in selected_syllables:
+            options = generate_challenging_options(syllable, 5)
+            
+            question = {
+                'syllable': syllable,
+                'gif': SYLLABLES_DATA[syllable]['gif'],
+                'options': options,
+                'group': SYLLABLES_DATA[syllable]['group']
+            }
+            questions.append(question)
+        
+        return jsonify({
+            'success': True,
+            'questions': questions,
+            'total': len(questions)
+        })
+        
+    except Exception as e:
+        print(f"Error generating quiz questions: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+
 @app.route('/api/quiz/question')
 def get_quiz_question():
-    syllable = random.choice(list(SYLLABLES_DATA.keys()))
-    all_syllables = list(SYLLABLES_DATA.keys())
-    
-    # Ensure we have the correct answer in options
-    options = [syllable]  # Start with correct answer
-    remaining = [s for s in all_syllables if s != syllable]
-    
-    # Add 3 random incorrect options
-    while len(options) < 4 and remaining:
-        incorrect = random.choice(remaining)
-        options.append(incorrect)
-        remaining.remove(incorrect)
-    
-    # Shuffle so correct answer isn't always first
-    random.shuffle(options)
-    
-    return jsonify({
-        'syllable': syllable,
-        'gif': SYLLABLES_DATA[syllable]['gif'],
-        'options': options
-    })
+    """Get a single random quiz question (legacy endpoint)"""
+    try:
+        syllable = random.choice(list(SYLLABLES_DATA.keys()))
+        options = generate_challenging_options(syllable, 5)
+        
+        return jsonify({
+            'syllable': syllable,
+            'gif': SYLLABLES_DATA[syllable]['gif'],
+            'options': options
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
+@app.route('/api/quiz/save-results', methods=['POST'])
+def save_quiz_results():
+    """Save quiz results to session"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Initialize session quiz history if not exists
+        if 'quiz_history' not in session:
+            session['quiz_history'] = []
+        
+        # Add timestamp
+        import datetime
+        data['timestamp'] = datetime.datetime.now().isoformat()
+        data['quiz_id'] = len(session['quiz_history']) + 1
+        
+        # Save to session
+        session['quiz_history'].append(data)
+        
+        # Keep only last 10 quiz results
+        if len(session['quiz_history']) > 10:
+            session['quiz_history'] = session['quiz_history'][-10:]
+        
+        # Update session stats
+        if 'quiz_stats' not in session:
+            session['quiz_stats'] = {
+                'total_quizzes': 0,
+                'best_score': 0,
+                'best_accuracy': 0,
+                'total_questions_answered': 0,
+                'total_correct_answers': 0
+            }
+        
+        stats = session['quiz_stats']
+        stats['total_quizzes'] += 1
+        stats['best_score'] = max(stats['best_score'], data['score'])
+        stats['best_accuracy'] = max(stats['best_accuracy'], data['accuracy'])
+        stats['total_questions_answered'] += data['total_questions']
+        stats['total_correct_answers'] += data['correct_answers']
+        
+        session['quiz_stats'] = stats
+        session.modified = True
+        
+        return jsonify({
+            'success': True,
+            'message': 'Results saved successfully',
+            'quiz_id': data['quiz_id']
+        })
+        
+    except Exception as e:
+        print(f"Error saving quiz results: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/quiz/stats')
+def get_quiz_stats():
+    """Get user's quiz statistics"""
+    try:
+        stats = session.get('quiz_stats', {
+            'total_quizzes': 0,
+            'best_score': 0,
+            'best_accuracy': 0,
+            'total_questions_answered': 0,
+            'total_correct_answers': 0
+        })
+        
+        history = session.get('quiz_history', [])
+        
+        return jsonify({
+            'success': True,
+            'stats': stats,
+            'recent_history': history[-5:] if history else []  # Last 5 quizzes
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @app.route('/privacy')
 def privacy():

@@ -1,5 +1,3 @@
-// Learning page functionality
-
 class LearningManager {
   constructor() {
     this.currentFilter = "all"
