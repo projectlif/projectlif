@@ -5,12 +5,15 @@ import cv2
 import dlib
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.models import load_model
 import uuid
 from collections import deque
 from datetime import datetime, timedelta
 import base64
 from io import BytesIO
 from PIL import Image
+import logging
+
 
 app = Flask(__name__)
 app.secret_key = 'e94c984be9a156848e9d4db164bcdab1'
@@ -441,6 +444,203 @@ CHALLENGE_GROUPS = {
     'o_endings': ['o', 'bo', 'do', 'ko', 'go', 'ho', 'lo', 'mo', 'no', 'ngo', 'po', 'ro', 'so', 'to', 'wo', 'yo'],
     'u_endings': ['u', 'bu', 'du', 'ku', 'gu', 'hu', 'lu', 'mu', 'nu', 'ngu', 'pu', 'ru', 'su', 'tu', 'wu', 'yu'],
 }
+
+
+# Model configurations
+MODEL_CONFIGS = {
+    'vowels': {
+        'model_path': 'model/model_vowels.h5',
+        'classes': ['a', 'e', 'i', 'o', 'u']
+    },
+    'b': {
+        'model_path': 'model/model_b.h5',
+        'classes': ['ba', 'be', 'bi', 'bo', 'bu']
+    },
+    'k': {
+        'model_path': 'model/model_k.h5',
+        'classes': ['ka', 'ke', 'ki', 'ko', 'ku']
+    },
+    'd': {
+        'model_path': 'model/model_d.h5',
+        'classes': ['da', 'de', 'di', 'do', 'du']
+    },
+    'g': {
+        'model_path': 'model/model_g.h5',
+        'classes': ['ga', 'ge', 'gi', 'go', 'gu']
+    },
+    'h': {
+        'model_path': 'model/model_h.h5',
+        'classes': ['ha', 'he', 'hi', 'ho', 'hu']
+    },
+    'l': {
+        'model_path': 'model/model_l.h5',
+        'classes': ['la', 'le', 'li', 'lo', 'lu']
+    },
+    'm': {
+        'model_path': 'model/model_m.h5',
+        'classes': ['ma', 'me', 'mi', 'mo', 'mu']
+    },
+    'n': {
+        'model_path': 'model/model_n.h5',
+        'classes': ['na', 'ne', 'ni', 'no', 'nu']
+    },
+    'ng': {
+        'model_path': 'model/model_ng.h5',
+        'classes': ['nga', 'nge', 'ngi', 'ngo', 'ngu']
+    },
+    'p': {
+        'model_path': 'model/model_p.h5',
+        'classes': ['pa', 'pe', 'pi', 'po', 'pu']
+    },
+    'r': {
+        'model_path': 'model/model_r.h5',
+        'classes': ['ra', 're', 'ri', 'ro', 'ru']
+    },
+    's': {
+        'model_path': 'model/model_s.h5',
+        'classes': ['sa', 'se', 'si', 'so', 'su']
+    },
+    't': {
+        'model_path': 'model/model_t.h5',
+        'classes': ['ta', 'te', 'ti', 'to', 'tu']
+    },
+    'w': {
+        'model_path': 'model/model_w.h5',
+        'classes': ['wa', 'we', 'wi', 'wo', 'wu']
+    },
+    'y': {
+        'model_path': 'model/model_y.h5',
+        'classes': ['ya', 'ye', 'yi', 'yo', 'yu']
+    },
+    'words': {
+        'model_path': 'model/model_filipinowords.h5',
+        'classes': ["aba", "abo", "awa", "baga", "bawi", "buti", "dati", "dulo", "diwa", "gawa", "gisa", "gulo", "haba", "hilo", "hula", "iba", "kami", "kape", "kusa", "laro", "ligo", "luma", "mapa", "misa", "mula", "nasa", "nawa", "nito", "ngiti", "nguya", "oo", "paa", "piso", "puti", "rito", "ruta", "relo", "sabi", "sako", "sino", "tabi", "tago", "tula", "uso", "wala", "wika", "walo", "yaya", "yelo", "yoyo"]
+
+    }
+}
+
+
+# Loaded models cache
+loaded_models = {}
+
+# Face detection setup
+DLIB_MODEL_PATH = "model/face_weights.dat"
+try:
+    detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor(DLIB_MODEL_PATH)
+    print(f"✅ Loaded dlib face landmarks model from {DLIB_MODEL_PATH}")
+except Exception as e:
+    print(f"❌ Failed to load dlib model: {e}")
+    detector = None
+    predictor = None
+
+# Haar cascade as backup
+haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+
+# Image processing constants
+LIP_WIDTH = 80
+LIP_HEIGHT = 112
+CROP_MARGIN = 10
+
+def load_model_for_category(category):
+    """Load and cache model for specific category"""
+    if category in loaded_models:
+        return loaded_models[category]
+    
+    if category not in MODEL_CONFIGS:
+        raise ValueError(f"Unknown category: {category}")
+    
+    config = MODEL_CONFIGS[category]
+    try:
+        model = load_model(config['model_path'])
+        loaded_models[category] = model
+        print(f"✅ Loaded model for category: {category}")
+        return model
+    except Exception as e:
+        print(f"❌ Failed to load model for {category}: {e}")
+        return None
+
+def crop_and_pad_mouth(frame, landmarks):
+    """Crop mouth region and resize for model input"""
+    try:
+        # Get mouth bounding box
+        mouth_points = np.array([(landmarks.part(n).x, landmarks.part(n).y) for n in range(48, 68)])
+        x, y, w, h = cv2.boundingRect(mouth_points)
+
+        # Add margin and ensure within frame bounds
+        x1 = max(x - CROP_MARGIN, 0)
+        y1 = max(y - CROP_MARGIN, 0)
+        x2 = min(x + w + CROP_MARGIN, frame.shape[1])
+        y2 = min(y + h + CROP_MARGIN, frame.shape[0])
+
+        # Crop mouth region
+        mouth_crop = frame[y1:y2, x1:x2]
+        if mouth_crop.size == 0:
+            return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
+
+        # Scale to fit target resolution while maintaining aspect ratio
+        h_crop, w_crop, _ = mouth_crop.shape
+        scale = min(LIP_WIDTH / w_crop, LIP_HEIGHT / h_crop)
+        new_w, new_h = int(w_crop * scale), int(h_crop * scale)
+        resized = cv2.resize(mouth_crop, (new_w, new_h))
+
+        # Center crop with reflective padding
+        pad_top = (LIP_HEIGHT - new_h) // 2
+        pad_bottom = LIP_HEIGHT - new_h - pad_top
+        pad_left = (LIP_WIDTH - new_w) // 2
+        pad_right = LIP_WIDTH - new_w - pad_left
+
+        lip_frame = cv2.copyMakeBorder(
+            resized, pad_top, pad_bottom, pad_left, pad_right, borderType=cv2.BORDER_REFLECT
+        )
+
+        return lip_frame
+    except Exception as e:
+        print(f"Error in crop_and_pad_mouth: {e}")
+        return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
+
+def process_frames_for_prediction(frames):
+    """Process uploaded frames for model prediction"""
+    processed_frames = []
+    
+    for frame_file in frames:
+        try:
+            # Read image
+            image = Image.open(frame_file.stream)
+            frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+            
+            # Detect face and landmarks
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = detector(gray, 1) if detector else []
+            
+            if not faces:
+                # Try Haar cascade as backup
+                faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
+                faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
+            
+            if faces:
+                # Use the largest face
+                face = max(faces, key=lambda f: f.bottom() - f.top()) if len(faces) > 1 else faces[0]
+                landmarks = predictor(gray, face) if predictor else None
+                
+                if landmarks:
+                    # Crop and process mouth region
+                    mouth_frame = crop_and_pad_mouth(frame, landmarks)
+                    processed_frames.append(mouth_frame)
+                else:
+                    # If no landmarks, use a zero frame
+                    processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+            else:
+                # If no face detected, use a zero frame
+                processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+                
+        except Exception as e:
+            print(f"Error processing frame: {e}")
+            processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+    
+    return processed_frames
+
+
 
 @app.before_request
 def before_request():
@@ -917,8 +1117,128 @@ def extract_mouth(frame, landmarks):
     enhanced = cv2.GaussianBlur(enhanced, (5, 5), 0)
     return enhanced
 
-@app.route('/api/predict', methods=['POST'])
-def predict_syllable():
+# New prediction endpoints for camera functionality
+@app.route('/api/predict/syllable/<category>', methods=['POST'])
+def predict_syllable_category(category):
+    """Predict syllable for specific category (e.g., 'b', 'k', 'vowels', etc.)"""
+    try:
+        if category not in MODEL_CONFIGS:
+            return jsonify({'error': f'Unknown category: {category}'}), 400
+        
+        # Load model for this category
+        model = load_model_for_category(category)
+        if model is None:
+            return jsonify({'error': f'Failed to load model for category: {category}'}), 500
+        
+        # Get uploaded frames
+        frames = request.files.getlist('frames')
+        if not frames:
+            return jsonify({'error': 'No frames provided'}), 400
+        
+        # Process frames
+        processed_frames = process_frames_for_prediction(frames)
+        
+        if len(processed_frames) == 0:
+            return jsonify({'error': 'No valid frames processed'}), 400
+        
+        # Prepare data for model
+        # Take only the required number of frames (22 for syllables)
+        target_frames = min(22, len(processed_frames))
+        video_data = processed_frames[:target_frames]
+        
+        # Pad if necessary
+        while len(video_data) < 22:
+            video_data.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+        
+        # Convert to model input format
+        video = np.array(video_data)  # (22, 112, 80, 3)
+        video = video.astype(np.float32) / 255.0
+        video = np.expand_dims(video, axis=0)  # (1, 22, 112, 80, 3)
+        
+        # Make prediction
+        predictions = model.predict(video)
+        pred_idx = np.argmax(predictions[0])
+        pred_confidence = predictions[0][pred_idx]
+        
+        # Get class labels for this category
+        classes = MODEL_CONFIGS[category]['classes']
+        predicted_syllable = classes[pred_idx]
+        
+        return jsonify({
+            'success': True,
+            'predicted_syllable': predicted_syllable,
+            'accuracy': float(pred_confidence),
+            'category': category,
+            'frames_processed': len(processed_frames)
+        })
+        
+    except Exception as e:
+        print(f"Error in syllable prediction: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/predict/words', methods=['POST'])
+def predict_words():
+    """Predict Filipino words and return top 5 predictions"""
+    try:
+        # Load words model
+        model = load_model_for_category('words')
+        if model is None:
+            return jsonify({'error': 'Failed to load words model'}), 500
+        
+        # Get uploaded frames
+        frames = request.files.getlist('frames')
+        if not frames:
+            return jsonify({'error': 'No frames provided'}), 400
+        
+        # Process frames
+        processed_frames = process_frames_for_prediction(frames)
+        
+        if len(processed_frames) == 0:
+            return jsonify({'error': 'No valid frames processed'}), 400
+        
+        # Prepare data for model (44 frames for words)
+        target_frames = min(44, len(processed_frames))
+        video_data = processed_frames[:target_frames]
+        
+        # Pad if necessary
+        while len(video_data) < 44:
+            video_data.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+        
+        # Convert to model input format
+        video = np.array(video_data)  # (44, 112, 80, 3)
+        video = video.astype(np.float32) / 255.0
+        video = np.expand_dims(video, axis=0)  # (1, 44, 112, 80, 3)
+        
+        # Make prediction
+        predictions = model.predict(video)[0]
+        
+        # Get top 5 predictions
+        top_indices = np.argsort(predictions)[-5:][::-1]  # Top 5 in descending order
+        classes = MODEL_CONFIGS['words']['classes']
+        
+        top_predictions = []
+        for idx in top_indices:
+            top_predictions.append({
+                'word': classes[idx],
+                'confidence': float(predictions[idx])
+            })
+        
+        return jsonify({
+            'success': True,
+            'predictions': top_predictions,
+            'frames_processed': len(processed_frames)
+        })
+        
+    except Exception as e:
+        print(f"Error in word prediction: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
     try:
         if 'image' in request.files:
             file = request.files['image']
