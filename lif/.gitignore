@@ -41,3 +41,4 @@ __pycache__/
 
 __pycache__/
 *.pyc*.h5
+*.h5
