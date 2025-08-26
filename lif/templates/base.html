@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="color-scheme" content="dark light">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %} Project LIF - Advanced AI-powered lip reading learning platform{% endblock %}">
+    <meta name="keywords" content="lip reading, speech recognition, learning, AI, accessibility">
+    <meta name="author" content=" Project LIF Team">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:title" content="{% block og_title %} Project LIF - Master Lip Reading{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Learn lip reading with AI-powered tools and interactive lessons{% endblock %}">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.url }}">
+    <meta property="twitter:title" content="{% block twitter_title %} Project LIF - Master Lip Reading{% endblock %}">
+    <meta property="twitter:description" content="{% block twitter_description %}Learn lip reading with AI-powered tools and interactive lessons{% endblock %}">
+    
+    <title>{% block title %} Project LIF - Master Lip Reading{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-xl navbar-dark bg-dark-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand animated-logo" href="{{ url_for('home') }}">
+                <i class="fas fa-mouth gradient-text"></i>
+                <span class="gradient-text">Project LIF</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">
+                            <i class="fas fa-home me-2"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('learn') }}">
+                            <i class="fas fa-graduation-cap me-2"></i> Learn Syllables
+                        </a>
+                    </li>
+                     <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="quizDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-gamepad me-2"></i> Test your skills
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('quiz') }}">Syllable Test</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('word_quiz') }}">Word Test</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('camera') }}">
+                            <i class="fas fa-camera me-2"></i> Try with AI
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="theme-toggle nav-theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                            <i class="fas fa-moon" id="themeIcon"></i>
+                            <span id="themeText" class="text-light">Dark</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+
+    <footer class="bg-dark-custom text-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="gradient-text">
+                        <i class="fas fa-eye"></i>  Project LIF
+                    </h5>
+                    <p class="text-light">Empowering learning through AI-powered lip reading technology.</p>
+                    <div class="social-links">
+                        <a href="mailto:projectlif.lipreading@gmail.com" class="text-light me-3">
+                        <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Learn</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('learn') }}" class="text-light">Learn Syllables</a></li>
+                        <li><a href="{{ url_for('quiz') }}" class="text-light">Test your skills</a></li>
+                        <li><a href="{{ url_for('camera') }}" class="text-light">Subukan gamit ang AI</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Support</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('documentation') }}" class="text-light">Documentation</a></li>
+                        <li><a href="{{ url_for('about') }}" class="text-light">About Us</a></li>
+                        <li><a href="mailto:projectlif.lipreading@gmail.com" class="text-light">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Legal</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('privacy') }}" class="text-light">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('terms') }}" class="text-light">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Connect</h6>
+                    <p class="text-light small">Maging updated sa mga latest features.</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-light mb-0">&copy; 2025 Project LIF. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-light mb-0">Lipreading AI sa wikang Filipino</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/session-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

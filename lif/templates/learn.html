@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Learn Syllables - LipLearn{% endblock %}
+{% block meta_description %}Interactive syllable learning with visual guides and pronunciation tips.{% endblock %}
+
+{% block content %}
+<section class="learn-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="fas fa-graduation-cap gradient-text me-3"></i>
+                    Learn <span class="gradient-text">Syllables</span>
+                </h1>
+                <p class="lead text-muted"></p>
+            </div>
+        </div>
+        
+        <!-- Search and Filter Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="search-filter-container">
+                    <div class="card bg-dark-card border-0 shadow-lg">
+                        <div class="card-body p-4">
+                            <div class="search-box-container mb-3">
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" 
+                                           id="syllableSearch" 
+                                           class="search-input" 
+                                           placeholder="Search syllables... (e.g., 'ba', 'ka', 'ma')"
+                                           autocomplete="off">
+                                    <button class="search-clear" id="clearSearch" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="search-results-info" id="searchResults">
+                                    <span class="results-count">{{ syllables|length }} syllables found</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div class="row" id="noResultsMessage" style="display: none;">
+            <div class="col-12">
+                <div class="no-results-container text-center py-5">
+                    <div class="card bg-dark-card border-0 shadow-lg">
+                        <div class="card-body p-5">
+                            <i class="fas fa-search fa-3x gradient-text mb-3"></i>
+                            <h4 class="text-light mb-3">No syllables found</h4>
+                            <p class="text-muted mb-4">Try adjusting your search terms or difficulty filter</p>
+                            <button class="btn btn-primary" onclick="clearAllFilters()">
+                                <i class="fas fa-refresh me-2"></i>Clear All Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Syllables Grid -->
+        <div class="row g-4" id="syllablesGrid">
+            {% for syllable, data in syllables.items() %}
+            <div class="col-md-6 col-lg-4 syllable-card" data-difficulty="{{ data.difficulty }}">
+                <div class="card bg-dark-card border-0 shadow-lg h-100 animate-on-scroll">
+                    <div class="card-body p-4">
+                        <div class="syllable-header text-center mb-3">
+                            <div class="syllable-display">
+                                <span class="syllable-text">{{ syllable.upper() }}</span>
+                            </div>
+                
+                        </div>
+                        
+                        <div class="syllable-preview mb-3">
+                            <div class="gif-preview-container">
+                                <a href="{{ url_for('learn_syllable', syllable=syllable) }}"><img src="{{ data.gif }}" alt="Preview of {{ syllable }}" class="gif-preview" ></a>
+                                <div class="play-overlay">
+                                    <a href="{{ url_for('learn_syllable', syllable=syllable) }}"><i class="fas fa-play-circle fa-2x gradient-text"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/learn.js') }}"></script>
+{% endblock %}
