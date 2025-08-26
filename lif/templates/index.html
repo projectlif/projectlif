@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Project LIF- Master Lip Reading with AI{% endblock %}
+{% block meta_description %}Learn lip reading with our AI-powered platform. Interactive lessons, real-time camera analysis, and gamified quizzes.{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-background"></div>
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content animate-fade-in">
+                    <h1 class="display-4 fw-bold mb-4">
+                        Master <span class="gradient-text">Lip Reading</span> 
+                        <br>in Filipino with AI
+                    </h1>
+                    <p class="lead mb-4 text-light">
+                        Level up your learning with our AI-powered lipreading platform.
+                        Dito, you can study, practice, at i-master ang visual speech recognition para mas maging confident sa skills mo.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="{{ url_for('camera') }}" class="btn btn-primary btn-lg me-3 pulse-animation">
+                            <i class="fas fa-camera me-2"></i>Subukan gamit ang AI
+                        </a>
+                        <a href="{{ url_for('learn') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-graduation-cap me-2"></i>Start Learning
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual animate-slide-in">
+                    <div class="floating-card">
+                        <div class="card bg-dark-card border-0 shadow-lg">
+                            <div class="card-body text-center p-4">
+                                <div class="camera-preview mb-3">
+                                    <i class="fas fa-video fa-3x gradient-text"></i>
+                                </div>
+                                <h5 class="card-title text-light">Real-time Analysis</h5>
+                                <div class="prediction-list">
+                                    <div class="prediction-item">
+                                        <span class="syllable">"Magandang araw!"</span>
+                                        <span class="confidence">95%</span>
+                                    </div>
+                                    <div class="prediction-item">
+                                        <span class="syllable">"Kumusta ka?"</span>
+                                        <span class="confidence">87%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-4">Bakit mo pipiliin ang <span class="gradient-text">Project LIF</span>?</h2>
+                <p class="lead text-light">Ma-experience ang future ng visual communication learning</p>
+            </div>
+        </div>
+        
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card h-100 animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-brain gradient-text"></i>
+                </div>
+                <h4>AI-Powered Recognition</h4>
+                <p class="text-light">Gumagamit ng advanced machine learning para sa tumpak at real-time na lip reading predictions na may confidence scores, para mas mapagkakatiwalaan ang iyong pag-aaral.</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="feature-card h-100 animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-gamepad gradient-text"></i>
+                </div>
+                <h4>Gamified Learning</h4>
+                <p class="text-light">Masayang pag-aaral gamit ang mga interactive quizzes at challenges na sumusubaybay sa iyong progress sa pamamagitan ng points at achievements.</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="feature-card h-100 animate-on-scroll">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt gradient-text"></i>
+                </div>
+                <h4>Mobile Friendly</h4>
+                <p class="text-light">Mag-aral kahit saan, kahit kailan gamit ang aming responsive design na na-optimize para sa lahat ng devices at screen sizes.</p>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section py-5 bg-dark-section">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-4 text-light">Paano ito <span class="gradient-text">gumagana</span>?</h2>
+                <p class="lead text-muted">Madaling hakbang para maging eksperto sa lip reading</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="step-card text-center animate-on-scroll">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h5 class="text-light">Camera Access</h5>
+                    <p class="text-light small">Bigyan ng access ang camera para sa real-time na pagsusuri ng lip reading</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="step-card text-center animate-on-scroll">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h5 class="text-light">Aralin ang syllables</h5>
+                    <p class="text-light small">Pag-aralan ang gabay sa pagbigkas gamit ang mga visual na demonstrasyon</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="step-card text-center animate-on-scroll">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h5 class="text-light">Mag-practice</h5>
+                    <p class="text-light small">Gamitin ang aming interactive tools para mag-praktis at mapahusay</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="step-card text-center animate-on-scroll">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h5 class="text-light">Test your skills</h5>
+                    <p class="text-light small">I-test and iyong skills para mas lalong maging mahusay.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-4 text-light">Ready ka na bang matuto?</h2>
+                <p class="lead text-light mb-4">Maging part ng mga mahusay sa lipreading sa Filipino.</p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('learn') }}" class="btn btn-primary btn-lg me-3">
+                        <i class="fas fa-rocket me-2"></i>Start Learning Now
+                    </a>
+                    <a href="{{ url_for('camera') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-play me-2"></i>Try Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

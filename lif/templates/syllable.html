@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Learn {{ syllable.upper() }} - LipLearn{% endblock %}
+{% block meta_description %}Learn how to pronounce {{ syllable }} with visual guides and practice tools.{% endblock %}
+
+{% block content %}
+<section class="syllable-section py-5">
+    <div class="container">
+        <div class="row text-center mb-4">
+            <div class="col-lg-10 mx-auto">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item">
+                            
+                        </li>
+                      
+                    </ol>
+                </nav>
+                <h1 class="display-4 fw-bold mb-3">
+                   <span class="gradient-text">"{{ syllable.upper() }}"</span>
+                </h1>
+            </div>
+        </div>
+        
+        
+        <!-- Centered Content -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <!-- Pronunciation Guide -->
+                <div class="card bg-dark-card border-0 shadow-lg mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-light mb-4 text-center">
+                            <i class="fas fa-play-circle gradient-text me-2"></i>
+                            Lip Reading Guide
+                        </h4>
+                        
+                        <div class="pronunciation-demo text-center mb-4">
+                            <div class="gif-container">
+                                <img id="syllableGif" 
+                                     src="{{ data.gif }}" 
+                                     alt="Pronunciation of {{ syllable }}" 
+                                     class="gif-demo">
+                            </div>
+                            
+                            <!-- GIF Controls -->
+                            <div class="gif-controls mt-3">
+                                <button id="playGifBtn" class="btn btn-primary">
+                                    <i class="fas fa-play me-2"></i>Play
+                                </button>
+                                <button id="loopGifBtn" class="btn btn-outline-primary">
+                                    <i class="fas fa-redo me-2"></i>Loop
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="description-box text-center">
+                            <h5 class="text-light mb-3">
+                                <i class="fas fa-info-circle gradient-text me-2"></i>
+                                Paano basahin ang "{{ syllable.upper() }}":
+                            </h5>
+                            <p class="text-light mb-0">{{ data.description }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="card bg-dark-card border-0 shadow-lg">
+                    <div class="card-body p-4">
+                        <h5 class="card-title text-light mb-3 text-center">
+                            <i class="fas fa-compass gradient-text me-2"></i>
+                            Continue Learning
+                        </h5>
+                        <div class="navigation-buttons">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    {% if previous_syllable %}
+                                        <a href="{{ url_for('learn_syllable', syllable=previous_syllable) }}" 
+                                           class="btn btn-outline-light w-100">
+                                            <i class="fas fa-arrow-left me-2"></i>
+                                            <span class="d-none d-sm-inline">Previous: </span>{{ previous_syllable.upper() }}
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-outline-secondary w-100" disabled>
+                                            <i class="fas fa-arrow-left me-2"></i>
+                                            <span class="d-none d-sm-inline">First </span>Syllable
+                                        </button>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    {% if next_syllable %}
+                                        <a href="{{ url_for('learn_syllable', syllable=next_syllable) }}" 
+                                           class="btn btn-primary w-100">
+                                            <span class="d-none d-sm-inline">Next: </span>{{ next_syllable.upper() }}
+                                            <i class="fas fa-arrow-right ms-2"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ url_for('quiz') }}" class="btn btn-success w-100">
+                                            <i class="fas fa-trophy me-2"></i>
+                                            <span class="d-none d-sm-inline">Complete! </span>Take Quiz
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const syllableData = {
+        syllable: '{{ syllable }}',
+        gif: '{{ data.gif }}',
+        description: '{{ data.description }}',
+        nextSyllable: '{{ next_syllable or "" }}',
+        previousSyllable: '{{ previous_syllable or "" }}',
+    };
+</script>
+<script src="{{ url_for('static', filename='js/syllable.js') }}"></script>
+{% endblock %}
