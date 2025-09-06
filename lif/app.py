@@ -1125,48 +1125,44 @@ def has_sufficient_motion(frames, min_diff=5.0):
 
 @app.route('/api/detect/landmarks', methods=['POST'])
 def detect_landmarks():
-  """Detect face and mouth landmarks for live overlay"""
-  try:
-    if 'frame' not in request.files:
-      return jsonify({'error': 'No frame provided'}), 400
+    """Detect mouth bounding box only"""
+    try:
+        if 'frame' not in request.files:
+            return jsonify({'error': 'No frame provided'}), 400
 
-    frame_file = request.files['frame']
-    image = Image.open(frame_file.stream)
-    frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        frame_file = request.files['frame']
+        image = Image.open(frame_file.stream)
+        frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = detector(gray, 1) if detector else []
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = detector(gray, 1) if detector else []
 
-    if not faces:
-      faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
-      faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
+        if not faces:
+            faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
+            faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
 
-    if faces:
-      face = max(faces, key=lambda f: f.bottom() - f.top()) if len(faces) > 1 else faces[0]
-      landmarks = predictor(gray, face) if predictor else None
-      if landmarks:
-        mouth_points = []
-        for n in range(48, 68):
-          point = landmarks.part(n)
-          mouth_points.append({'x': int(point.x), 'y': int(point.y)})
+        if faces:
+            face = max(faces, key=lambda f: f.bottom() - f.top()) if len(faces) > 1 else faces[0]
+            landmarks = predictor(gray, face) if predictor else None
+            if landmarks:
+                # ✅ Get mouth points (48–67)
+                mouth_points = np.array([(landmarks.part(n).x, landmarks.part(n).y) for n in range(48, 68)])
 
-        face_outline = []
-        for n in range(0, 17):
-          point = landmarks.part(n)
-          face_outline.append({'x': int(point.x), 'y': int(point.y)})
+                # ✅ Compute bounding box from mouth points
+                x, y, w, h = cv2.boundingRect(mouth_points)
+                mouth_box = {"x": int(x), "y": int(y), "w": int(w), "h": int(h)}
 
-        return jsonify({
-          'success': True,
-          'landmarks': {
-            'mouth_points': mouth_points,
-            'face_outline': face_outline
-          }
-        })
+                return jsonify({
+                    "success": True,
+                    "landmarks": {
+                        "mouth_box": mouth_box
+                    }
+                })
 
-    return jsonify({'success': False, 'message': 'No face detected'})
-  except Exception as e:
-    print(f"Error in landmarks detection: {e}")
-    return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({"success": False, "message": "No face detected"})
+    except Exception as e:
+        print(f"Error in landmarks detection: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/predict/syllable/<category>', methods=['POST'])
 def predict_syllable_category(category):
