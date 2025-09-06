@@ -36,22 +36,10 @@ class CameraManager {
     const wordModeBtn = document.getElementById("wordMode")
     const categorySelect = document.getElementById("categorySelect")
 
-    if (startBtn) {
-      startBtn.addEventListener("click", () => this.startRecording())
-    }
-
-    if (stopBtn) {
-      stopBtn.addEventListener("click", () => this.stopRecording())
-    }
-
-    if (syllableModeBtn) {
-      syllableModeBtn.addEventListener("change", () => this.switchMode("syllable"))
-    }
-
-    if (wordModeBtn) {
-      wordModeBtn.addEventListener("change", () => this.switchMode("word"))
-    }
-
+    if (startBtn) startBtn.addEventListener("click", () => this.startRecording())
+    if (stopBtn) stopBtn.addEventListener("click", () => this.stopRecording())
+    if (syllableModeBtn) syllableModeBtn.addEventListener("change", () => this.switchMode("syllable"))
+    if (wordModeBtn) wordModeBtn.addEventListener("change", () => this.switchMode("word"))
     if (categorySelect) {
       categorySelect.addEventListener("change", (e) => {
         this.currentCategory = e.target.value
@@ -67,11 +55,7 @@ class CameraManager {
       this.updateCameraStatus("Requesting camera access...")
 
       this.stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: "user",
-        },
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
         audio: false,
       })
 
@@ -102,17 +86,14 @@ class CameraManager {
 
   syncOverlayCanvasSize() {
     if (!this.overlayCanvas || !this.video) return
-    // Internal drawing resolution in video pixels for precise overlay
     this.overlayCanvas.width = this.video.videoWidth || this.video.clientWidth || 0
     this.overlayCanvas.height = this.video.videoHeight || this.video.clientHeight || 0
-    // CSS size to match on-screen size
     this.overlayCanvas.style.width = `${this.video.clientWidth}px`
     this.overlayCanvas.style.height = `${this.video.clientHeight}px`
   }
 
   startLandmarksLoop() {
     if (this.landmarksInterval) return
-    // ~5 FPS to reduce load
     this.landmarksInterval = setInterval(() => this.requestAndDrawLandmarks(), 200)
   }
 
@@ -127,7 +108,6 @@ class CameraManager {
     try {
       if (!this.video || !this.canvas || !this.ctx) return
 
-      // Draw current frame into hidden canvas
       this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height)
 
       const blob = await new Promise((resolve) => this.canvas.toBlob(resolve, "image/jpeg", 0.7))
@@ -142,19 +122,23 @@ class CameraManager {
 
       this.clearOverlay()
 
-      if (data.success && data.landmarks?.mouth_points && this.overlayCtx) {
+      // ✅ Draw only mouth bounding box
+      if (data.success && data.landmarks?.mouth_box && this.overlayCtx) {
+        const box = data.landmarks.mouth_box
         this.overlayCtx.save()
-        this.overlayCtx.fillStyle = "rgba(0, 255, 0, 0.95)"
-
-        // Coordinates are in source frame size (same as canvas.width/height)
-        for (const pt of data.landmarks.mouth_points) {
-          this.drawCircle(pt.x, pt.y, 2)
-        }
-
+        this.overlayCtx.strokeStyle = "rgba(0, 255, 0, 0.95)"
+        this.overlayCtx.lineWidth = 2
+        this.overlayCtx.strokeRect(box.x, box.y, box.w, box.h)
         this.overlayCtx.restore()
       }
     } catch (e) {
-      // Silently ignore transient errors; keep loop running
+      // Ignore transient errors
+    }
+  }
+
+  clearOverlay() {
+    if (this.overlayCtx && this.overlayCanvas) {
+      this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height)
     }
   }
 
