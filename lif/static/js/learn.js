@@ -186,18 +186,13 @@ class LearningManager {
   }
 
   handleFilterChange(difficulty) {
-    // Update active filter button - FIXED VERSION
     document.querySelectorAll(".filter-btn").forEach((btn) => {
       btn.classList.remove("active")
     })
-
-    // Find the button more safely
     const targetButton = document.querySelector(`[data-difficulty="${difficulty}"]`)
     if (targetButton) {
       targetButton.classList.add("active")
     } else {
-      console.warn(`Filter button with difficulty "${difficulty}" not found`)
-      // Fallback to "all" button if target not found
       const allButton = document.querySelector('[data-difficulty="all"]')
       if (allButton) {
         allButton.classList.add("active")
@@ -303,8 +298,6 @@ function clearAllFilters() {
   if (window.learningManager) {
     window.learningManager.clearAllFilters()
   } else {
-    console.warn("Learning manager not initialized yet")
-    // Fallback: manually reset filters
     document.querySelectorAll(".filter-btn").forEach((btn) => {
       btn.classList.remove("active")
     })
@@ -320,6 +313,5 @@ document.addEventListener("DOMContentLoaded", () => {
   // Wait a bit to ensure all elements are rendered
   setTimeout(() => {
     window.learningManager = new LearningManager()
-    console.log("Learning manager initialized")
   }, 100)
 })

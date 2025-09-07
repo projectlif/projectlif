@@ -127,64 +127,75 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Results Screen -->
-                <div class="quiz-results-screen" id="resultsScreen" style="display: none;">
-                    <div class="card bg-dark-card border-0 shadow-lg text-center">
-                        <div class="card-body p-5">
-                            <div class="results-icon mb-4">
-                                <i class="fas fa-medal fa-4x gradient-text"></i>
-                            </div>
-                            <h3 class="text-light mb-3">Test Complete!</h3>
-                            
-                            <div class="final-stats mb-4 text-light">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="final-stat">
-                                            <div class="final-stat-value text-light" id="finalScore">0</div>
-                                            <div class="final-stat-label text-light">Final Score</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="final-stat">
-                                            <div class="final-stat-value text-light" id="finalAccuracy">0%</div>
-                                            <div class="final-stat-label text-light">Accuracy</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="final-stat">
-                                            <div class="final-stat-value text-light" id="finalStreak">0</div>
-                                            <div class="final-stat-label text-light">Best Streak</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="final-stat">
-                                            <div class="final-stat-value text-light" id="totalTime">0s</div>
-                                            <div class="final-stat-label text-light">Total Time</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+           
+<!-- Results Screen -->
+<div class="quiz-results-screen" id="resultsScreen" style="display: none;">
+  <div class="card bg-dark-card border-0 shadow-lg text-center">
+    <div class="card-body p-5">
+      <div class="results-icon mb-4">
+        <i class="fas fa-medal fa-4x gradient-text"></i>
+      </div>
+      <h3 class="text-light mb-3">Test Complete!</h3>
+      
+      <!-- Final Stats -->
+      <div class="final-stats mb-4 text-light">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="final-stat">
+              <div class="final-stat-value text-light" id="finalScore">0</div>
+              <div class="final-stat-label text-light">Final Score</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="final-stat">
+              <div class="final-stat-value text-light" id="finalAccuracy">0%</div>
+              <div class="final-stat-label text-light">Accuracy</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="final-stat">
+              <div class="final-stat-value text-light" id="finalStreak">0</div>
+              <div class="final-stat-label text-light">Best Streak</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="final-stat">
+              <div class="final-stat-value text-light" id="totalTime">0s</div>
+              <div class="final-stat-label text-light">Total Time</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                            <!-- Detailed Results with GIF Previews -->
-                            <div class="detailed-results mb-4">
-                                <h5 class="text-light mb-3">Question Breakdown</h5>
-                                <div id="resultsBreakdown" class="text-start">
-                                    <!-- Results will be populated by JavaScript -->
-                                </div>
-                            </div>
-                            
-                            <div class="results-actions">
-                                <button class="btn btn-primary btn-lg me-3" id="playAgain">
-                                    <i class="fas fa-redo me-2"></i>Play Again
-                                </button>
-                                <a href="{{ url_for('learn') }}" class="btn btn-outline-light btn-lg">
-                                    <i class="fas fa-graduation-cap me-2"></i>Continue Learning
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <!-- High Scores -->
+      <div class="high-scores mb-4">
+        <h5 class="text-light mb-3">Your Top Scores</h5>
+        <div id="highScoresList" class="text-start">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Detailed Results with GIF Previews -->
+      <div class="detailed-results mb-4">
+        <h5 class="text-light mb-3">Question Breakdown</h5>
+        <div id="resultsBreakdown" class="text-start">
+          <!-- Results will be populated by JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="results-actions">
+        <button class="btn btn-primary btn-lg me-3" id="playAgain">
+          <i class="fas fa-redo me-2"></i>Play Again
+        </button>
+        <a href="{{ url_for('learn') }}" class="btn btn-outline-light btn-lg">
+          <i class="fas fa-graduation-cap me-2"></i>Continue Learning
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
             </div>
 
             <div class="col-lg-4">

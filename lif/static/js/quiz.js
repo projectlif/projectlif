@@ -606,33 +606,29 @@ class QuizManager {
       : '<div class="analysis-item text-success">Great job! No major weaknesses found.</div>'
   }
 
-  async saveResults() {
-    try {
-      const results = {
-        score: this.score,
-        accuracy: (this.correctAnswers / this.totalQuestions) * 100,
-        correct_answers: this.correctAnswers,
-        total_questions: this.totalQuestions,
-        best_streak: this.bestStreak,
-        total_time: Math.round((this.endTime - this.startTime) / 1000),
-        answers: this.userAnswers,
-      }
-
-      const response = await fetch("/api/quiz/save-results", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(results),
-      })
-
-      if (response.ok) {
-        console.log("Results saved successfully")
-      }
-    } catch (error) {
-      console.error("Error saving results:", error)
+async saveResults() {
+  try {
+    const results = {
+      score: this.score,
+      accuracy: (this.correctAnswers / this.totalQuestions) * 100,
     }
+
+    const response = await fetch("/api/quiz/save-score", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(results),
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      this.showHighScores(data.high_scores, data.is_new_high_score)
+    }
+  } catch (error) {
   }
+}
+
 
   resetQuiz() {
     // Reset all states
@@ -706,6 +702,29 @@ class QuizManager {
       console.log(`${type.toUpperCase()}: ${message}`)
     }
   }
+
+
+  showHighScores(highScores, isNewHigh) {
+  const container = document.getElementById("highScoresList")
+  if (!container) return
+
+  let html = "<h5>Top Scores</h5><ul class='list-group'>"
+  highScores.forEach((score, i) => {
+    html += `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        #${i + 1} – ${score.score} pts
+        <span class="badge bg-primary">${Math.round(score.accuracy)}%</span>
+      </li>
+    `
+  })
+  html += "</ul>"
+
+  if (isNewHigh) {
+    html += `<p class="text-success mt-2"><i class="fas fa-trophy"></i> New High Score!</p>`
+  }
+
+  container.innerHTML = html
+}
 }
 
 // Initialize quiz manager when DOM is loaded
@@ -713,3 +732,4 @@ document.addEventListener("DOMContentLoaded", () => {
   window.quizManager = new QuizManager()
   console.log("Quiz manager initialized")
 })
+

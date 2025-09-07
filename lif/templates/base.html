@@ -50,14 +50,26 @@
                             <i class="fas fa-graduation-cap me-2"></i> Learn Syllables
                         </a>
                     </li>
-                     <li class="nav-item dropdown">
+                     <!-- Desktop Dropdown -->
+                    <li class="nav-item dropdown d-none d-xl-block">
                         <a class="nav-link dropdown-toggle" id="quizDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-gamepad me-2"></i> Test your skills
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{{ url_for('quiz') }}">Syllable Test</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('syllable_quiz') }}">Syllable Test</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('word_quiz') }}">Word Test</a></li>
                         </ul>
+                    </li>
+                    <!-- Mobile Menu Items -->
+                    <li class="nav-item d-xl-none">
+                        <a class="nav-link" href="{{ url_for('syllable_quiz') }}">
+                            <i class="fas fa-gamepad me-2"></i> Syllable Test
+                        </a>
+                    </li>
+                    <li class="nav-item d-xl-none">
+                        <a class="nav-link" href="{{ url_for('word_quiz') }}">
+                            <i class="fas fa-gamepad me-2"></i> Word Test
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('camera') }}">
@@ -98,8 +110,8 @@
                     <h6>Learn</h6>
                     <ul class="list-unstyled">
                         <li><a href="{{ url_for('learn') }}" class="text-light">Learn Syllables</a></li>
-                        <li><a href="{{ url_for('quiz') }}" class="text-light">Test your skills</a></li>
-                        <li><a href="{{ url_for('camera') }}" class="text-light">Subukan gamit ang AI</a></li>
+                        <li><a href="{{ url_for('syllable_quiz') }}" class="text-light">Test your skills</a></li>
+                        <li><a href="{{ url_for('camera') }}" class="text-light">Try with AI</a></li>
                     </ul>
                 </div>
                 <div class="col-md-2 mb-4">
