@@ -1,16 +1,16 @@
-from huggingface_hub import login
-import os
-from huggingface_hub import login
-
-hf_token = os.getenv("HF_TOKEN")
-if hf_token:
-    login(hf_token)
-
-
-from huggingface_hub import HfApi, HfFolder, Repository
-from huggingface_hub import upload_file
+from huggingface_hub import hf_hub_download
+import tensorflow as tf
 
 repo_id = "projectlif/lipreading-models"
+
+model_path = hf_hub_download(
+    repo_id=repo_id,
+    filename="model/model_g.h5"   # must match repo structure
+)
+
+model = tf.keras.models.load_model(model_path)
+print("Loaded model:", model)
+
 
 # list all models you want to push
 models = [
