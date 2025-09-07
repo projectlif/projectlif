@@ -16,8 +16,6 @@ from PIL import Image
 import logging
 from huggingface_hub import login
 
-login("HF_TOKEN")
-
 app = Flask(__name__)
 app.secret_key = 'e94c984be9a156848e9d4db164bcdab1'
 app.permanent_session_lifetime = timedelta(days=30)

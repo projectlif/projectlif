@@ -1,7 +1,10 @@
 from huggingface_hub import login
+import os
+from huggingface_hub import login
 
-login("HF_TOKEN")
-
+hf_token = os.getenv("HF_TOKEN")
+if hf_token:
+    login(hf_token)
 
 
 from huggingface_hub import HfApi, HfFolder, Repository
