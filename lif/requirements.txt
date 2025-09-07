@@ -1,3 +1,9 @@
 flask==2.3.3
 opencv-python==4.8.1.78
 dlib==19.24.2
+tensorflow-cpu==2.20.0
+numpy==1.24.4
+Pillow==10.4.0
+scipy==1.11.4
+requests==2.31.0
+gunicorn==20.1.0
