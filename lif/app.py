@@ -14,7 +14,7 @@ import base64
 from io import BytesIO
 from PIL import Image
 import logging
-from huggingface_hub import login
+from huggingface_hub import login, hf_hub_download
 
 app = Flask(__name__)
 app.secret_key = 'e94c984be9a156848e9d4db164bcdab1'
@@ -510,71 +510,71 @@ CHALLENGE_GROUPS = {
 # Model configurations
 MODEL_CONFIGS = {
     'vowels': {
-        'model_path': 'projectlif/lipreading-models/model/model_v.h5',
+        'model_path': 'model/model_v.h5',
         'classes': ['a', 'e', 'i', 'o', 'u']
     },
     'b': {
-        'model_path': 'projectlif/lipreading-models/model/model_b.h5',
+        'model_path': 'model/model_b.h5',
         'classes': ['ba', 'be', 'bi', 'bo', 'bu']
     },
     'k': {
-        'model_path': 'projectlif/lipreading-models/model/model_k.h5',
+        'model_path': 'model/model_k.h5',
         'classes': ['ka', 'ke', 'ki', 'ko', 'ku']
     },
     'd': {
-        'model_path': 'projectlif/lipreading-models/model/model_d.h5',
+        'model_path': 'model/model_d.h5',
         'classes': ['da', 'de', 'di', 'do', 'du']
     },
     'g': {
-        'model_path': 'projectlif/lipreading-models/tree/main/model/model_g.h5',
+        'model_path': 'model/model_g.h5',
         'classes': ['ga', 'ge', 'gi', 'go', 'gu']
     },
     'h': {
-        'model_path': 'projectlif/lipreading-models/model/model_h.h5',
+        'model_path': 'model/model_h.h5',
         'classes': ['ha', 'he', 'hi', 'ho', 'hu']
     },
     'l': {
-        'model_path': 'projectlif/lipreading-models/model/model_l.h5',
+        'model_path': 'model/model_l.h5',
         'classes': ['la', 'le', 'li', 'lo', 'lu']
     },
     'm': {
-        'model_path': 'projectlif/lipreading-models/model/model_m.h5',
+        'model_path': 'model/model_m.h5',
         'classes': ['ma', 'me', 'mi', 'mo', 'mu']
     },
     'n': {
-        'model_path': 'projectlif/lipreading-models/model/model_n.h5',
+        'model_path': 'model/model_n.h5',
         'classes': ['na', 'ne', 'ni', 'no', 'nu']
     },
     'ng': {
-        'model_path': 'projectlif/lipreading-models/model/model_ng.h5',
+        'model_path': 'model/model_ng.h5',
         'classes': ['nga', 'nge', 'ngi', 'ngo', 'ngu']
     },
     'p': {
-        'model_path': 'projectlif/lipreading-models/model/model_p.h5',
+        'model_path': 'model/model_p.h5',
         'classes': ['pa', 'pe', 'pi', 'po', 'pu']
     },
     'r': {
-        'model_path': 'projectlif/lipreading-models/model/model_r.h5',
+        'model_path': 'model/model_r.h5',
         'classes': ['ra', 're', 'ri', 'ro', 'ru']
     },
     's': {
-        'model_path': 'projectlif/lipreading-models/model/model_s.h5',
+        'model_path': 'model/model_s.h5',
         'classes': ['sa', 'se', 'si', 'so', 'su']
     },
     't': {
-        'model_path': 'projectlif/lipreading-models/model/model_t.h5',
+        'model_path': 'model/model_t.h5',
         'classes': ['ta', 'te', 'ti', 'to', 'tu']
     },
     'w': {
-        'model_path': 'projectlif/lipreading-models/model/model_w.h5',
+        'model_path': 'model/model_w.h5',
         'classes': ['wa', 'we', 'wi', 'wo', 'wu']
     },
     'y': {
-        'model_path': 'projectlif/lipreading-models/model/model_y.h5',
+        'model_path': 'model/model_y.h5',
         'classes': ['ya', 'ye', 'yi', 'yo', 'yu']
     },
     'words': {
-        'model_path': 'projectlif/lipreading-models/model/model50words.h5',
+        'model_path': 'model/model50words.h5',
         'classes': [
             "aba", "abo", "awa", "baga", "bawi", "buti", "dati", "dulo", "diwa", "gawa", "gisa", "gulo", "haba", "hilo", "hula", "iba", "kami", "kape", "kusa", "laro", "ligo", "luma", "mapa", "misa", "mula", "nasa", "nawa", "nito", "ngiti", "nguya", "oo", "paa", "piso", "puti", "rito", "ruta", "relo", "sabi", "sako", "sino", "tabi", "tago", "tula", "uso", "wala", "wika", "walo", "yaya", "yelo", "yoyo"
 
@@ -1244,6 +1244,32 @@ def not_found(error):
 @app.route('/word-quiz')
 def word_quiz():
     return render_template('word-quiz.html')
+
+
+# === Loaded models cache ===
+loaded_models = {}
+REPO_ID = "projectlif/lipreading-models"
+
+def load_model_for_category(category: str):
+    """Load and cache model for specific category"""
+    if category in loaded_models:
+        return loaded_models[category]
+    if category not in MODEL_CONFIGS:
+        raise ValueError(f"Unknown category: {category}")
+    config = MODEL_CONFIGS[category]
+    try:
+        # download from Hugging Face to local cache
+        model_path = hf_hub_download(
+            repo_id=REPO_ID,
+            filename=config['model_path']   # e.g. "model/model_k.h5"
+        )
+        model = load_model(model_path)
+        loaded_models[category] = model
+        print(f"✅ Loaded model for category: {category}")
+        return model
+    except Exception as e:
+        print(f"❌ Failed to load model for {category}: {e}")
+        return None
 
 
 # === Face detection setup ===
