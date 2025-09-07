@@ -23,15 +23,12 @@
                         <div class="card-body p-4">
                             <!-- Camera Feed -->
                             <div class="camera-feed-container mb-4" style="position: relative;">
-                                <video id="cameraFeed" class="camera-feed" autoplay muted playsinline></video>
-                                <canvas id="cameraCanvas" class="camera-canvas" style="display: none;"></canvas>
+                                <video id="cameraFeed" class="camera-feed" autoplay muted playsinline style="display: none;"></video>
+                                <canvas id="cameraCanvas" class="camera-canvas" style="width: 100%; height: auto;"></canvas>
                                 <div class="camera-overlay" style="position: absolute; inset: 0; pointer-events: none;">
                                     <div class="recording-indicator" id="recordingIndicator" style="display: none;">
                                         <i class="fas fa-circle text-danger pulse-animation"></i>
                                         <span>Recording</span>
-                                    </div>
-                                    <div class="face-detection-overlay" id="faceOverlay" style="width: 100%; height: 100%; position: relative;">
-                                        <canvas id="landmarksCanvas" style="width: 100%; height: 100%;"></canvas>
                                     </div>
                                 </div>
                             </div>
