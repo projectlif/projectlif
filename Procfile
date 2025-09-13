@@ -1,1 +1,1 @@
-web: gunicorn lif.app:app --bind 0.0.0.0:$PORT
+gunicorn lif.app:app --bind 0.0.0.0:$PORT
