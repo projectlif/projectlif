@@ -1,22 +1,15 @@
-opencv-python==4.8.1.78
-tensorflow-cpu==2.20.0
-numpy>=1.26
-matplotlib==3.8.2
-scikit-learn==1.5.1
+# Web server
 flask==3.0.2
 gunicorn==21.2.0
-numpy
-scipy
-scikit-learn
-opencv-python
-tensorflow
-flask
-gunicorn
-numpy
-scipy
-scikit-learn
-opencv-python
-tensorflow
-flask
-gunicorn
-dlib-bin==19.24.2
+
+# Core dependencies
+numpy==1.26.4
+scipy==1.15.3
+pillow==11.0.0
+opencv-python==4.8.1.78
+dlib-bin==19.24.2   # prebuilt binary so you avoid compile errors
+huggingface_hub==0.24.5
+tensorflow-cpu==2.20.0
+keras==3.11.3
+scikit-learn==1.5.1
+matplotlib==3.8.2
