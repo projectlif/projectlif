@@ -6,3 +6,11 @@ matplotlib==3.8.2
 scikit-learn==1.5.1
 flask==3.0.2
 gunicorn==21.2.0
+numpy
+scipy
+scikit-learn
+opencv-python
+tensorflow
+flask
+gunicorn
+dlib==19.24.2   # use prebuilt wheel

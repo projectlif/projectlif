@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-set -o errexit
+set -e
 
-# Install system dependencies needed by dlib
-apt-get update
-apt-get install -y build-essential cmake python3-dev
-
-# Install Python deps
+echo "Installing requirements..."
+pip install --upgrade pip
 pip install -r requirements.txt
