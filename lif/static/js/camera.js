@@ -309,23 +309,26 @@ class CameraManager {
     if (!resultsContainer) return
     resultsContainer.innerHTML = ""
 
-    if (this.currentMode === "word") {
-      if (data.predictions && data.predictions.length > 0) {
-        data.predictions.forEach((prediction, index) => {
-          const resultElement = document.createElement("div")
-          resultElement.className = "prediction-item"
-          resultElement.style.animationDelay = `${index * 0.1}s`
-          resultElement.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="prediction-word text-light">${prediction.word.toUpperCase()}</span>
-              <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
-            </div>
-            <div class="prediction-rank">Rank ${index + 1}</div>
-          `
-          resultsContainer.appendChild(resultElement)
-        })
-      }
-    } else {
+if (this.currentMode === "word") {
+  if (data.predictions && data.predictions.length > 0) {
+    data.predictions.forEach((prediction, index) => {
+      const resultElement = document.createElement("div")
+      resultElement.className = "prediction-item"
+      resultElement.style.animationDelay = `${index * 0.1}s`
+      resultElement.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="prediction-word text-light">${prediction.word.toUpperCase()}&nbsp;</span>
+            <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
+          </div>
+        </div>
+        <div class="prediction-rank text-light">Rank ${index + 1}</div>
+      `
+      resultsContainer.appendChild(resultElement)
+    })
+  }
+}
+else {
       if (data.predicted_syllable) {
         const resultElement = document.createElement("div")
         resultElement.className = "prediction-item primary-result"
