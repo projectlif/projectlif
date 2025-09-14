@@ -574,11 +574,11 @@ MODEL_CONFIGS = {
         'classes': ['ya', 'ye', 'yi', 'yo', 'yu']
     },
     'words': {
-        'model_path': 'model/model50words.h5',
+        'model_path': 'model/model25words.h5',
         'classes': [
-            "aba", "abo", "awa", "baga", "bawi", "buti", "dati", "dulo", "diwa", "gawa", "gisa", "gulo", "haba", "hilo", "hula", "iba", "kami", "kape", "kusa", "laro", "ligo", "luma", "mapa", "misa", "mula", "nasa", "nawa", "nito", "ngiti", "nguya", "oo", "paa", "piso", "puti", "rito", "ruta", "relo", "sabi", "sako", "sino", "tabi", "tago", "tula", "uso", "wala", "wika", "walo", "yaya", "yelo", "yoyo"
-
-        ]
+            "aba", "abo", "awa", "baga", "bawi", "buti","diwa", "gawa","hilo","iba", "kami", "kape", "misa", "mula", 
+            "ngiti", "nguya", "oo", "paa","piso", "puti" "relo", "sabi", "sako","uso", "wala"
+                    ]
     }
 }
 
