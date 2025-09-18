@@ -283,9 +283,8 @@ class QuizManager {
     // Disable all options
     document.querySelectorAll(".answer-option").forEach((btn) => {
       btn.disabled = true
-
       if (btn.dataset.answer === correctAnswer) {
-        btn.classList.add("correct")
+        btn.classList.add("correct") // Highlight correct answer in green
       } else if (btn.dataset.answer === selectedAnswer && selectedAnswer !== correctAnswer) {
         btn.classList.add("incorrect")
       }
@@ -390,8 +389,14 @@ class QuizManager {
       this.updateTimerDisplay()
 
       if (this.timeLeft <= 0) {
+        this.stopTimer()
         // Time's up - select no answer
-        this.selectAnswer("", this.questions[this.currentQuestion].syllable, this.questions[this.currentQuestion])
+        this.selectAnswer("", this.questions[this.currentQuestion].word, this.questions[this.currentQuestion])
+        // Move to next question after delay
+        setTimeout(() => {
+          this.currentQuestion++
+          this.showQuestion()
+        }, 2500)
       }
     }, 1000)
   }
@@ -606,29 +611,28 @@ class QuizManager {
       : '<div class="analysis-item text-success">Great job! No major weaknesses found.</div>'
   }
 
-async saveResults() {
-  try {
-    const results = {
-      score: this.score,
-      accuracy: (this.correctAnswers / this.totalQuestions) * 100,
-    }
+  async saveResults() {
+    try {
+      const results = {
+        score: this.score,
+        accuracy: (this.correctAnswers / this.totalQuestions) * 100,
+      }
 
-    const response = await fetch("/api/word-quiz/save-score", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(results),
-    })
+      const response = await fetch("/api/word-quiz/save-score", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(results),
+      })
 
-    if (response.ok) {
-      const data = await response.json()
-      this.showHighScores(data.high_scores, data.is_new_high_score)
+      if (response.ok) {
+        const data = await response.json()
+        this.showHighScores(data.high_scores, data.is_new_high_score)
+      }
+    } catch (error) {
     }
-  } catch (error) {
   }
-}
-
 
   resetQuiz() {
     // Reset all states
@@ -703,28 +707,27 @@ async saveResults() {
     }
   }
 
-
   showHighScores(highScores, isNewHigh) {
-  const container = document.getElementById("highScoresList")
-  if (!container) return
+    const container = document.getElementById("highScoresList")
+    if (!container) return
 
-  let html = "<h5>Top Scores</h5><ul class='list-group'>"
-  highScores.forEach((score, i) => {
-    html += `
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        #${i + 1} – ${score.score} pts
-        <span class="badge bg-primary">${Math.round(score.accuracy)}%</span>
-      </li>
-    `
-  })
-  html += "</ul>"
+    let html = "<h5>Top Scores</h5><ul class='list-group'>"
+    highScores.forEach((score, i) => {
+      html += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          #${i + 1} – ${score.score} pts
+          <span class="badge bg-primary">${Math.round(score.accuracy)}%</span>
+        </li>
+      `
+    })
+    html += "</ul>"
 
-  if (isNewHigh) {
-    html += `<p class="text-success mt-2"><i class="fas fa-trophy"></i> New High Score!</p>`
+    if (isNewHigh) {
+      html += `<p class="text-success mt-2"><i class="fas fa-trophy"></i> New High Score!</p>`
+    }
+
+    container.innerHTML = html
   }
-
-  container.innerHTML = html
-}
 }
 
 // Initialize quiz manager when DOM is loaded
@@ -732,5 +735,3 @@ document.addEventListener("DOMContentLoaded", () => {
   window.quizManager = new QuizManager()
   console.log("Quiz manager initialized")
 })
-
-
