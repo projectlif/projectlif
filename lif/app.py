@@ -574,10 +574,10 @@ MODEL_CONFIGS = {
         'classes': ['ya', 'ye', 'yi', 'yo', 'yu']
     },
     'words': {
-        'model_path': 'model/model25words.h5',
+        'model_path': 'model/modelwords2.h5',
         'classes': [
             "aba", "abo", "awa", "baga", "bawi", "buti","diwa", "gawa","hilo","iba", "kami", "kape", "misa", "mula", 
-            "ngiti", "nguya", "oo", "paa","piso", "puti" "relo", "sabi", "sako","uso", "wala"
+            "ngiti", "nguya", "oo", "paa","piso", "puti", "relo", "sabi", "sako","uso", "wala"
                     ]
     }
 }
