@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Project LIF- Master Lip Reading with AI{% endblock %}
+{% block title %}Project LIF- Learn Lip Reading with AI{% endblock %}
 {% block meta_description %}Learn lip reading with our AI-powered platform. Interactive lessons, real-time camera analysis, and gamified quizzes.{% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
             <div class="col-lg-6">
                 <div class="hero-content animate-fade-in">
                     <h1 class="display-4 fw-bold mb-4">
-                        Master <span class="gradient-text">Lip Reading</span> 
+                        Learn <span class="gradient-text">Lip Reading</span> 
                         <br>in Filipino with AI
                     </h1>
                     <p class="lead mb-4 text-light">
@@ -20,7 +20,7 @@
                     </p>
                     <div class="hero-buttons">
                         <a href="{{ url_for('camera') }}" class="btn btn-primary btn-lg me-3 pulse-animation">
-                            <i class="fas fa-camera me-2"></i>Subukan gamit ang AI
+                            <i class="fas fa-camera me-2"></i>Try with AI
                         </a>
                         <a href="{{ url_for('learn') }}" class="btn btn-outline-light btn-lg">
                             <i class="fas fa-graduation-cap me-2"></i>Start Learning
@@ -39,11 +39,11 @@
                                 <h5 class="card-title text-light">Real-time Analysis</h5>
                                 <div class="prediction-list">
                                     <div class="prediction-item">
-                                        <span class="syllable">"Magandang araw!"</span>
+                                        <span class="syllable">"Ako"</span>
                                         <span class="confidence">95%</span>
                                     </div>
                                     <div class="prediction-item">
-                                        <span class="syllable">"Kumusta ka?"</span>
+                                        <span class="syllable">"Abo"</span>
                                         <span class="confidence">87%</span>
                                     </div>
                                 </div>
