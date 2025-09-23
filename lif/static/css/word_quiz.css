@@ -29,12 +29,13 @@
   width: 4px;
   height: 45%;
   background: var(--primary-color);
-  transform-origin: 50% 100%;
+  transform-origin: bottom center;
   transform: translateX(-50%) rotate(0deg);
   border-radius: 4px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
   z-index: 10;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.2s ease-in-out;
+  animation: rotate-hand 30s linear forwards;
 }
 
 .clock-center {

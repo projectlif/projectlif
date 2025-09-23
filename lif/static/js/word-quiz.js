@@ -381,24 +381,30 @@ class QuizManager {
   }
 
   startTimer() {
+    this.duration = 30 * 1000 // total ms
+    this.startTime = Date.now()
     this.timeLeft = 30
     this.updateTimerDisplay()
 
+    if (this.timer) clearInterval(this.timer)
+
     this.timer = setInterval(() => {
-      this.timeLeft--
+      const elapsed = Date.now() - this.startTime
+      const remaining = Math.ceil((this.duration - elapsed) / 1000)
+      this.timeLeft = Math.max(remaining, 0)
+
       this.updateTimerDisplay()
 
       if (this.timeLeft <= 0) {
         this.stopTimer()
         // Time's up - select no answer
-        this.selectAnswer("", this.questions[this.currentQuestion].word, this.questions[this.currentQuestion])
-        // Move to next question after delay
-        setTimeout(() => {
-          this.currentQuestion++
-          this.showQuestion()
-        }, 2500)
+        this.selectAnswer(
+          "",
+          this.questions[this.currentQuestion].word,
+          this.questions[this.currentQuestion]
+        )
       }
-    }, 1000)
+    }, 100) // update 10× per second (smooth hand)
   }
 
   stopTimer() {
@@ -409,41 +415,44 @@ class QuizManager {
   }
 
   updateTimerDisplay() {
-    const timerText = document.getElementById("timerText")
-    const clockHand = document.getElementById("clockHand")
-    const animatedClock = document.getElementById("animatedClock")
+    const timerText = document.getElementById("timerText");
+    const clockHand = document.getElementById("clockHand");
+    const animatedClock = document.getElementById("animatedClock");
 
+    // --- countdown text (seconds only) ---
     if (timerText) {
-      timerText.textContent = this.timeLeft
+      timerText.textContent = this.timeLeft;
     }
 
-    // Update clock hand rotation (360 degrees over 30 seconds)
-    if (clockHand) {
-      const rotation = ((30 - this.timeLeft) / 30) * 360
-      clockHand.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`
+    // --- smooth hand movement ---
+    if (clockHand && this.startTime) {
+      const elapsed = Date.now() - this.startTime;
+      const progress = Math.min(elapsed / this.duration, 1); // 0 → 1
+      const rotation = progress * 360;
+      clockHand.style.transition = "none";
+      clockHand.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`;
     }
 
-    // Update clock appearance based on time left
+    // --- clock color states ---
     if (animatedClock) {
-      animatedClock.classList.remove("warning", "danger")
+      animatedClock.classList.remove("warning", "danger");
 
       if (this.timeLeft <= 5) {
-        animatedClock.classList.add("danger")
+        animatedClock.classList.add("danger");
       } else if (this.timeLeft <= 10) {
-        animatedClock.classList.add("warning")
+        animatedClock.classList.add("warning");
       }
     }
 
-    // Update time left in stats
-    const timeLeftEl = document.getElementById("timeLeft")
+    const timeLeftEl = document.getElementById("timeLeft");
     if (timeLeftEl) {
-      timeLeftEl.textContent = this.timeLeft
+      timeLeftEl.textContent = this.timeLeft;
     }
   }
 
   updateProgress() {
-    const progressBar = document.getElementById("progressBar")
-    const progressText = document.getElementById("progressText")
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
 
     if (progressBar) {
       const progress = (this.currentQuestion / this.totalQuestions) * 100
