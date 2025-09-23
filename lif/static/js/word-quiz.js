@@ -127,32 +127,27 @@ class QuizManager {
     }
   }
 
-  showQuestion() {
-    if (this.currentQuestion >= this.questions.length) {
-      this.endQuiz()
-      return
-    }
-
-    const question = this.questions[this.currentQuestion]
-
-    // Update progress
-    this.updateProgress()
-
-    // Update question number
-    document.getElementById("questionNumber").textContent = this.currentQuestion + 1
-
-    // Show GIF
-    this.displayQuestionGif(question)
-
-    // Show options
-    this.displayAnswerOptions(question)
-
-    // Start timer
-    this.startTimer()
-
-    // Hide feedback
-    document.getElementById("answerFeedback").style.display = "none"
+showQuestion() {
+  if (this.currentQuestion >= this.questions.length) {
+    this.endQuiz()
+    return
   }
+
+  // clear any previous timer before starting a new one
+  this.stopTimer()
+
+  const question = this.questions[this.currentQuestion]
+  this.updateProgress()
+  document.getElementById("questionNumber").textContent = this.currentQuestion + 1
+  this.displayQuestionGif(question)
+  this.displayAnswerOptions(question)
+
+  // start a fresh timer
+  this.startTimer()
+
+  document.getElementById("answerFeedback").style.display = "none"
+}
+
 
   displayQuestionGif(question) {
     const gifContainer = document.getElementById("questionGif")
@@ -379,27 +374,26 @@ class QuizManager {
 
     feedbackContainer.style.display = "block"
   }
+startTimer() {
+  this.timeLeft = 30
+  this.updateTimerDisplay()
 
-  startTimer() {
-    this.timeLeft = 30
+  this.timer = setInterval(() => {
+    this.timeLeft--
     this.updateTimerDisplay()
 
-    this.timer = setInterval(() => {
-      this.timeLeft--
-      this.updateTimerDisplay()
+    if (this.timeLeft <= 0) {
+      this.stopTimer()
+      this.selectAnswer(
+        "",
+        this.questions[this.currentQuestion].word,
+        this.questions[this.currentQuestion]
+      )
+    }
+  }, 1000)
+}
 
-      if (this.timeLeft <= 0) {
-        this.stopTimer()
-        // Time's up - select no answer
-        this.selectAnswer("", this.questions[this.currentQuestion].word, this.questions[this.currentQuestion])
-        // Move to next question after delay
-        setTimeout(() => {
-          this.currentQuestion++
-          this.showQuestion()
-        }, 2500)
-      }
-    }, 1000)
-  }
+
 
   stopTimer() {
     if (this.timer) {
