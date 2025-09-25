@@ -213,9 +213,67 @@ class CameraManager {
     if (startBtn) startBtn.disabled = false
   }
 
+  // 🔥 New countdown wrapper
   async startRecording() {
     if (this.isRecording) return
+    this.updateCameraStatus("Get ready...")
 
+    this.startCountdownAndRecord()
+  }
+
+  async startCountdownAndRecord() {
+    const container = document.querySelector(".camera-feed-container")
+    if (!container) return
+
+    const countdownEl = document.createElement("div")
+    countdownEl.id = "countdownOverlay"
+    countdownEl.style.position = "absolute"
+    countdownEl.style.inset = "0"
+    countdownEl.style.display = "flex"
+    countdownEl.style.alignItems = "center"
+    countdownEl.style.justifyContent = "center"
+    countdownEl.style.fontSize = "4rem"
+    countdownEl.style.fontWeight = "bold"
+    countdownEl.style.color = "#fff"
+    countdownEl.style.background = "rgba(0,0,0,0.6)"
+    countdownEl.style.zIndex = "50"
+    container.appendChild(countdownEl)
+
+    let count = 3
+    countdownEl.textContent = count
+    this.playBeep()
+
+    const interval = setInterval(() => {
+      count--
+      if (count > 0) {
+        countdownEl.textContent = count
+        this.playBeep()
+      } else {
+        clearInterval(interval)
+        countdownEl.remove()
+        this.startRecordingNow()
+        this.playBeep(true) // final beep different tone
+      }
+    }, 1000)
+  }
+
+  playBeep(final = false) {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const oscillator = ctx.createOscillator()
+    const gain = ctx.createGain()
+
+    oscillator.type = "sine"
+    oscillator.frequency.value = final ? 880 : 440 // higher pitch if final
+    gain.gain.value = 0.2
+
+    oscillator.connect(gain)
+    gain.connect(ctx.destination)
+
+    oscillator.start()
+    oscillator.stop(ctx.currentTime + 0.2)
+  }
+
+  async startRecordingNow() {
     this.isRecording = true
     this.recordingFrames = []
     this.recordingStartTime = Date.now()
@@ -227,10 +285,10 @@ class CameraManager {
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) indicator.style.display = "flex"
 
-    this.updateCameraStatus("Analyzing lip movements...")
+    this.updateCameraStatus("Lip Reading in progress...")
 
     this.frameInterval = setInterval(() => { this.captureFrame() }, 33)
-    window.LipLearn?.showNotification?.("Analysis started!", "info")
+    window.LipLearn?.showNotification?.("Recording started!", "info")
   }
 
   captureFrame() {
@@ -265,12 +323,12 @@ class CameraManager {
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) indicator.style.display = "none"
 
-    this.updateCameraStatus("Processing results...")
+    this.updateCameraStatus("Processing frames...")
 
     if (this.recordingFrames.length > 0) {
       this.processRecording()
     } else {
-      window.LipLearn?.showNotification?.("No movements captured. Please try again.", "warning")
+      window.LipLearn?.showNotification?.("No frames captured. Please try again.", "warning")
       this.updateCameraStatus("Camera ready - Position your face in frame")
     }
   }
@@ -295,12 +353,12 @@ class CameraManager {
         const data = await response.json()
         this.displayPredictionResults(data)
         this.updateSessionStats(data)
-        this.updateCameraStatus("Analysis complete - Ready for next attempt")
+        this.updateCameraStatus("Prediction complete - Ready for next recording")
       } else {
         throw new Error(`Server error: ${response.status}`)
       }
     } catch (error) {
-      window.LipLearn?.showNotification?.("Error during analysis. Please try again.", "danger")
+      window.LipLearn?.showNotification?.("Error processing recording. Please try again.", "danger")
       this.updateCameraStatus("Error occurred - Ready to try again")
     } finally {
       if (startBtn) startBtn.disabled = false
@@ -381,7 +439,6 @@ class CameraManager {
       const progress = (this.recordingFrames.length / this.targetFrames) * 100
       progressBar.style.width = `${progress}%`
 
-      // show time instead of frames
       const elapsed = ((Date.now() - this.recordingStartTime) / 1000).toFixed(1)
       progressText.textContent = `Analyzing... ${elapsed}s`
     }
@@ -393,13 +450,13 @@ class CameraManager {
     const timerStatus = document.getElementById("timerStatus")
 
     if (clockHand) clockHand.style.animation = `rotate-hand ${this.targetFrames / 30}s linear`
-    if (timerStatus) timerStatus.textContent = "Analyzing in progress..."
+    if (timerStatus) timerStatus.textContent = "Recording in progress..."
 
-    let elapsed = 0
+    let start = Date.now()
     this.timerInterval = setInterval(() => {
-      elapsed += 0.03
-      if (timerText) timerText.textContent = `${elapsed.toFixed(1)}s`
-    }, 33)
+      const elapsed = ((Date.now() - start) / 1000).toFixed(1)
+      if (timerText) timerText.textContent = `${elapsed}s`
+    }, 100)
   }
 
   stopRecordingTimer() {
@@ -418,7 +475,7 @@ class CameraManager {
 
     setTimeout(() => {
       if (timerText) timerText.textContent = "Ready"
-      if (timerStatus) timerStatus.textContent = "Click Start to try again"
+      if (timerStatus) timerStatus.textContent = "Click Start Recording to begin"
     }, 3000)
   }
 
@@ -465,4 +522,3 @@ class CameraManager {
 document.addEventListener("DOMContentLoaded", () => {
   new CameraManager()
 })
- 
