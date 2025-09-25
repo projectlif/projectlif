@@ -96,17 +96,20 @@ class CameraManager {
         return
       }
 
-      // Draw current frame into the same canvas
-      this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height)
+      // Draw mirrored video
+      this.ctx.save()
+      this.ctx.scale(-1, 1)
+      this.ctx.drawImage(this.video, -this.canvas.width, 0, this.canvas.width, this.canvas.height)
+      this.ctx.restore()
 
-      // Draw landmarks on top (same coordinate space as frame)
+      // Draw landmarks (also mirrored)
       if (this.lastMouthPoints && this.lastMouthPoints.length) {
         this.ctx.save()
         this.ctx.fillStyle = "rgba(0, 255, 0, 0.95)"
         const r = 3
         for (const pt of this.lastMouthPoints) {
           this.ctx.beginPath()
-          this.ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2)
+          this.ctx.arc(this.canvas.width - pt.x, pt.y, r, 0, Math.PI * 2) // mirror X
           this.ctx.closePath()
           this.ctx.fill()
         }
@@ -141,7 +144,6 @@ class CameraManager {
     try {
       if (!this.video || !this.canvas || !this.ctx) return
 
-      // Use the same canvas content to send a frame (already matches coords)
       this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height)
       const blob = await new Promise((resolve) => this.canvas.toBlob(resolve, "image/jpeg", 0.7))
       if (!blob) return
@@ -154,7 +156,6 @@ class CameraManager {
       const data = await resp.json()
 
       if (data.success && data.landmarks?.mouth_points) {
-        // Points are already in source frame pixel coordinates; our canvas matches that
         this.lastMouthPoints = data.landmarks.mouth_points
       } else {
         this.lastMouthPoints = null
@@ -226,16 +227,15 @@ class CameraManager {
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) indicator.style.display = "flex"
 
-    this.updateCameraStatus("Recording in progress...")
+    this.updateCameraStatus("Analyzing lip movements...")
 
     this.frameInterval = setInterval(() => { this.captureFrame() }, 33)
-    window.LipLearn?.showNotification?.("Recording started!", "info")
+    window.LipLearn?.showNotification?.("Analysis started!", "info")
   }
 
   captureFrame() {
     if (!this.isRecording || !this.canvas) return
 
-    // The canvas already contains the frame; export blob
     this.canvas.toBlob(
       (blob) => {
         if (blob && this.isRecording) {
@@ -265,17 +265,18 @@ class CameraManager {
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) indicator.style.display = "none"
 
-    this.updateCameraStatus("Processing frames...")
+    this.updateCameraStatus("Processing results...")
 
     if (this.recordingFrames.length > 0) {
       this.processRecording()
     } else {
-      window.LipLearn?.showNotification?.("No frames captured. Please try again.", "warning")
+      window.LipLearn?.showNotification?.("No movements captured. Please try again.", "warning")
       this.updateCameraStatus("Camera ready - Position your face in frame")
     }
   }
 
   async processRecording() {
+    const startBtn = document.getElementById("startRecording")
     try {
       const formData = new FormData()
       this.recordingFrames.forEach((blob, index) => {
@@ -294,13 +295,15 @@ class CameraManager {
         const data = await response.json()
         this.displayPredictionResults(data)
         this.updateSessionStats(data)
-        this.updateCameraStatus("Prediction complete - Ready for next recording")
+        this.updateCameraStatus("Analysis complete - Ready for next attempt")
       } else {
         throw new Error(`Server error: ${response.status}`)
       }
     } catch (error) {
-      window.LipLearn?.showNotification?.("Error processing recording. Please try again.", "danger")
+      window.LipLearn?.showNotification?.("Error during analysis. Please try again.", "danger")
       this.updateCameraStatus("Error occurred - Ready to try again")
+    } finally {
+      if (startBtn) startBtn.disabled = false
     }
   }
 
@@ -309,35 +312,34 @@ class CameraManager {
     if (!resultsContainer) return
     resultsContainer.innerHTML = ""
 
-if (this.currentMode === "word") {
-  if (data.predictions && data.predictions.length > 0) {
-    data.predictions.forEach((prediction, index) => {
-      const resultElement = document.createElement("div")
-      resultElement.className = "prediction-item"
-      resultElement.style.animationDelay = `${index * 0.1}s`
-      resultElement.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <span class="prediction-word text-light">${prediction.word.toUpperCase()}&nbsp;</span>
-            <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
-          </div>
-        </div>
-        <div class="prediction-rank text-light">Rank ${index + 1}</div>
-      `
-      resultsContainer.appendChild(resultElement)
-    })
-  }
-}
-else {
+    if (this.currentMode === "word") {
+      if (data.predictions && data.predictions.length > 0) {
+        data.predictions.forEach((prediction, index) => {
+          const resultElement = document.createElement("div")
+          resultElement.className = "prediction-item"
+          resultElement.style.animationDelay = `${index * 0.1}s`
+          resultElement.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="prediction-word text-light">${prediction.word.toUpperCase()}&nbsp;</span>
+                <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
+              </div>
+            </div>
+            <div class="prediction-rank text-light">Rank ${index + 1}</div>
+          `
+          resultsContainer.appendChild(resultElement)
+        })
+      }
+    } else {
       if (data.predicted_syllable) {
         const resultElement = document.createElement("div")
         resultElement.className = "prediction-item primary-result"
         resultElement.innerHTML = `
           <div class="prediction-main">
             <div class="predicted-syllable text-light">${data.predicted_syllable.toUpperCase()}</div>
-            <div class="prediction-accuracy  text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
+            <div class="prediction-accuracy text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
           </div>
-          <div class="prediction-category  text-light">Category: ${this.currentCategory.toUpperCase()}</div>
+          <div class="prediction-category text-light">Category: ${this.currentCategory.toUpperCase()}</div>
         `
         resultsContainer.appendChild(resultElement)
       }
@@ -356,7 +358,7 @@ else {
       } else {
         startBtn.style.display = "inline-block"
         stopBtn.style.display = "none"
-        startBtn.disabled = false
+        startBtn.disabled = true
       }
     }
   }
@@ -378,7 +380,10 @@ else {
     if (progressBar && progressText) {
       const progress = (this.recordingFrames.length / this.targetFrames) * 100
       progressBar.style.width = `${progress}%`
-      progressText.textContent = `Collecting frames: ${this.recordingFrames.length}/${this.targetFrames}`
+
+      // show time instead of frames
+      const elapsed = ((Date.now() - this.recordingStartTime) / 1000).toFixed(1)
+      progressText.textContent = `Analyzing... ${elapsed}s`
     }
   }
 
@@ -388,13 +393,12 @@ else {
     const timerStatus = document.getElementById("timerStatus")
 
     if (clockHand) clockHand.style.animation = `rotate-hand ${this.targetFrames / 30}s linear`
-    if (timerStatus) timerStatus.textContent = "Recording in progress..."
+    if (timerStatus) timerStatus.textContent = "Analyzing in progress..."
 
-    let frameCount = 0
+    let elapsed = 0
     this.timerInterval = setInterval(() => {
-      frameCount++
-      if (timerText) timerText.textContent = `${frameCount}/${this.targetFrames}`
-      if (frameCount >= this.targetFrames) this.stopRecordingTimer()
+      elapsed += 0.03
+      if (timerText) timerText.textContent = `${elapsed.toFixed(1)}s`
     }, 33)
   }
 
@@ -414,7 +418,7 @@ else {
 
     setTimeout(() => {
       if (timerText) timerText.textContent = "Ready"
-      if (timerStatus) timerStatus.textContent = "Click Start Recording to begin"
+      if (timerStatus) timerStatus.textContent = "Click Start to try again"
     }, 3000)
   }
 
@@ -461,3 +465,4 @@ else {
 document.addEventListener("DOMContentLoaded", () => {
   new CameraManager()
 })
+ 
