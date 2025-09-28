@@ -21,6 +21,10 @@ class CameraManager {
     this.sourceHeight = 0
     this.lastMouthPoints = null
 
+    // ✅ countdown state
+    this.countdownInterval = null
+    this.isCountdownActive = false
+
     this.sessionStats = {
       totalPredictions: 0,
       accuracySum: 0,
@@ -40,7 +44,7 @@ class CameraManager {
     const categorySelect = document.getElementById("categorySelect")
 
     if (startBtn) startBtn.addEventListener("click", () => this.startRecording())
-    if (stopBtn) stopBtn.addEventListener("click", () => this.stopRecording())
+    if (stopBtn) stopBtn.addEventListener("click", () => this.stopRecording(true))
     if (syllableModeBtn) syllableModeBtn.addEventListener("change", () => this.switchMode("syllable"))
     if (wordModeBtn) wordModeBtn.addEventListener("change", () => this.switchMode("word"))
     if (categorySelect) {
@@ -109,7 +113,7 @@ class CameraManager {
         const r = 3
         for (const pt of this.lastMouthPoints) {
           this.ctx.beginPath()
-          this.ctx.arc(this.canvas.width - pt.x, pt.y, r, 0, Math.PI * 2) // mirror X
+          this.ctx.arc(this.canvas.width - pt.x, pt.y, r, 0, Math.PI * 2)
           this.ctx.closePath()
           this.ctx.fill()
         }
@@ -213,11 +217,20 @@ class CameraManager {
     if (startBtn) startBtn.disabled = false
   }
 
-  // 🔥 New countdown wrapper
+  // ✅ Countdown before recording
   async startRecording() {
-    if (this.isRecording) return
-    this.updateCameraStatus("Get ready...")
+    if (this.isRecording || this.isCountdownActive) return
 
+    const startBtn = document.getElementById("startRecording")
+    const stopBtn = document.getElementById("stopRecording")
+
+    if (startBtn) startBtn.style.display = "none"
+    if (stopBtn) {
+      stopBtn.style.display = "inline-block"
+      stopBtn.disabled = false
+    }
+
+    this.updateCameraStatus("Get ready...")
     this.startCountdownAndRecord()
   }
 
@@ -227,32 +240,42 @@ class CameraManager {
 
     const countdownEl = document.createElement("div")
     countdownEl.id = "countdownOverlay"
-    countdownEl.style.position = "absolute"
-    countdownEl.style.inset = "0"
-    countdownEl.style.display = "flex"
-    countdownEl.style.alignItems = "center"
-    countdownEl.style.justifyContent = "center"
-    countdownEl.style.fontSize = "4rem"
-    countdownEl.style.fontWeight = "bold"
-    countdownEl.style.color = "#fff"
-    countdownEl.style.background = "rgba(0,0,0,0.6)"
-    countdownEl.style.zIndex = "50"
+    Object.assign(countdownEl.style, {
+      position: "absolute",
+      inset: "0",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "4rem",
+      fontWeight: "bold",
+      color: "#fff",
+      background: "rgba(0,0,0,0.6)",
+      zIndex: "50"
+    })
     container.appendChild(countdownEl)
 
     let count = 3
+    this.isCountdownActive = true
     countdownEl.textContent = count
     this.playBeep()
 
-    const interval = setInterval(() => {
+    this.countdownInterval = setInterval(() => {
+      if (!this.isCountdownActive) {
+        clearInterval(this.countdownInterval)
+        if (countdownEl) countdownEl.remove()
+        return
+      }
+
       count--
       if (count > 0) {
         countdownEl.textContent = count
         this.playBeep()
       } else {
-        clearInterval(interval)
+        clearInterval(this.countdownInterval)
+        this.isCountdownActive = false
         countdownEl.remove()
         this.startRecordingNow()
-        this.playBeep(true) // final beep different tone
+        this.playBeep(true)
       }
     }, 1000)
   }
@@ -263,7 +286,7 @@ class CameraManager {
     const gain = ctx.createGain()
 
     oscillator.type = "sine"
-    oscillator.frequency.value = final ? 880 : 440 // higher pitch if final
+    oscillator.frequency.value = final ? 880 : 440
     gain.gain.value = 0.2
 
     oscillator.connect(gain)
@@ -275,6 +298,9 @@ class CameraManager {
 
   async startRecordingNow() {
     this.isRecording = true
+    const cancelMsg = document.getElementById("cancelMessage")
+    if (cancelMsg) cancelMsg.style.display = "none"
+
     this.recordingFrames = []
     this.recordingStartTime = Date.now()
 
@@ -307,8 +333,17 @@ class CameraManager {
     )
   }
 
-  stopRecording() {
-    if (!this.isRecording) return
+  stopRecording(userCancelled = false) {
+    // ✅ Cancel countdown first
+    if (this.isCountdownActive) {
+      this.isCountdownActive = false
+      clearInterval(this.countdownInterval)
+      this.countdownInterval = null
+      const countdownEl = document.getElementById("countdownOverlay")
+      if (countdownEl) countdownEl.remove()
+    }
+
+    if (!this.isRecording && !userCancelled) return
     this.isRecording = false
 
     if (this.frameInterval) {
@@ -323,7 +358,30 @@ class CameraManager {
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) indicator.style.display = "none"
 
-    this.updateCameraStatus("Processing frames...")
+    const cancelMsg = document.getElementById("cancelMessage")
+    if (userCancelled && cancelMsg) {
+      cancelMsg.style.display = "block"
+      cancelMsg.textContent = "Lip reading cancelled"
+      setTimeout(() => { cancelMsg.style.display = "none" }, 1500)
+    }
+
+    if (userCancelled) {
+      this.updateCameraStatus("Lip reading cancelled – Ready to try again")
+
+      const startBtn = document.getElementById("startRecording")
+      if (startBtn) {
+        startBtn.disabled = false
+        startBtn.style.display = "inline-block"
+      }
+      const stopBtn = document.getElementById("stopRecording")
+      if (stopBtn) stopBtn.style.display = "none"
+      return
+    }
+
+    this.updateCameraStatus("Analyzing your lip movements…")
+
+    const resultsContainer = document.getElementById("predictionResults")
+    if (resultsContainer) resultsContainer.innerHTML = "" // ✅ clear predictions
 
     if (this.recordingFrames.length > 0) {
       this.processRecording()
