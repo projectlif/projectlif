@@ -31,10 +31,17 @@
   background: var(--primary-color);
   transform-origin: 50% 100%;
   transform: translateX(-50%) rotate(0deg);
-  border-radius: 4px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
   z-index: 10;
-  transition: transform 0.3s ease-in-out;
+  transition: transform none;
+
+  box-shadow: 0 0 8px var(--primary-color);
+  
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -webkit-transform: translateZ(0); /* force GPU rendering */
 }
 
 .clock-center {
@@ -47,7 +54,10 @@
   border-radius: 50%;
   transform: translate(-50%, -50%);
   z-index: 20;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+
+
+  box-shadow: none;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.4));
 }
 
 .clock-numbers {
