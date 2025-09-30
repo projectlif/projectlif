@@ -374,80 +374,93 @@ showQuestion() {
 
     feedbackContainer.style.display = "block"
   }
-startTimer() {
-  this.timeLeft = 30
-  this.updateTimerDisplay()
+  startTimer() {
+    this.duration = 30 * 1000; // 30 seconds in ms
+    this.startTime = Date.now();
+    this.timeLeft = 30; // match duration
 
-  this.timer = setInterval(() => {
-    this.timeLeft--
-    this.updateTimerDisplay()
+    // clear old timer if exists
+    if (this.timer) clearInterval(this.timer);
 
-    if (this.timeLeft <= 0) {
-      this.stopTimer()
-      this.selectAnswer(
-        "",
-        this.questions[this.currentQuestion].word,
-        this.questions[this.currentQuestion]
-      )
-    }
-  }, 1000)
-}
+    // ✅ immediately update so UI shows 30 and hand at 0deg
+    this.updateTimerDisplay();
 
+    this.timer = setInterval(() => {
+      const elapsed = Date.now() - this.startTime;
+      const remaining = Math.ceil((this.duration - elapsed) / 1000);
 
+      this.timeLeft = Math.max(remaining, 0);
+
+      this.updateTimerDisplay();
+
+      if (this.timeLeft <= 0) {
+        this.stopTimer();
+        this.selectAnswer(
+          "",
+          this.questions[this.currentQuestion].word,
+          this.questions[this.currentQuestion]
+        );
+      }
+    }, 100);
+  }
 
   stopTimer() {
     if (this.timer) {
-      clearInterval(this.timer)
-      this.timer = null
+      clearInterval(this.timer);
+      this.timer = null;
     }
   }
 
   updateTimerDisplay() {
-    const timerText = document.getElementById("timerText")
-    const clockHand = document.getElementById("clockHand")
-    const animatedClock = document.getElementById("animatedClock")
+    const timerText = document.getElementById("timerText");
+    const clockHand = document.getElementById("clockHand");
+    const animatedClock = document.getElementById("animatedClock");
 
     if (timerText) {
-      timerText.textContent = this.timeLeft
+      timerText.textContent = this.timeLeft;
     }
 
-    // Update clock hand rotation (360 degrees over 30 seconds)
-    if (clockHand) {
-      const rotation = ((30 - this.timeLeft) / 30) * 360
-      clockHand.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`
+    // Update clock hand rotation (360° over 30s)
+    if (clockHand && this.startTime) {
+      const elapsed = Date.now() - this.startTime;
+      const progress = Math.min(elapsed / this.duration, 1); // 0 → 1
+      const rotation = progress * 360; // 360° in 30s
+      clockHand.style.transition = "none";
+      clockHand.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`;
     }
 
     // Update clock appearance based on time left
     if (animatedClock) {
-      animatedClock.classList.remove("warning", "danger")
+      animatedClock.classList.remove("warning", "danger");
 
       if (this.timeLeft <= 5) {
-        animatedClock.classList.add("danger")
+        animatedClock.classList.add("danger");
       } else if (this.timeLeft <= 10) {
-        animatedClock.classList.add("warning")
+        animatedClock.classList.add("warning");
       }
     }
 
     // Update time left in stats
-    const timeLeftEl = document.getElementById("timeLeft")
+    const timeLeftEl = document.getElementById("timeLeft");
     if (timeLeftEl) {
-      timeLeftEl.textContent = this.timeLeft
+      timeLeftEl.textContent = this.timeLeft;
     }
   }
 
   updateProgress() {
-    const progressBar = document.getElementById("progressBar")
-    const progressText = document.getElementById("progressText")
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
 
     if (progressBar) {
-      const progress = (this.currentQuestion / this.totalQuestions) * 100
-      progressBar.style.width = `${progress}%`
+      const progress = (this.currentQuestion / this.totalQuestions) * 100;
+      progressBar.style.width = `${progress}%`;
     }
 
     if (progressText) {
-      progressText.textContent = `Question ${this.currentQuestion + 1} of ${this.totalQuestions}`
+      progressText.textContent = `Question ${this.currentQuestion + 1} of ${this.totalQuestions}`;
     }
   }
+
 
   updateScoreDisplay() {
     const scoreEl = document.getElementById("currentScore")
