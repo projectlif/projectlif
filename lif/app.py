@@ -573,12 +573,9 @@ MODEL_CONFIGS = {
         'classes': ['ya', 'ye', 'yi', 'yo', 'yu']
     },
     'words': {
-        'model_path': 'model/words-variant3-30words.h5',
-        'classes': [
-            "aba", "abo", "ate", "awa", "bawi", "bili", "bota", "bote", "buti", "datu", "diwa","hilo", "iba", "kami", "kape", "lagi", "mesa", "misa", "mula", "ngiti", "nguya","oo", "paa", "peso", "piso", "puro", "relo", "sako", "sige", "uso", "wala"
-
-                    ]
-    }
+        'model_path': 'model/finalmodel.keras',
+        'classes': [ "aba", "abo", "ate", "awa", "bawi", "bota", "bote", "buti", "datu", "diwa","goma", "hilo", "iba", "kami", "kape", "lagi", "mesa", "misa", "mula", "ngiti","nguya", "oo", "peso", "piso", "relo", "sige", "tao", "upo", "uso","wala",]
+}
 }
 
 SYLLABLE_ORDER = ["a", "e", "i", "o", "u", "ba", "be", "bi", "bo", "bu", "ka", "ke", "ki", "ko", "ku", "da", "de", "di",
