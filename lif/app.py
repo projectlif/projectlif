@@ -20,6 +20,12 @@ app = Flask(__name__)
 app.secret_key = 'e94c984be9a156848e9d4db164bcdab1'
 app.permanent_session_lifetime = timedelta(days=30)
 
+import os
+os.environ["HF_HOME"] = "/tmp/huggingface"
+os.environ["TRANSFORMERS_CACHE"] = "/tmp/huggingface"
+os.makedirs("/tmp/huggingface", exist_ok=True)
+
+
 SYLLABLES_DATA = {
     'a': {
         'description': 'Kapag binibigkas ang "A" sound, bumubuka nang malaki ang bibig habang bumababa ang panga, nananatiling mababa at relaxed ang dila, at neutral ang mga labi. Ito ay nagpo-produce ng malinaw na "ah" sound.',
@@ -506,7 +512,6 @@ CHALLENGE_GROUPS = {
 
 }
 
-
 MODEL_CONFIGS = {
     'vowels': {
         'model_path': 'model/model_v.h5',
@@ -573,7 +578,7 @@ MODEL_CONFIGS = {
         'classes': ['ya', 'ye', 'yi', 'yo', 'yu']
     },
     'words': {
-        'model_path': 'model/finalmodel.keras',
+        'model_path': 'model/final_model_words.keras',
         'classes': [ "aba", "abo", "ate", "awa", "bawi", "bota", "bote", "buti", "datu", "diwa","goma", "hilo", "iba", "kami", "kape", "lagi", "mesa", "misa", "mula", "ngiti","nguya", "oo", "peso", "piso", "relo", "sige", "tao", "upo", "uso","wala",]
 }
 }
@@ -583,6 +588,8 @@ SYLLABLE_ORDER = ["a", "e", "i", "o", "u", "ba", "be", "bi", "bo", "bu", "ka", "
              "me", "mi", "mo", "mu", "na", "ne", "ni", "no", "nu", "nga", "nge", "ngi", "ngo", "ngu", "pa", "pe", "pi",
              "po", "pu", "ra", "re", "ri", "ro", "ru", "sa", "se", "si", "so", "su", "ta", "te", "ti", "to", "tu", "wa",
              "we", "wi", "wo", "wu", "ya", "ye", "yi", "yo", "yu"]
+
+
 
 @app.before_request
 def before_request():
@@ -1255,6 +1262,7 @@ def load_model_for_category(category: str):
         return None
 
 
+
 # === Face detection setup ===
 DLIB_MODEL_PATH = "model/face_weights.dat"
 try:
@@ -1282,6 +1290,23 @@ GAUSSIAN_BLUR_2 = (5, 5)
 BILATERAL_FILTER_D = 5
 BILATERAL_FILTER_SIGMA = 75
 SHARPENING_KERNEL = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+
+
+print("🔁 Preloading models at startup...")
+with app.app_context():
+    for cat in MODEL_CONFIGS:
+        load_model_for_category(cat)
+
+# (optional) warm-up a model to avoid first-request lag
+if 'words' in loaded_models:
+    try:
+        dummy = np.zeros((1, 44, LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.float32)
+        loaded_models['words'].predict(dummy, verbose=0)
+        print("✅ words model warmed up")
+    except Exception as e:
+        print("⚠️ Warmup failed:", e)
+
+
 
 def crop_and_pad_mouth(frame, landmarks):
   """Crop mouth region, resize with reflect padding, and apply enhancements (collect.py)"""
