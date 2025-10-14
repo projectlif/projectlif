@@ -28,7 +28,7 @@
                                 <div class="camera-overlay" style="position: absolute; inset: 0; pointer-events: none;">
                                     <div class="recording-indicator" id="recordingIndicator" style="display: none;">
                                         <i class="fas fa-circle text-danger pulse-animation"></i>
-                                        <span>Recording</span>
+                                        <span>Reading lips</span>
                                     </div>
                                 </div>
                             </div>
@@ -39,22 +39,30 @@
                                     <div class="progress-bar bg-gradient-primary" id="frameProgressBar" role="progressbar" style="width: 0%"></div>
                                 </div>
                                 <div class="text-center">
-                                    <small class="text-light" id="frameProgressText">Collecting frames: 0/22</small>
+                                    <small class="text-light" id="frameProgressText">Processing...</small>
                                 </div>
                             </div>
                             
                             <!-- Controls -->
                             <div class="camera-controls text-center mb-4">
                                 <button id="startRecording" class="btn btn-success btn-lg me-3" disabled>
-                                    <i class="fas fa-play me-2"></i>Start Recording
+                                    <i class="fas fa-play me-2"></i>Start Lip Reading
                                 </button>
                                 <button id="stopRecording" class="btn btn-danger btn-lg" style="display: none;" disabled>
-                                    <i class="fas fa-stop me-2"></i>Stop Recording
+                                    <i class="fas fa-stop me-2"></i>Stop Lip Reading
                                 </button>
                                 <div class="mt-2">
                                     <small class="text-light" id="cameraStatus">Initializing camera...</small>
                                 </div>
-                            </div>
+
+                                <!-- ✅ Cancel message goes here -->
+                                <div class="mt-1">
+                                    <small id="cancelMessage" class="text-danger" style="display:none;">
+                                    Lip reading cancelled
+                                    </small>
+                                </div>
+                                </div>
+
                             
                             <!-- Predictions -->
                             <div class="predictions-container">
@@ -62,13 +70,21 @@
                                     <i class="fas fa-chart-bar gradient-text me-2"></i>
                                     Prediction Results
                                 </h5>
-                                <div id="predictionResults" class="predictions-list">
-                                    <div class="prediction-placeholder text-center text-light py-4">
-                                        <i class="fas fa-microphone-slash fa-2x mb-3"></i>
-                                        <p>Start camera to see predictions</p>
+                                <div id="predictionWrapper" class="position-relative">
+                                    <div id="predictionResults" class="predictions-list">
+                                        <div class="prediction-placeholder text-center text-light py-4">
+                                            <i class="fas fa-video-slash fa-2x mb-3"></i>
+                                            <p>Start camera to see predictions</p>
+                                        </div>
+                                    </div>
+                                    <!-- Overlay -->
+                                    <div id="predictionOverlay" class="prediction-overlay" style="display: none;" role="status">
+                                        Processing new prediction...
+                                        <div class="spinner"></div>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -132,7 +148,7 @@
                         
                         <!-- Recording Settings -->
                         <div class="recording-settings">
-                            <h6 class="text-light mb-2">Recording Settings:</h6>
+                            <h6 class="text-light mb-2">Lip Reading Settings:</h6>
                             <div class="settings-info">
                                 <div class="d-flex justify-content-between">
                                     <span class="text-light">Frames to collect:</span>
@@ -177,34 +193,6 @@
                                     Wait for the recording to complete
                                 </li>
                             </ul>
-                        </div>
-                    </div>
-                    
-                    <!-- Session Stats -->
-                    <div class="card bg-dark-card border-0 shadow-lg mt-4">
-                        <div class="card-body">
-                            <h5 class="card-title text-light mb-3">
-                                <i class="fas fa-chart-line gradient-text me-2"></i>
-                                Session Stats
-                            </h5>
-                            <div class="stats-grid">
-                                <div class="stat-item">
-                                    <div class="stat-value" id="totalPredictions">0</div>
-                                    <div class="stat-label">Predictions</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="avgAccuracy">0%</div>
-                                    <div class="stat-label">Avg Accuracy</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="sessionTime">00:00</div>
-                                    <div class="stat-label">Session Time</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="currentMode">Syllables</div>
-                                    <div class="stat-label">Current Mode</div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -21,6 +21,10 @@ class CameraManager {
     this.sourceHeight = 0
     this.lastMouthPoints = null
 
+    // ✅ countdown state
+    this.countdownInterval = null
+    this.isCountdownActive = false
+
     this.sessionStats = {
       totalPredictions: 0,
       accuracySum: 0,
@@ -40,7 +44,7 @@ class CameraManager {
     const categorySelect = document.getElementById("categorySelect")
 
     if (startBtn) startBtn.addEventListener("click", () => this.startRecording())
-    if (stopBtn) stopBtn.addEventListener("click", () => this.stopRecording())
+    if (stopBtn) stopBtn.addEventListener("click", () => this.stopRecording(true))
     if (syllableModeBtn) syllableModeBtn.addEventListener("change", () => this.switchMode("syllable"))
     if (wordModeBtn) wordModeBtn.addEventListener("change", () => this.switchMode("word"))
     if (categorySelect) {
@@ -96,17 +100,20 @@ class CameraManager {
         return
       }
 
-      // Draw current frame into the same canvas
-      this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height)
+      // Draw mirrored video
+      this.ctx.save()
+      this.ctx.scale(-1, 1)
+      this.ctx.drawImage(this.video, -this.canvas.width, 0, this.canvas.width, this.canvas.height)
+      this.ctx.restore()
 
-      // Draw landmarks on top (same coordinate space as frame)
+      // Draw landmarks (also mirrored)
       if (this.lastMouthPoints && this.lastMouthPoints.length) {
         this.ctx.save()
         this.ctx.fillStyle = "rgba(0, 255, 0, 0.95)"
         const r = 3
         for (const pt of this.lastMouthPoints) {
           this.ctx.beginPath()
-          this.ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2)
+          this.ctx.arc(this.canvas.width - pt.x, pt.y, r, 0, Math.PI * 2)
           this.ctx.closePath()
           this.ctx.fill()
         }
@@ -141,7 +148,6 @@ class CameraManager {
     try {
       if (!this.video || !this.canvas || !this.ctx) return
 
-      // Use the same canvas content to send a frame (already matches coords)
       this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height)
       const blob = await new Promise((resolve) => this.canvas.toBlob(resolve, "image/jpeg", 0.7))
       if (!blob) return
@@ -154,7 +160,6 @@ class CameraManager {
       const data = await resp.json()
 
       if (data.success && data.landmarks?.mouth_points) {
-        // Points are already in source frame pixel coordinates; our canvas matches that
         this.lastMouthPoints = data.landmarks.mouth_points
       } else {
         this.lastMouthPoints = null
@@ -212,10 +217,90 @@ class CameraManager {
     if (startBtn) startBtn.disabled = false
   }
 
+  // ✅ Countdown before recording
   async startRecording() {
-    if (this.isRecording) return
+    if (this.isRecording || this.isCountdownActive) return
 
+    const startBtn = document.getElementById("startRecording")
+    const stopBtn = document.getElementById("stopRecording")
+
+    if (startBtn) startBtn.style.display = "none"
+    if (stopBtn) {
+      stopBtn.style.display = "inline-block"
+      stopBtn.disabled = false
+    }
+
+    this.updateCameraStatus("Get ready...")
+    this.startCountdownAndRecord()
+  }
+
+  async startCountdownAndRecord() {
+    const container = document.querySelector(".camera-feed-container")
+    if (!container) return
+
+    const countdownEl = document.createElement("div")
+    countdownEl.id = "countdownOverlay"
+    Object.assign(countdownEl.style, {
+      position: "absolute",
+      inset: "0",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "4rem",
+      fontWeight: "bold",
+      color: "#fff",
+      background: "rgba(0,0,0,0.6)",
+      zIndex: "50"
+    })
+    container.appendChild(countdownEl)
+
+    let count = 3
+    this.isCountdownActive = true
+    countdownEl.textContent = count
+    this.playBeep()
+
+    this.countdownInterval = setInterval(() => {
+      if (!this.isCountdownActive) {
+        clearInterval(this.countdownInterval)
+        if (countdownEl) countdownEl.remove()
+        return
+      }
+
+      count--
+      if (count > 0) {
+        countdownEl.textContent = count
+        this.playBeep()
+      } else {
+        clearInterval(this.countdownInterval)
+        this.isCountdownActive = false
+        countdownEl.remove()
+        this.startRecordingNow()
+        this.playBeep(true)
+      }
+    }, 1000)
+  }
+
+  playBeep(final = false) {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const oscillator = ctx.createOscillator()
+    const gain = ctx.createGain()
+
+    oscillator.type = "sine"
+    oscillator.frequency.value = final ? 880 : 440
+    gain.gain.value = 0.2
+
+    oscillator.connect(gain)
+    gain.connect(ctx.destination)
+
+    oscillator.start()
+    oscillator.stop(ctx.currentTime + 0.2)
+  }
+
+  async startRecordingNow() {
     this.isRecording = true
+    const cancelMsg = document.getElementById("cancelMessage")
+    if (cancelMsg) cancelMsg.style.display = "none"
+
     this.recordingFrames = []
     this.recordingStartTime = Date.now()
 
@@ -226,7 +311,7 @@ class CameraManager {
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) indicator.style.display = "flex"
 
-    this.updateCameraStatus("Recording in progress...")
+    this.updateCameraStatus("Lip Reading in progress...")
 
     this.frameInterval = setInterval(() => { this.captureFrame() }, 33)
     window.LipLearn?.showNotification?.("Recording started!", "info")
@@ -235,7 +320,6 @@ class CameraManager {
   captureFrame() {
     if (!this.isRecording || !this.canvas) return
 
-    // The canvas already contains the frame; export blob
     this.canvas.toBlob(
       (blob) => {
         if (blob && this.isRecording) {
@@ -249,8 +333,17 @@ class CameraManager {
     )
   }
 
-  stopRecording() {
-    if (!this.isRecording) return
+  stopRecording(userCancelled = false) {
+    // ✅ Cancel countdown first
+    if (this.isCountdownActive) {
+      this.isCountdownActive = false
+      clearInterval(this.countdownInterval)
+      this.countdownInterval = null
+      const countdownEl = document.getElementById("countdownOverlay")
+      if (countdownEl) countdownEl.remove()
+    }
+
+    if (!this.isRecording && !userCancelled) return
     this.isRecording = false
 
     if (this.frameInterval) {
@@ -265,7 +358,30 @@ class CameraManager {
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) indicator.style.display = "none"
 
-    this.updateCameraStatus("Processing frames...")
+    const cancelMsg = document.getElementById("cancelMessage")
+    if (userCancelled && cancelMsg) {
+      cancelMsg.style.display = "block"
+      cancelMsg.textContent = "Lip reading cancelled"
+      setTimeout(() => { cancelMsg.style.display = "none" }, 1500)
+    }
+
+    if (userCancelled) {
+      this.updateCameraStatus("Lip reading cancelled – Ready to try again")
+
+      const startBtn = document.getElementById("startRecording")
+      if (startBtn) {
+        startBtn.disabled = false
+        startBtn.style.display = "inline-block"
+      }
+      const stopBtn = document.getElementById("stopRecording")
+      if (stopBtn) stopBtn.style.display = "none"
+      return
+    }
+
+    this.updateCameraStatus("Analyzing your lip movements…")
+
+    const resultsContainer = document.getElementById("predictionResults")
+    if (resultsContainer) resultsContainer.innerHTML = "" // ✅ clear predictions
 
     if (this.recordingFrames.length > 0) {
       this.processRecording()
@@ -276,6 +392,7 @@ class CameraManager {
   }
 
   async processRecording() {
+    const startBtn = document.getElementById("startRecording")
     try {
       const formData = new FormData()
       this.recordingFrames.forEach((blob, index) => {
@@ -301,6 +418,8 @@ class CameraManager {
     } catch (error) {
       window.LipLearn?.showNotification?.("Error processing recording. Please try again.", "danger")
       this.updateCameraStatus("Error occurred - Ready to try again")
+    } finally {
+      if (startBtn) startBtn.disabled = false
     }
   }
 
@@ -309,35 +428,34 @@ class CameraManager {
     if (!resultsContainer) return
     resultsContainer.innerHTML = ""
 
-if (this.currentMode === "word") {
-  if (data.predictions && data.predictions.length > 0) {
-    data.predictions.forEach((prediction, index) => {
-      const resultElement = document.createElement("div")
-      resultElement.className = "prediction-item"
-      resultElement.style.animationDelay = `${index * 0.1}s`
-      resultElement.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <span class="prediction-word text-light">${prediction.word.toUpperCase()}&nbsp;</span>
-            <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
-          </div>
-        </div>
-        <div class="prediction-rank text-light">Rank ${index + 1}</div>
-      `
-      resultsContainer.appendChild(resultElement)
-    })
-  }
-}
-else {
+    if (this.currentMode === "word") {
+      if (data.predictions && data.predictions.length > 0) {
+        data.predictions.forEach((prediction, index) => {
+          const resultElement = document.createElement("div")
+          resultElement.className = "prediction-item"
+          resultElement.style.animationDelay = `${index * 0.1}s`
+          resultElement.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="prediction-word text-light">${prediction.word.toUpperCase()}&nbsp;</span>
+                <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
+              </div>
+            </div>
+            <div class="prediction-rank text-light">Rank ${index + 1}</div>
+          `
+          resultsContainer.appendChild(resultElement)
+        })
+      }
+    } else {
       if (data.predicted_syllable) {
         const resultElement = document.createElement("div")
         resultElement.className = "prediction-item primary-result"
         resultElement.innerHTML = `
           <div class="prediction-main">
             <div class="predicted-syllable text-light">${data.predicted_syllable.toUpperCase()}</div>
-            <div class="prediction-accuracy  text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
+            <div class="prediction-accuracy text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
           </div>
-          <div class="prediction-category  text-light">Category: ${this.currentCategory.toUpperCase()}</div>
+          <div class="prediction-category text-light">Category: ${this.currentCategory.toUpperCase()}</div>
         `
         resultsContainer.appendChild(resultElement)
       }
@@ -356,7 +474,7 @@ else {
       } else {
         startBtn.style.display = "inline-block"
         stopBtn.style.display = "none"
-        startBtn.disabled = false
+        startBtn.disabled = true
       }
     }
   }
@@ -378,7 +496,9 @@ else {
     if (progressBar && progressText) {
       const progress = (this.recordingFrames.length / this.targetFrames) * 100
       progressBar.style.width = `${progress}%`
-      progressText.textContent = `Collecting frames: ${this.recordingFrames.length}/${this.targetFrames}`
+
+      const elapsed = ((Date.now() - this.recordingStartTime) / 1000).toFixed(1)
+      progressText.textContent = `Analyzing... ${elapsed}s`
     }
   }
 
@@ -390,12 +510,11 @@ else {
     if (clockHand) clockHand.style.animation = `rotate-hand ${this.targetFrames / 30}s linear`
     if (timerStatus) timerStatus.textContent = "Recording in progress..."
 
-    let frameCount = 0
+    let start = Date.now()
     this.timerInterval = setInterval(() => {
-      frameCount++
-      if (timerText) timerText.textContent = `${frameCount}/${this.targetFrames}`
-      if (frameCount >= this.targetFrames) this.stopRecordingTimer()
-    }, 33)
+      const elapsed = ((Date.now() - start) / 1000).toFixed(1)
+      if (timerText) timerText.textContent = `${elapsed}s`
+    }, 100)
   }
 
   stopRecordingTimer() {

@@ -127,32 +127,27 @@ class QuizManager {
     }
   }
 
-  showQuestion() {
-    if (this.currentQuestion >= this.questions.length) {
-      this.endQuiz()
-      return
-    }
-
-    const question = this.questions[this.currentQuestion]
-
-    // Update progress
-    this.updateProgress()
-
-    // Update question number
-    document.getElementById("questionNumber").textContent = this.currentQuestion + 1
-
-    // Show GIF
-    this.displayQuestionGif(question)
-
-    // Show options
-    this.displayAnswerOptions(question)
-
-    // Start timer
-    this.startTimer()
-
-    // Hide feedback
-    document.getElementById("answerFeedback").style.display = "none"
+showQuestion() {
+  if (this.currentQuestion >= this.questions.length) {
+    this.endQuiz()
+    return
   }
+
+  // clear any previous timer before starting a new one
+  this.stopTimer()
+
+  const question = this.questions[this.currentQuestion]
+  this.updateProgress()
+  document.getElementById("questionNumber").textContent = this.currentQuestion + 1
+  this.displayQuestionGif(question)
+  this.displayAnswerOptions(question)
+
+  // start a fresh timer
+  this.startTimer()
+
+  document.getElementById("answerFeedback").style.display = "none"
+}
+
 
   displayQuestionGif(question) {
     const gifContainer = document.getElementById("questionGif")
@@ -283,9 +278,8 @@ class QuizManager {
     // Disable all options
     document.querySelectorAll(".answer-option").forEach((btn) => {
       btn.disabled = true
-
       if (btn.dataset.answer === correctAnswer) {
-        btn.classList.add("correct")
+        btn.classList.add("correct") // Highlight correct answer in green
       } else if (btn.dataset.answer === selectedAnswer && selectedAnswer !== correctAnswer) {
         btn.classList.add("incorrect")
       }
@@ -380,75 +374,93 @@ class QuizManager {
 
     feedbackContainer.style.display = "block"
   }
-
   startTimer() {
-    this.timeLeft = 30
-    this.updateTimerDisplay()
+    this.duration = 30 * 1000; // 30 seconds in ms
+    this.startTime = Date.now();
+    this.timeLeft = 30; // match duration
+
+    // clear old timer if exists
+    if (this.timer) clearInterval(this.timer);
+
+    // ✅ immediately update so UI shows 30 and hand at 0deg
+    this.updateTimerDisplay();
 
     this.timer = setInterval(() => {
-      this.timeLeft--
-      this.updateTimerDisplay()
+      const elapsed = Date.now() - this.startTime;
+      const remaining = Math.ceil((this.duration - elapsed) / 1000);
+
+      this.timeLeft = Math.max(remaining, 0);
+
+      this.updateTimerDisplay();
 
       if (this.timeLeft <= 0) {
-        // Time's up - select no answer
-        this.selectAnswer("", this.questions[this.currentQuestion].syllable, this.questions[this.currentQuestion])
+        this.stopTimer();
+        this.selectAnswer(
+          "",
+          this.questions[this.currentQuestion].word,
+          this.questions[this.currentQuestion]
+        );
       }
-    }, 1000)
+    }, 100);
   }
 
   stopTimer() {
     if (this.timer) {
-      clearInterval(this.timer)
-      this.timer = null
+      clearInterval(this.timer);
+      this.timer = null;
     }
   }
 
   updateTimerDisplay() {
-    const timerText = document.getElementById("timerText")
-    const clockHand = document.getElementById("clockHand")
-    const animatedClock = document.getElementById("animatedClock")
+    const timerText = document.getElementById("timerText");
+    const clockHand = document.getElementById("clockHand");
+    const animatedClock = document.getElementById("animatedClock");
 
     if (timerText) {
-      timerText.textContent = this.timeLeft
+      timerText.textContent = this.timeLeft;
     }
 
-    // Update clock hand rotation (360 degrees over 30 seconds)
-    if (clockHand) {
-      const rotation = ((30 - this.timeLeft) / 30) * 360
-      clockHand.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`
+    // Update clock hand rotation (360° over 30s)
+    if (clockHand && this.startTime) {
+      const elapsed = Date.now() - this.startTime;
+      const progress = Math.min(elapsed / this.duration, 1); // 0 → 1
+      const rotation = progress * 360; // 360° in 30s
+      clockHand.style.transition = "none";
+      clockHand.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`;
     }
 
     // Update clock appearance based on time left
     if (animatedClock) {
-      animatedClock.classList.remove("warning", "danger")
+      animatedClock.classList.remove("warning", "danger");
 
       if (this.timeLeft <= 5) {
-        animatedClock.classList.add("danger")
+        animatedClock.classList.add("danger");
       } else if (this.timeLeft <= 10) {
-        animatedClock.classList.add("warning")
+        animatedClock.classList.add("warning");
       }
     }
 
     // Update time left in stats
-    const timeLeftEl = document.getElementById("timeLeft")
+    const timeLeftEl = document.getElementById("timeLeft");
     if (timeLeftEl) {
-      timeLeftEl.textContent = this.timeLeft
+      timeLeftEl.textContent = this.timeLeft;
     }
   }
 
   updateProgress() {
-    const progressBar = document.getElementById("progressBar")
-    const progressText = document.getElementById("progressText")
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
 
     if (progressBar) {
-      const progress = (this.currentQuestion / this.totalQuestions) * 100
-      progressBar.style.width = `${progress}%`
+      const progress = (this.currentQuestion / this.totalQuestions) * 100;
+      progressBar.style.width = `${progress}%`;
     }
 
     if (progressText) {
-      progressText.textContent = `Question ${this.currentQuestion + 1} of ${this.totalQuestions}`
+      progressText.textContent = `Question ${this.currentQuestion + 1} of ${this.totalQuestions}`;
     }
   }
+
 
   updateScoreDisplay() {
     const scoreEl = document.getElementById("currentScore")
@@ -606,29 +618,28 @@ class QuizManager {
       : '<div class="analysis-item text-success">Great job! No major weaknesses found.</div>'
   }
 
-async saveResults() {
-  try {
-    const results = {
-      score: this.score,
-      accuracy: (this.correctAnswers / this.totalQuestions) * 100,
-    }
+  async saveResults() {
+    try {
+      const results = {
+        score: this.score,
+        accuracy: (this.correctAnswers / this.totalQuestions) * 100,
+      }
 
-    const response = await fetch("/api/word-quiz/save-score", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(results),
-    })
+      const response = await fetch("/api/word-quiz/save-score", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(results),
+      })
 
-    if (response.ok) {
-      const data = await response.json()
-      this.showHighScores(data.high_scores, data.is_new_high_score)
+      if (response.ok) {
+        const data = await response.json()
+        this.showHighScores(data.high_scores, data.is_new_high_score)
+      }
+    } catch (error) {
     }
-  } catch (error) {
   }
-}
-
 
   resetQuiz() {
     // Reset all states
@@ -703,28 +714,27 @@ async saveResults() {
     }
   }
 
-
   showHighScores(highScores, isNewHigh) {
-  const container = document.getElementById("highScoresList")
-  if (!container) return
+    const container = document.getElementById("highScoresList")
+    if (!container) return
 
-  let html = "<h5>Top Scores</h5><ul class='list-group'>"
-  highScores.forEach((score, i) => {
-    html += `
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        #${i + 1} – ${score.score} pts
-        <span class="badge bg-primary">${Math.round(score.accuracy)}%</span>
-      </li>
-    `
-  })
-  html += "</ul>"
+    let html = "<h5>Top Scores</h5><ul class='list-group'>"
+    highScores.forEach((score, i) => {
+      html += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          #${i + 1} – ${score.score} pts
+          <span class="badge bg-primary">${Math.round(score.accuracy)}%</span>
+        </li>
+      `
+    })
+    html += "</ul>"
 
-  if (isNewHigh) {
-    html += `<p class="text-success mt-2"><i class="fas fa-trophy"></i> New High Score!</p>`
+    if (isNewHigh) {
+      html += `<p class="text-success mt-2"><i class="fas fa-trophy"></i> New High Score!</p>`
+    }
+
+    container.innerHTML = html
   }
-
-  container.innerHTML = html
-}
 }
 
 // Initialize quiz manager when DOM is loaded
@@ -732,5 +742,3 @@ document.addEventListener("DOMContentLoaded", () => {
   window.quizManager = new QuizManager()
   console.log("Quiz manager initialized")
 })
-
-

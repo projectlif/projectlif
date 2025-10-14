@@ -507,7 +507,6 @@ CHALLENGE_GROUPS = {
 }
 
 
-# Model configurations
 MODEL_CONFIGS = {
     'vowels': {
         'model_path': 'model/model_v.h5',
@@ -574,10 +573,10 @@ MODEL_CONFIGS = {
         'classes': ['ya', 'ye', 'yi', 'yo', 'yu']
     },
     'words': {
-        'model_path': 'model/modelwords2.h5',
+        'model_path': 'model/words-variant3-30words.h5',
         'classes': [
-            "aba", "abo", "awa", "baga", "bawi", "buti","diwa", "gawa","hilo","iba", "kami", "kape", "misa", "mula", 
-            "ngiti", "nguya", "oo", "paa","piso", "puti", "relo", "sabi", "sako","uso", "wala"
+            "aba", "abo", "ate", "awa", "bawi", "bili", "bota", "bote", "buti", "datu", "diwa","hilo", "iba", "kami", "kape", "lagi", "mesa", "misa", "mula", "ngiti", "nguya","oo", "paa", "peso", "piso", "puro", "relo", "sako", "sige", "uso", "wala"
+
                     ]
     }
 }
@@ -700,7 +699,6 @@ def save_quiz_score():
         if not user_id:
             return jsonify({'error': 'No session found'}), 400
         
-        # Get current high scores (keep top 3)
         high_scores = session.get('quiz_high_scores', [])
         
         new_score = {
@@ -710,18 +708,12 @@ def save_quiz_score():
         }
         
         high_scores.append(new_score)
-        
-        # Sort by score descending
         high_scores.sort(key=lambda x: x['score'], reverse=True)
-        
-        # Keep only top 3
         session['quiz_high_scores'] = high_scores[:3]
         
-        # Correct high score check (compare against best score after slicing)
-        is_new_high_score = (
-            len(session['quiz_high_scores']) == 1 or
-            new_score['score'] >= session['quiz_high_scores'][0]['score']
-        )
+        # ✅ Fix: compare against the best score only
+        best_score = session['quiz_high_scores'][0]['score']
+        is_new_high_score = new_score['score'] == best_score
         
         return jsonify({
             'success': True,
@@ -733,7 +725,7 @@ def save_quiz_score():
         return jsonify({'error': str(e)}), 500
 
 
-
+# ========== FIXED WORD QUIZ SCORE ROUTE ==========
 @app.route('/api/word-quiz/save-score', methods=['POST'])
 def save_word_quiz_score():
     try:
@@ -743,7 +735,6 @@ def save_word_quiz_score():
         if not user_id:
             return jsonify({'error': 'No session found'}), 400
         
-        # Get current high scores (keep top 3)
         high_scores = session.get('word_quiz_high_scores', [])
         
         new_score = {
@@ -753,18 +744,12 @@ def save_word_quiz_score():
         }
         
         high_scores.append(new_score)
-        
-        # Sort by score descending
         high_scores.sort(key=lambda x: x['score'], reverse=True)
-        
-        # Keep only top 3
         session['word_quiz_high_scores'] = high_scores[:3]
         
-        # Check if new high score (after slicing)
-        is_new_high_score = (
-            len(session['word_quiz_high_scores']) == 1 or
-            new_score['score'] >= session['word_quiz_high_scores'][0]['score']
-        )
+        # ✅ Fix: compare against the best score only
+        best_score = session['word_quiz_high_scores'][0]['score']
+        is_new_high_score = new_score['score'] == best_score
         
         return jsonify({
             'success': True,
@@ -774,6 +759,7 @@ def save_word_quiz_score():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 
 
