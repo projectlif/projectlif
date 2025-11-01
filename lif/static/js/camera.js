@@ -183,13 +183,13 @@ class CameraManager {
       syllableCategory.style.display = "block"
       wordCategory.style.display = "none"
       frameCount.textContent = "22"
-      estimatedTime.textContent = "~1 second"
+      estimatedTime.textContent = "~30 seconds"
       currentModeEl.textContent = "Syllables"
     } else {
       syllableCategory.style.display = "none"
       wordCategory.style.display = "block"
       frameCount.textContent = "44"
-      estimatedTime.textContent = "~2 seconds"
+      estimatedTime.textContent = "~2 minutes"
       currentModeEl.textContent = "Words"
     }
 
