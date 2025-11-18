@@ -1354,36 +1354,44 @@ def crop_and_pad_mouth(frame, landmarks):
   except Exception as e:
     print(f"Error in crop_and_pad_mouth: {e}")
     return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
-
 def process_frames_for_prediction(frames):
-  """Process uploaded frames for model prediction with collect.py preprocessing"""
-  processed_frames = []
-  for frame_file in frames:
-    try:
-      image = Image.open(frame_file.stream)
-      frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    processed_frames = []
+    face_detect_count = 0
 
-      gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-      faces = detector(gray, 1) if detector else []
+    for frame_file in frames:
+        try:
+            image = Image.open(frame_file.stream)
+            frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
-      if not faces:
-        faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
-        faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-      if faces:
-        face = max(faces, key=lambda f: f.bottom() - f.top()) if len(faces) > 1 else faces[0]
-        landmarks = predictor(gray, face) if predictor else None
-        if landmarks:
-          mouth_frame = crop_and_pad_mouth(frame, landmarks)
-          processed_frames.append(mouth_frame)
-        else:
-          processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
-      else:
-        processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
-    except Exception as e:
-      print(f"Error processing frame: {e}")
-      processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
-  return processed_frames
+            # Step 1: Dlib detection
+            faces = detector(gray, 1) if detector else []
+
+            # Step 2: Haar fallback
+            if not faces:
+                faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
+                faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
+
+            if faces:
+                face_detect_count += 1
+                # pick largest face
+                face = max(faces, key=lambda f: f.bottom() - f.top())
+
+                if predictor:
+                    landmarks = predictor(gray, face)
+                    mouth_frame = crop_and_pad_mouth(frame, landmarks)
+                    processed_frames.append(mouth_frame)
+                else:
+                    processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+            else:
+                processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+
+        except Exception as e:
+            print(f"Error processing frame: {e}")
+            processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+
+    return processed_frames, face_detect_count
 
 def has_sufficient_motion(frames, min_diff=5.0):
   """Check if recorded frames have sufficient motion"""
@@ -1460,7 +1468,12 @@ def predict_syllable_category(category):
     if not frames:
       return jsonify({'error': 'No frames provided'}), 400
 
-    processed_frames = process_frames_for_prediction(frames)
+    processed_frames, face_count = process_frames_for_prediction(frames)
+
+    # NEW CONDITION — STOP if no faces detected in ANY frame
+    if face_count == 0:
+        return jsonify({"error": "No face detected. Please move closer to the camera."}), 400
+
     if len(processed_frames) == 0:
       return jsonify({'error': 'No valid frames processed'}), 400
 
@@ -1506,7 +1519,13 @@ def predict_words():
     if not frames:
       return jsonify({'error': 'No frames provided'}), 400
 
-    processed_frames = process_frames_for_prediction(frames)
+    processed_frames, face_count = process_frames_for_prediction(frames)
+
+    # NEW CONDITION — STOP if no faces detected in ANY frame
+    if face_count == 0:
+        return jsonify({"error": "No face detected. Please move closer to the camera."}), 400
+
+        
     if len(processed_frames) == 0:
       return jsonify({'error': 'No valid frames processed'}), 400
 
