@@ -513,70 +513,6 @@ CHALLENGE_GROUPS = {
 }
 
 MODEL_CONFIGS = {
-    'vowels': {
-        'model_path': 'model/model_v.h5',
-        'classes': ['a', 'e', 'i', 'o', 'u']
-    },
-    'b': {
-        'model_path': 'model/model_b.h5',
-        'classes': ['ba', 'be', 'bi', 'bo', 'bu']
-    },
-    'k': {
-        'model_path': 'model/model_k.h5',
-        'classes': ['ka', 'ke', 'ki', 'ko', 'ku']
-    },
-    'd': {
-        'model_path': 'model/model_d.h5',
-        'classes': ['da', 'de', 'di', 'do', 'du']
-    },
-    'g': {
-        'model_path': 'model/model_g.h5',
-        'classes': ['ga', 'ge', 'gi', 'go', 'gu']
-    },
-    'h': {
-        'model_path': 'model/model_h.h5',
-        'classes': ['ha', 'he', 'hi', 'ho', 'hu']
-    },
-    'l': {
-        'model_path': 'model/model_l.h5',
-        'classes': ['la', 'le', 'li', 'lo', 'lu']
-    },
-    'm': {
-        'model_path': 'model/model_m.h5',
-        'classes': ['ma', 'me', 'mi', 'mo', 'mu']
-    },
-    'n': {
-        'model_path': 'model/model_n.h5',
-        'classes': ['na', 'ne', 'ni', 'no', 'nu']
-    },
-    'ng': {
-        'model_path': 'model/model_ng.h5',
-        'classes': ['nga', 'nge', 'ngi', 'ngo', 'ngu']
-    },
-    'p': {
-        'model_path': 'model/model_p.h5',
-        'classes': ['pa', 'pe', 'pi', 'po', 'pu']
-    },
-    'r': {
-        'model_path': 'model/model_r.h5',
-        'classes': ['ra', 're', 'ri', 'ro', 'ru']
-    },
-    's': {
-        'model_path': 'model/model_s.h5',
-        'classes': ['sa', 'se', 'si', 'so', 'su']
-    },
-    't': {
-        'model_path': 'model/model_t.h5',
-        'classes': ['ta', 'te', 'ti', 'to', 'tu']
-    },
-    'w': {
-        'model_path': 'model/model_w.h5',
-        'classes': ['wa', 'we', 'wi', 'wo', 'wu']
-    },
-    'y': {
-        'model_path': 'model/model_y.h5',
-        'classes': ['ya', 'ye', 'yi', 'yo', 'yu']
-    },
     'words': {
         'model_path': 'model/final_model_words.keras',
         'classes': [ "aba", "abo", "ate", "awa", "bawi", "bota", "bote", "buti", "datu", "diwa","goma", "hilo", "iba", "kami", "kape", "lagi", "mesa", "misa", "mula", "ngiti","nguya", "oo", "peso", "piso", "relo", "sige", "tao", "upo", "uso","wala",]
@@ -729,7 +665,6 @@ def save_quiz_score():
         return jsonify({'error': str(e)}), 500
 
 
-# ========== FIXED WORD QUIZ SCORE ROUTE ==========
 @app.route('/api/word-quiz/save-score', methods=['POST'])
 def save_word_quiz_score():
     try:
@@ -763,7 +698,6 @@ def save_word_quiz_score():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 
 
 
@@ -1453,58 +1387,6 @@ def detect_landmarks():
     print(f"Error in landmarks detection: {e}")
     return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/api/predict/syllable/<category>', methods=['POST'])
-def predict_syllable_category(category):
-  """Predict syllable for specific category (collect.py preprocessing, 22 frames)"""
-  try:
-    if category not in MODEL_CONFIGS:
-      return jsonify({'error': f'Unknown category: {category}'}), 400
-
-    model = load_model_for_category(category)
-    if model is None:
-      return jsonify({'error': f'Failed to load model for category: {category}'}), 500
-
-    frames = request.files.getlist('frames')
-    if not frames:
-      return jsonify({'error': 'No frames provided'}), 400
-
-    processed_frames, face_count = process_frames_for_prediction(frames)
-
-    # NEW CONDITION — STOP if no faces detected in ANY frame
-    if face_count == 0:
-        return jsonify({"error": "No face detected. Please move closer to the camera."}), 400
-
-    if len(processed_frames) == 0:
-      return jsonify({'error': 'No valid frames processed'}), 400
-
-    target_frames = min(22, len(processed_frames))
-    video_data = processed_frames[:target_frames]
-
-    while len(video_data) < 22:
-      video_data.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
-
-    video = np.array(video_data)  # (22, 80, 112, 3) if you read as (H, W), but our constants map to (H=80, W=112)
-    video = video.astype(np.float32) / 255.0
-    video = np.expand_dims(video, axis=0)  # (1, 22, 80, 112, 3)
-
-    predictions = model.predict(video)
-    pred_idx = int(np.argmax(predictions[0]))
-    pred_confidence = float(predictions[0][pred_idx])
-
-    classes = MODEL_CONFIGS[category]['classes']
-    predicted_syllable = classes[pred_idx]
-
-    return jsonify({
-      'success': True,
-      'predicted_syllable': predicted_syllable,
-      'accuracy': pred_confidence,
-      'category': category,
-      'frames_processed': len(processed_frames)
-    })
-  except Exception as e:
-    print(f"Error in syllable prediction: {e}")
-    return jsonify({'success': False, 'error': str(e)}), 500
-
 
 
 @app.route('/api/predict/words', methods=['POST'])
@@ -1520,20 +1402,28 @@ def predict_words():
       return jsonify({'error': 'No frames provided'}), 400
 
     processed_frames, face_count = process_frames_for_prediction(frames)
+    MIN_FACE_FRAMES = 30  
 
-    # NEW CONDITION — STOP if no faces detected in ANY frame
     if face_count == 0:
         return jsonify({"error": "No face detected. Please move closer to the camera."}), 400
+
+    if face_count < MIN_FACE_FRAMES:
+        return jsonify({
+            "error": f"Face not clearly detected. Only {face_count}/{len(frames)} frames contained a face. Please stay centered and try again."
+        }), 400
 
         
     if len(processed_frames) == 0:
       return jsonify({'error': 'No valid frames processed'}), 400
 
     target_frames = min(44, len(processed_frames))
-    video_data = processed_frames[:target_frames]
+    video_data = processed_frames[:44]
 
-    while len(video_data) < 44:
-      video_data.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+    if len(video_data) < 44:
+        padding = [np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
+                for _ in range(44 - len(video_data))]
+        video_data.extend(padding)
+
 
     video = np.array(video_data)  # (44, 80, 112, 3)
     video = video.astype(np.float32) / 255.0
