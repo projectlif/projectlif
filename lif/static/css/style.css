@@ -689,12 +689,6 @@ body {
   transform: translateX(5px);
 }
 
-.syllable {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: var(--text-light);
-}
-
 .confidence {
   font-weight: 500;
   color: var(--accent-color);
@@ -1994,7 +1988,7 @@ img[src*=".gif"] {
     margin: 0.5rem 1rem !important;
     justify-content: center !important;
   }
-}
+
 
 /* Light theme mobile navigation */
 @media (max-width: 1199.98px) {

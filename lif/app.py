@@ -514,8 +514,10 @@ CHALLENGE_GROUPS = {
 
 MODEL_CONFIGS = {
     'words': {
-        'model_path': 'model/final_model_words.keras',
-        'classes': [ "aba", "abo", "ate", "awa", "bawi", "bota", "bote", "buti", "datu", "diwa","goma", "hilo", "iba", "kami", "kape", "lagi", "mesa", "misa", "mula", "ngiti","nguya", "oo", "peso", "piso", "relo", "sige", "tao", "upo", "uso","wala",]
+        'model_path': 'model/words_big_reg.keras',
+        'classes': ["aba", "abo", "aso", "ate", "awa", "bibe", "bote", "buti", "datu", "diwa",
+    "goma", "iba", "kami", "kape", "lagi", "lola", "mula", "ngiti", "nguya", "oo",
+    "peso", "piso", "relo", "sige", "susi", "tema", "tore", "upo", "uso", "wala"]
 }
 }
 
@@ -1208,8 +1210,6 @@ except Exception as e:
   detector = None
   predictor = None
 
-# Haar cascade as backup
-haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
 # === Image processing constants (match collect.py) ===
 LIP_WIDTH = 112
@@ -1241,53 +1241,48 @@ if 'words' in loaded_models:
         print("⚠️ Warmup failed:", e)
 
 
-
 def crop_and_pad_mouth(frame, landmarks):
-  """Crop mouth region, resize with reflect padding, and apply enhancements (collect.py)"""
-  try:
-    mouth_points = np.array([(landmarks.part(n).x, landmarks.part(n).y) for n in range(48, 68)])
-    x, y, w, h = cv2.boundingRect(mouth_points)
+    """Crop mouth region using same landmark technique as predict.py"""
 
-    x1 = max(x - CROP_MARGIN, 0)
-    y1 = max(y - CROP_MARGIN, 0)
-    x2 = min(x + w + CROP_MARGIN, frame.shape[1])
-    y2 = min(y + h + CROP_MARGIN, frame.shape[0])
+    try:
+        # Get key mouth landmarks
+        x1 = landmarks.part(48).x - CROP_MARGIN
+        y1 = landmarks.part(51).y - CROP_MARGIN
+        x2 = landmarks.part(54).x + CROP_MARGIN
+        y2 = landmarks.part(57).y + CROP_MARGIN
 
-    mouth_crop = frame[y1:y2, x1:x2]
-    if mouth_crop.size == 0:
-      return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
+        # Validate bounds
+        if x1 < 0 or y1 < 0 or x2 > frame.shape[1] or y2 > frame.shape[0]:
+            return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
 
-    h_crop, w_crop, _ = mouth_crop.shape
-    scale = min(LIP_WIDTH / w_crop, LIP_HEIGHT / h_crop)
-    new_w, new_h = int(w_crop * scale), int(h_crop * scale)
-    resized = cv2.resize(mouth_crop, (new_w, new_h))
+        mouth_crop = frame[y1:y2, x1:x2]
 
-    pad_top = (LIP_HEIGHT - new_h) // 2
-    pad_bottom = LIP_HEIGHT - new_h - pad_top
-    pad_left = (LIP_WIDTH - new_w) // 2
-    pad_right = LIP_WIDTH - new_w - pad_left
+        if mouth_crop.size == 0:
+            return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
 
-    lip_frame = cv2.copyMakeBorder(
-      resized, pad_top, pad_bottom, pad_left, pad_right, borderType=cv2.BORDER_REFLECT
-    )
+        # Resize to fixed 112x80 like collect.py
+        mouth_resized = cv2.resize(mouth_crop, (LIP_WIDTH, LIP_HEIGHT))
 
-    # Enhancements (CLAHE, blur, bilateral, sharpen, final blur)
-    lab = cv2.cvtColor(lip_frame, cv2.COLOR_BGR2LAB)
-    l, a, b = cv2.split(lab)
-    clahe = cv2.createCLAHE(clipLimit=CLAHE_CLIP_LIMIT, tileGridSize=CLAHE_TILE_GRID_SIZE)
-    l = clahe.apply(l)
-    lab = cv2.merge((l, a, b))
-    lip_frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+        # Apply same enhancements as collect.py
+        lab = cv2.cvtColor(mouth_resized, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+        clahe = cv2.createCLAHE(clipLimit=CLAHE_CLIP_LIMIT, tileGridSize=CLAHE_TILE_GRID_SIZE)
+        l = clahe.apply(l)
+        lab = cv2.merge((l, a, b))
+        enhanced = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
-    lip_frame = cv2.GaussianBlur(lip_frame, GAUSSIAN_BLUR_1, 0)
-    lip_frame = cv2.bilateralFilter(lip_frame, BILATERAL_FILTER_D, BILATERAL_FILTER_SIGMA, BILATERAL_FILTER_SIGMA)
-    lip_frame = cv2.filter2D(lip_frame, -1, SHARPENING_KERNEL)
-    lip_frame = cv2.GaussianBlur(lip_frame, GAUSSIAN_BLUR_2, 0)
+        enhanced = cv2.GaussianBlur(enhanced, GAUSSIAN_BLUR_1, 0)
+        enhanced = cv2.bilateralFilter(enhanced, BILATERAL_FILTER_D, BILATERAL_FILTER_SIGMA, BILATERAL_FILTER_SIGMA)
+        enhanced = cv2.filter2D(enhanced, -1, SHARPENING_KERNEL)
+        enhanced = cv2.GaussianBlur(enhanced, GAUSSIAN_BLUR_2, 0)
 
-    return lip_frame
-  except Exception as e:
-    print(f"Error in crop_and_pad_mouth: {e}")
-    return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
+        return enhanced
+
+    except Exception as e:
+        print(f"Error in crop_and_pad_mouth: {e}")
+        return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
+
+
 def process_frames_for_prediction(frames):
     processed_frames = []
     face_detect_count = 0
@@ -1301,11 +1296,6 @@ def process_frames_for_prediction(frames):
 
             # Step 1: Dlib detection
             faces = detector(gray, 1) if detector else []
-
-            # Step 2: Haar fallback
-            if not faces:
-                faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
-                faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
 
             if faces:
                 face_detect_count += 1
@@ -1356,10 +1346,6 @@ def detect_landmarks():
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(gray, 1) if detector else []
 
-    if not faces:
-      faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
-      faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
-
     if faces:
       face = max(faces, key=lambda f: f.bottom() - f.top()) if len(faces) > 1 else faces[0]
       landmarks = predictor(gray, face) if predictor else None
@@ -1402,7 +1388,7 @@ def predict_words():
       return jsonify({'error': 'No frames provided'}), 400
 
     processed_frames, face_count = process_frames_for_prediction(frames)
-    MIN_FACE_FRAMES = 30  
+    MIN_FACE_FRAMES = 1  
 
     if face_count == 0:
         return jsonify({"error": "No face detected. Please move closer to the camera."}), 400
