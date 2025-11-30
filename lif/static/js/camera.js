@@ -424,43 +424,45 @@ class CameraManager {
   }
 
   displayPredictionResults(data) {
-    const resultsContainer = document.getElementById("predictionResults")
-    if (!resultsContainer) return
-    resultsContainer.innerHTML = ""
+  const resultsContainer = document.getElementById("predictionResults")
+  if (!resultsContainer) return
+  resultsContainer.innerHTML = ""
 
-   if (data.predictions && data.predictions.length > 0) {
-  const top1 = data.predictions[0]; // ← take only the best prediction
+  // WORD MODE → show only top 1
+  if (this.currentMode === "word") {
+    if (data.predictions && data.predictions.length > 0) {
+      const top1 = data.predictions[0]
 
-  const resultElement = document.createElement("div");
-  resultElement.className = "prediction-item primary-result";
-  resultElement.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        <span class="prediction-word text-light">${top1.word.toUpperCase()}&nbsp;</span>
-        <span class="prediction-confidence text-light">${Math.round(top1.confidence * 100)}%</span>
-      </div>
-    </div>
-  `;
-
-  resultsContainer.appendChild(resultElement);
-}
-)
-      }
-    } else {
-      if (data.predicted_syllable) {
-        const resultElement = document.createElement("div")
-        resultElement.className = "prediction-item primary-result"
-        resultElement.innerHTML = `
-          <div class="prediction-main">
-            <div class="predicted-syllable text-light">${data.predicted_syllable.toUpperCase()}</div>
-            <div class="prediction-accuracy text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
+      const resultElement = document.createElement("div")
+      resultElement.className = "prediction-item primary-result"
+      resultElement.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="prediction-word text-light">${top1.word.toUpperCase()}&nbsp;</span>
+            <span class="prediction-confidence text-light">${Math.round(top1.confidence * 100)}%</span>
           </div>
-          <div class="prediction-category text-light">Category: ${this.currentCategory.toUpperCase()}</div>
-        `
-        resultsContainer.appendChild(resultElement)
-      }
+        </div>
+      `
+      resultsContainer.appendChild(resultElement)
+    }
+
+  // SYLLABLE MODE (unchanged)
+  } else {
+    if (data.predicted_syllable) {
+      const resultElement = document.createElement("div")
+      resultElement.className = "prediction-item primary-result"
+      resultElement.innerHTML = `
+        <div class="prediction-main">
+          <div class="predicted-syllable text-light">${data.predicted_syllable.toUpperCase()}</div>
+          <div class="prediction-accuracy text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
+        </div>
+        <div class="prediction-category text-light">Category: ${this.currentCategory.toUpperCase()}</div>
+      `
+      resultsContainer.appendChild(resultElement)
     }
   }
+}
+
 
   updateRecordingControls(isRecording) {
     const startBtn = document.getElementById("startRecording")
