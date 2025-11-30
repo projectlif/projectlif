@@ -8,9 +8,9 @@ class CameraManager {
     this.stream = null
     this.isRecording = false
     this.recordingFrames = []
-    this.currentMode = "syllable"
-    this.currentCategory = "vowels"
-    this.targetFrames = 22
+    this.currentMode = "word"
+    this.currentCategory = "words"
+    this.targetFrames = 44
     this.frameInterval = null
     this.recordingStartTime = null
     this.landmarksInterval = null
@@ -428,23 +428,23 @@ class CameraManager {
     if (!resultsContainer) return
     resultsContainer.innerHTML = ""
 
-    if (this.currentMode === "word") {
-      if (data.predictions && data.predictions.length > 0) {
-        data.predictions.forEach((prediction, index) => {
-          const resultElement = document.createElement("div")
-          resultElement.className = "prediction-item"
-          resultElement.style.animationDelay = `${index * 0.1}s`
-          resultElement.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <span class="prediction-word text-light">${prediction.word.toUpperCase()}&nbsp;</span>
-                <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
-              </div>
-            </div>
-            <div class="prediction-rank text-light">Rank ${index + 1}</div>
-          `
-          resultsContainer.appendChild(resultElement)
-        })
+   if (data.predictions && data.predictions.length > 0) {
+  const top1 = data.predictions[0]; // ← take only the best prediction
+
+  const resultElement = document.createElement("div");
+  resultElement.className = "prediction-item primary-result";
+  resultElement.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <span class="prediction-word text-light">${top1.word.toUpperCase()}&nbsp;</span>
+        <span class="prediction-confidence text-light">${Math.round(top1.confidence * 100)}%</span>
+      </div>
+    </div>
+  `;
+
+  resultsContainer.appendChild(resultElement);
+}
+)
       }
     } else {
       if (data.predicted_syllable) {
