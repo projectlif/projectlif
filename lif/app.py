@@ -1212,8 +1212,6 @@ except Exception as e:
   detector = None
   predictor = None
 
-# Haar cascade as backup
-haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
 # === Image processing constants (match collect.py) ===
 LIP_WIDTH = 112
@@ -1243,7 +1241,6 @@ if 'words' in loaded_models:
         print("✅ words model warmed up")
     except Exception as e:
         print("⚠️ Warmup failed:", e)
-
 
 
 def crop_and_pad_mouth(frame, landmarks):
@@ -1333,10 +1330,6 @@ def detect_landmarks():
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(gray, 1) if detector else []
-
-    if not faces:
-      faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
-      faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
 
     if faces:
       face = max(faces, key=lambda f: f.bottom() - f.top()) if len(faces) > 1 else faces[0]

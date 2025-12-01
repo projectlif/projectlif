@@ -1955,7 +1955,6 @@ img[src*=".gif"] {
   .navbar-collapse .dropdown-divider {
     border-top: 1px solid var(--dark-border);
     margin: 0.5rem 0;
-  }
     border: 1px solid var(--dark-border) !important;
     box-shadow: var(--shadow-lg) !important;
   }
