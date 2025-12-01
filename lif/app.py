@@ -514,8 +514,12 @@ CHALLENGE_GROUPS = {
 
 MODEL_CONFIGS = {
     'words': {
-        'model_path': 'model/final_model_words.keras',
-        'classes': [ "aba", "abo", "ate", "awa", "bawi", "bota", "bote", "buti", "datu", "diwa","goma", "hilo", "iba", "kami", "kape", "lagi", "mesa", "misa", "mula", "ngiti","nguya", "oo", "peso", "piso", "relo", "sige", "tao", "upo", "uso","wala",]
+        'model_path': 'model/words_big_reg.keras',
+        'classes': ["aba", "abo", "aso", "ate", "awa", "bibe", "bote", "buti", "datu", "diwa",
+    "goma", "iba", "kami", "kape", "lagi", "lola", "mula", "ngiti", "nguya", "oo",
+    "peso", "piso", "relo", "sige", "susi", "tema", "tore", "upo", "uso", "wala"
+]
+
 }
 }
 
@@ -1243,7 +1247,7 @@ if 'words' in loaded_models:
 
 
 def crop_and_pad_mouth(frame, landmarks):
-  """Crop mouth region, resize with reflect padding, and apply enhancements (collect.py)"""
+  """Fast mouth crop: landmark bbox + direct resize to (LIP_WIDTH,LIP_HEIGHT)."""
   try:
     mouth_points = np.array([(landmarks.part(n).x, landmarks.part(n).y) for n in range(48, 68)])
     x, y, w, h = cv2.boundingRect(mouth_points)
@@ -1257,34 +1261,9 @@ def crop_and_pad_mouth(frame, landmarks):
     if mouth_crop.size == 0:
       return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
 
-    h_crop, w_crop, _ = mouth_crop.shape
-    scale = min(LIP_WIDTH / w_crop, LIP_HEIGHT / h_crop)
-    new_w, new_h = int(w_crop * scale), int(h_crop * scale)
-    resized = cv2.resize(mouth_crop, (new_w, new_h))
-
-    pad_top = (LIP_HEIGHT - new_h) // 2
-    pad_bottom = LIP_HEIGHT - new_h - pad_top
-    pad_left = (LIP_WIDTH - new_w) // 2
-    pad_right = LIP_WIDTH - new_w - pad_left
-
-    lip_frame = cv2.copyMakeBorder(
-      resized, pad_top, pad_bottom, pad_left, pad_right, borderType=cv2.BORDER_REFLECT
-    )
-
-    # Enhancements (CLAHE, blur, bilateral, sharpen, final blur)
-    lab = cv2.cvtColor(lip_frame, cv2.COLOR_BGR2LAB)
-    l, a, b = cv2.split(lab)
-    clahe = cv2.createCLAHE(clipLimit=CLAHE_CLIP_LIMIT, tileGridSize=CLAHE_TILE_GRID_SIZE)
-    l = clahe.apply(l)
-    lab = cv2.merge((l, a, b))
-    lip_frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-
-    lip_frame = cv2.GaussianBlur(lip_frame, GAUSSIAN_BLUR_1, 0)
-    lip_frame = cv2.bilateralFilter(lip_frame, BILATERAL_FILTER_D, BILATERAL_FILTER_SIGMA, BILATERAL_FILTER_SIGMA)
-    lip_frame = cv2.filter2D(lip_frame, -1, SHARPENING_KERNEL)
-    lip_frame = cv2.GaussianBlur(lip_frame, GAUSSIAN_BLUR_2, 0)
-
-    return lip_frame
+    # Direct resize to match model input
+    mouth_resized = cv2.resize(mouth_crop, (LIP_WIDTH, LIP_HEIGHT))
+    return mouth_resized
   except Exception as e:
     print(f"Error in crop_and_pad_mouth: {e}")
     return np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
@@ -1299,16 +1278,10 @@ def process_frames_for_prediction(frames):
 
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            # Step 1: Dlib detection
+            # Dlib detection only (match predict.py)
             faces = detector(gray, 1) if detector else []
 
-            # Step 2: Haar fallback
-            if not faces:
-                faces_haar = haar_cascade.detectMultiScale(gray, 1.1, 5)
-                faces = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in faces_haar]
-
             if faces:
-                face_detect_count += 1
                 # pick largest face
                 face = max(faces, key=lambda f: f.bottom() - f.top())
 
@@ -1316,14 +1289,19 @@ def process_frames_for_prediction(frames):
                     landmarks = predictor(gray, face)
                     mouth_frame = crop_and_pad_mouth(frame, landmarks)
                     processed_frames.append(mouth_frame)
+                    # Count only frames where we actually produced a mouth crop
+                    face_detect_count += 1
                 else:
-                    processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+                    continue
+
             else:
-                processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+                continue
+
 
         except Exception as e:
             print(f"Error processing frame: {e}")
-            processed_frames.append(np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8))
+            continue
+
 
     return processed_frames, face_detect_count
 
@@ -1389,20 +1367,23 @@ def detect_landmarks():
 
 
 
+
 @app.route('/api/predict/words', methods=['POST'])
 def predict_words():
-  """Predict Filipino words (collect.py preprocessing, 44 frames, top-5)"""
+  """Predict Filipino words (fast path: simple resize, pad to 44, top-1)."""
   try:
+    import time
+    t0 = time.time()
     model = load_model_for_category('words')
     if model is None:
-      return jsonify({'error': 'Failed to load words model'}), 500
+      return jsonify({'success': False, 'error': 'Model not available'}), 500
 
     frames = request.files.getlist('frames')
     if not frames:
       return jsonify({'error': 'No frames provided'}), 400
 
     processed_frames, face_count = process_frames_for_prediction(frames)
-    MIN_FACE_FRAMES = 30  
+    MIN_FACE_FRAMES = 1  
 
     if face_count == 0:
         return jsonify({"error": "No face detected. Please move closer to the camera."}), 400
@@ -1416,38 +1397,44 @@ def predict_words():
     if len(processed_frames) == 0:
       return jsonify({'error': 'No valid frames processed'}), 400
 
-    target_frames = min(44, len(processed_frames))
-    video_data = processed_frames[:44]
+    # Require exactly 44 processed mouth frames (match predict.py)
+    if len(processed_frames) < 44 or face_count < 44:
+      return jsonify({
+        'error': f'Insufficient mouth frames: {len(processed_frames)}/44. Please retry, keep your face centered, and ensure good lighting.'
+      }), 400
 
-    if len(video_data) < 44:
-        padding = [np.zeros((LIP_HEIGHT, LIP_WIDTH, 3), dtype=np.uint8)
-                for _ in range(44 - len(video_data))]
-        video_data.extend(padding)
+    # Use the most recent 44 frames (predict.py uses a deque with maxlen=44)
+    video_data = processed_frames[-44:]
 
 
     video = np.array(video_data)  # (44, 80, 112, 3)
     video = video.astype(np.float32) / 255.0
     video = np.expand_dims(video, axis=0)  # (1, 44, 80, 112, 3)
-
-    predictions = model.predict(video)[0]
-    top_indices = np.argsort(predictions)[-5:][::-1]
+    t_pre = time.time()
+    predictions = model.predict(video, verbose=0)[0]
+    t_pred = time.time()
     classes = MODEL_CONFIGS['words']['classes']
-
-    top_predictions = []
-    for idx in top_indices:
-      top_predictions.append({
-        'word': classes[int(idx)],
-        'confidence': float(predictions[int(idx)])
-      })
+    # Select only the top-1 prediction
+    top_idx = int(np.argmax(predictions))
+    top_predictions = [{
+      'word': classes[top_idx],
+      'confidence': float(predictions[top_idx])
+    }]
 
     return jsonify({
       'success': True,
       'predictions': top_predictions,
-      'frames_processed': len(processed_frames)
+      'frames_processed': len(processed_frames),
+      'timing': {
+        'preprocess_sec': round(t_pre - t0, 3),
+        'predict_sec': round(t_pred - t_pre, 3),
+        'total_sec': round(time.time() - t0, 3)
+      }
     })
   except Exception as e:
     print(f"Error in word prediction: {e}")
     return jsonify({'success': False, 'error': str(e)}), 500
 
+    
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=5000)

@@ -93,72 +93,50 @@
             <!-- Control Panel Sidebar -->
             <div class="col-lg-4">
                 <!-- Prediction Mode Selection -->
-                <div class="card bg-dark-card border-0 shadow-lg mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-light mb-3">
-                            <i class="fas fa-cog gradient-text me-2"></i>
-                            Prediction Mode
-                        </h5>
-                        
-                        <!-- Mode Selection -->
-                        <div class="mode-selection mb-3">
-                            <div class="btn-group w-100" role="group">
-                                
-                                
-                                <input type="radio" class="btn-check" name="predictionMode" id="wordMode" value="word">
-                                <label class="btn btn-outline-primary" for="wordMode">
-                                    <i class="fas fa-comment me-2"></i>Words
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Syllable Category Dropdown -->
-                        <div class="syllable-category mb-3" id="syllableCategory">
-                            <label class="form-label text-light">Select Category:</label>
-                            <select class="form-select" id="categorySelect">
-                                <option value="vowels">Vowels (a, e, i, o, u)</option>
-                                <option value="b">B Syllables (ba, be, bi, bo, bu)</option>
-                                <option value="k">K Syllables (ka, ke, ki, ko, ku)</option>
-                                <option value="d">D Syllables (da, de, di, do, du)</option>
-                                <option value="g">G Syllables (ga, ge, gi, go, gu)</option>
-                                <option value="h">H Syllables (ha, he, hi, ho, hu)</option>
-                                <option value="l">L Syllables (la, le, li, lo, lu)</option>
-                                <option value="m">M Syllables (ma, me, mi, mo, mu)</option>
-                                <option value="n">N Syllables (na, ne, ni, no, nu)</option>
-                                <option value="ng">NG Syllables (nga, nge, ngi, ngo, ngu)</option>
-                                <option value="p">P Syllables (pa, pe, pi, po, pu)</option>
-                                <option value="r">R Syllables (ra, re, ri, ro, ru)</option>
-                                <option value="s">S Syllables (sa, se, si, so, su)</option>
-                                <option value="t">T Syllables (ta, te, ti, to, tu)</option>
-                                <option value="w">W Syllables (wa, we, wi, wo, wu)</option>
-                                <option value="y">Y Syllables (ya, ye, yi, yo, yu)</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Word Category Info -->
-                        <div class="word-category mb-3" id="wordCategory" style="display: none;">
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>Word Mode:</strong> Predicts common Filipino words
-                            </div>
-                        </div>
-                        
-                        <!-- Recording Settings -->
-                        <div class="recording-settings">
-                            <h6 class="text-light mb-2">Lip Reading Settings:</h6>
-                            <div class="settings-info">
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-light">Frames to collect:</span>
-                                    <span class="text-light" id="frameCount">22</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-light">Estimated time:</span>
-                                    <span class="text-light" id="estimatedTime">~30 seconds</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Prediction Mode -->
+<div class="card bg-dark-card border-0 shadow-lg mb-4">
+    <div class="card-body">
+        <h5 class="card-title text-light mb-3">
+            <i class="fas fa-cog gradient-text me-2"></i>
+            Prediction Mode
+        </h5>
+
+        <!-- Only WORD mode -->
+        <div class="mode-selection mb-3">
+            <div class="btn-group w-100" role="group">
+                <input type="radio" class="btn-check" name="predictionMode" id="wordMode" value="word" checked>
+                <label class="btn btn-outline-primary active" for="wordMode">
+                    <i class="fas fa-comment me-2"></i>Word Mode
+                </label>
+            </div>
+        </div>
+
+        <!-- Remove syllable category dropdown completely -->
+        <!-- Remove word category info (optional) -->
+        <div class="word-category mb-3">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Predicts Filipino words
+            </div>
+        </div>
+
+        <!-- Recording Settings -->
+        <div class="recording-settings">
+            <h6 class="text-light mb-2">Lip Reading Settings:</h6>
+            <div class="settings-info">
+                <div class="d-flex justify-content-between">
+                    <span class="text-light">Frames to collect:</span>
+                    <span class="text-light" id="frameCount">44</span>
                 </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-light">Estimated time:</span>
+                    <span class="text-light" id="estimatedTime">~2 minutes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
                 <!-- Tips Container -->
                 <div class="tips-container">
