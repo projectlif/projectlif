@@ -468,12 +468,28 @@ class CameraManager {
             <div class="predicted-syllable text-light">${data.predicted_syllable.toUpperCase()}</div>
             <div class="prediction-accuracy text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
           </div>
-          <div class="prediction-category text-light">Category: ${this.currentCategory.toUpperCase()}</div>
-        `
-        resultsContainer.appendChild(resultElement)
-      }
+        </div>
+      `
+      resultsContainer.appendChild(resultElement)
+    }
+
+  // SYLLABLE MODE (unchanged)
+  } else {
+    if (data.predicted_syllable) {
+      const resultElement = document.createElement("div")
+      resultElement.className = "prediction-item primary-result"
+      resultElement.innerHTML = `
+        <div class="prediction-main">
+          <div class="predicted-syllable text-light">${data.predicted_syllable.toUpperCase()}</div>
+          <div class="prediction-accuracy text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
+        </div>
+        <div class="prediction-category text-light">Category: ${this.currentCategory.toUpperCase()}</div>
+      `
+      resultsContainer.appendChild(resultElement)
     }
   }
+}
+
 
   updateRecordingControls(isRecording) {
     const startBtn = document.getElementById("startRecording")
