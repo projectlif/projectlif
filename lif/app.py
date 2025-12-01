@@ -1383,7 +1383,7 @@ def predict_words():
 
     if face_count < MIN_FACE_FRAMES:
         return jsonify({
-            "error": f"Face not clearly detected. Only {face_count}/{len(frames)} frames contained a face. Please stay centered and try again."
+            "error": f"Face not clearly detected. Please stay centered and try again."
         }), 400
 
         
