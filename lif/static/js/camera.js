@@ -311,6 +311,8 @@ class CameraManager {
     const indicator = document.getElementById("recordingIndicator")
     if (indicator) indicator.style.display = "flex"
 
+    // Pause landmark polling during recording to reduce CPU load
+    this.stopLandmarksLoop()
     this.updateCameraStatus("Lip Reading in progress...")
 
     this.frameInterval = setInterval(() => { this.captureFrame() }, 33)
@@ -329,7 +331,7 @@ class CameraManager {
         }
       },
       "image/jpeg",
-      0.8
+      0.6
     )
   }
 
@@ -375,6 +377,8 @@ class CameraManager {
       }
       const stopBtn = document.getElementById("stopRecording")
       if (stopBtn) stopBtn.style.display = "none"
+      // Resume landmark polling when user cancels
+      this.startLandmarksLoop()
       return
     }
 
@@ -388,6 +392,8 @@ class CameraManager {
     } else {
       window.LipLearn?.showNotification?.("No frames captured. Please try again.", "warning")
       this.updateCameraStatus("Camera ready - Position your face in frame")
+      // Resume landmarks loop
+      this.startLandmarksLoop()
     }
   }
 
@@ -413,33 +419,54 @@ class CameraManager {
         this.updateSessionStats(data)
         this.updateCameraStatus("Prediction complete - Ready for next recording")
       } else {
-        throw new Error(`Server error: ${response.status}`)
+        // Try to extract server error message
+        let message = `Server error: ${response.status}`
+        try {
+          const err = await response.json()
+          if (err && (err.error || err.message)) message = err.error || err.message
+        } catch {}
+        window.LipLearn?.showNotification?.(message, "warning")
+        this.updateCameraStatus(message)
+        return
       }
     } catch (error) {
       window.LipLearn?.showNotification?.("Error processing recording. Please try again.", "danger")
       this.updateCameraStatus("Error occurred - Ready to try again")
     } finally {
       if (startBtn) startBtn.disabled = false
+      // Always resume landmarks loop after processing
+      this.startLandmarksLoop()
     }
   }
 
   displayPredictionResults(data) {
-  const resultsContainer = document.getElementById("predictionResults")
-  if (!resultsContainer) return
-  resultsContainer.innerHTML = ""
+    const resultsContainer = document.getElementById("predictionResults")
+    if (!resultsContainer) return
+    resultsContainer.innerHTML = ""
 
-  // WORD MODE → show only top 1
-  if (this.currentMode === "word") {
-    if (data.predictions && data.predictions.length > 0) {
-      const top1 = data.predictions[0]
-
-      const resultElement = document.createElement("div")
-      resultElement.className = "prediction-item primary-result"
-      resultElement.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <span class="prediction-word text-light">${top1.word.toUpperCase()}&nbsp;</span>
-            <span class="prediction-confidence text-light">${Math.round(top1.confidence * 100)}%</span>
+    if (this.currentMode === "word") {
+      if (data.predictions && data.predictions.length > 0) {
+        const prediction = data.predictions[0]
+        const resultElement = document.createElement("div")
+        resultElement.className = "prediction-item primary-result"
+        resultElement.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="prediction-word text-light">${prediction.word.toUpperCase()}&nbsp;</span>
+              <span class="prediction-confidence text-light">${Math.round(prediction.confidence * 100)}%</span>
+            </div>
+          </div>
+        `
+        resultsContainer.appendChild(resultElement)
+      }
+    } else {
+      if (data.predicted_syllable) {
+        const resultElement = document.createElement("div")
+        resultElement.className = "prediction-item primary-result"
+        resultElement.innerHTML = `
+          <div class="prediction-main">
+            <div class="predicted-syllable text-light">${data.predicted_syllable.toUpperCase()}</div>
+            <div class="prediction-accuracy text-light">${Math.round(data.accuracy * 100)}% Accuracy</div>
           </div>
         </div>
       `
