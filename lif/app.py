@@ -1393,7 +1393,7 @@ def predict_words():
     # Require exactly 44 processed mouth frames (match predict.py)
     if len(processed_frames) < 44 or face_count < 44:
       return jsonify({
-        'error': f'Insufficient mouth frames: {len(processed_frames)}/44. Please retry, keep your face centered, and ensure good lighting.'
+        'error': f'Please retry, keep your face centered, and ensure good lighting.'
       }), 400
 
     # Use the most recent 44 frames (predict.py uses a deque with maxlen=44)
